@@ -7,38 +7,87 @@ const Categories = () => {
   const categories = [
     {
       id: 1,
-      name: "Pure Veg Special",
-      count: 45,
-      description: "100% vegetarian dishes",
-      image: "/images/dishes/popular/Pure Veg Special.jpg",
+      name: "Vegetarian (Veg)",
+      count: 52,
+      description: "Pure vegetarian dishes",
+      image: "/images/dishes/categories/Vegetarian (Veg).jpg",
     },
     {
       id: 2,
-      name: "North Indian",
-      count: 38,
-      description: "Rich and creamy curries",
-      image: "/images/dishes/popular/North Indian.jpg",
+      name: "Non-Vegetarian (Non-Veg)",
+      count: 64,
+      description: "Chicken, mutton & seafood",
+      image: "/images/dishes/categories/Non-Vegetarian (Non-Veg).jpg",
     },
     {
       id: 3,
       name: "South Indian",
-      count: 32,
-      description: "Traditional dosas & idlis",
-      image: "/images/dishes/popular/South Indian.jpg",
+      count: 40,
+      description: "Dosas, idlis & traditional meals",
+      image: "/images/dishes/categories/south-indian-category.jpg",
     },
     {
       id: 4,
-      name: "Chinese",
-      count: 28,
-      description: "Indo-Chinese fusion",
-      image: "/images/dishes/popular/Chinese.jpg",
+      name: "Starters",
+      count: 35,
+      description: "Veg & non-veg starters",
+      image: "/images/dishes/categories/Veg Starters.jpg",
     },
     {
       id: 5,
-      name: "Italian",
+      name: "Main Course",
+      count: 48,
+      description: "Hearty meals & curries",
+      image: "/images/dishes/categories/Non-Veg Main Course.jpg",
+    },
+    {
+      id: 6,
+      name: "Desserts",
+      count: 22,
+      description: "Sweet treats & desserts",
+      image: "/images/dishes/categories/desserts-category.jpg",
+    },
+    {
+      id: 7,
+      name: "Beverages",
       count: 18,
-      description: "Pasta & pizza varieties",
-      image: "/images/dishes/popular/Italian.jpg",
+      description: "Juices, shakes & drinks",
+      image: "/images/dishes/categories/beverages.jpg", // You need to add this image to folder
+    },
+    {
+      id: 8,
+      name: "Veg Starters",
+      count: 20,
+      description: "Vegetarian starter dishes",
+      image: "/images/dishes/categories/Veg Starters.jpg",
+    },
+    {
+      id: 9,
+      name: "Non-Veg Main Course",
+      count: 30,
+      description: "Non-veg curries & meals",
+      image: "/images/dishes/categories/Non-Veg Main Course.jpg",
+    },
+    {
+      id: 10,
+      name: "North Indian",
+      count: 45,
+      description: "Traditional North Indian meals",
+      image: "/images/dishes/categories/north-indian-category.jpg",
+    },
+    {
+      id: 11,
+      name: "Italian",
+      count: 28,
+      description: "Pizzas, pasta & more",
+      image: "/images/dishes/categories/italian-category.jpg", 
+    },
+    {
+      id: 12,
+      name: "Chinese",
+      count: 32,
+      description: "Noodles, Manchurian & Chinese delights",
+      image: "/images/dishes/categories/chinese-category.jpg", 
     },
   ];
 
@@ -56,25 +105,31 @@ const Categories = () => {
               key={category.id}
               className="category-card"
             >
-              <div className="category-image-container">
-                {category.image && (
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="category-image-real"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.style.display = "none";
-                      e.target.parentElement.innerHTML = `<div class="image-fallback">
-                        <span class="fallback-text">${category.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}</span>
-                      </div>`;
-                    }}
-                  />
-                )}
-              </div>
+              <div className="category-image">
+  <div className="category-image-container">
+    <img
+      src={category.image}
+      alt={category.name}
+      className="category-image-real"
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.style.display = "none";
+        e.target.parentElement.innerHTML = `
+          <div class="image-fallback" style="background: linear-gradient(135deg, #8B4513, #D2691E)">
+            <span class="fallback-text">
+              ${category.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+            </span>
+          </div>
+        `;
+      }}
+    />
+    <div className="image-overlay"></div>
+  </div>
+</div>
+
 
               <div className="card-content">
                 <div className="category-title">

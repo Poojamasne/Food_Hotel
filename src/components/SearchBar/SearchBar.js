@@ -39,7 +39,7 @@ const SearchBar = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-            placeholder="Search for dishes, cuisines, or ingredients..."
+            placeholder="Search for dishes, cuisines"
             className="search-input"
           />
           {searchTerm && (

@@ -232,10 +232,6 @@
 }
 
 /* Dropdown Menu */
-.dropdown:hover .dropdown-menu {
-  display: block;
-}
-
 .dropdown-menu {
   display: none;
   position: absolute;
@@ -268,6 +264,43 @@
   font-size: 0.8rem;
 }
 
+/* Desktop: Hover-based dropdown */
+@media (min-width: 993px) {
+  .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+  
+  /* Ensure proper dropdown positioning on desktop */
+  .dropdown-menu {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+/* Mobile and Tablet: Click-based dropdown */
+@media (max-width: 992px) {
+  /* Reset hover effect for mobile */
+  .dropdown:hover .dropdown-menu {
+    display: none;
+  }
+  
+  /* Show dropdown when open class is added */
+  .dropdown.open .dropdown-menu {
+    display: block;
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .dropdown-menu {
+    position: static;
+    display: none;
+  }
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .main-header .container {
@@ -284,9 +317,34 @@
     display: none;
   }
   
+  /* Hamburger Button */
+  .mobile-menu-btn {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  /* Mobile Navigation */
+  .main-nav {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  
+  .main-nav.open {
+    max-height: 1000px;
+  }
+  
   .nav-menu {
-    overflow-x: auto;
-    white-space: nowrap;
+    flex-direction: column;
+    white-space: normal;
+  }
+  
+  .nav-menu li a {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -308,3 +366,11 @@
     display: none;
   }
 }
+
+@media (max-width: 768px) {
+  .top-info-bar {
+    display: none; 
+  }
+}
+
+

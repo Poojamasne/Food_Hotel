@@ -18,10 +18,6 @@ const PopularDishes = () => {
       image: "/images/dishes/popular/panner_butter_masala.jpg",
       color: "#FF9800",
       gradient: "linear-gradient(135deg, #FF9800, #FF5722)",
-      badges: [
-  <><FaStar /> Bestseller</>,
-  <><FaFire /> Chef Special</>
-],
       isVeg: true,
       spicy: "Mild"
     },
@@ -38,7 +34,6 @@ const PopularDishes = () => {
       image: "/images/dishes/popular/Masala_Dosa.jpg",
       color: "#9C27B0",
       gradient: "linear-gradient(135deg, #9C27B0, #673AB7)",
-      badges: ["?? Bestseller"],
       isVeg: true,
       spicy: "Medium"
     },
@@ -54,7 +49,6 @@ const PopularDishes = () => {
       image: "/images/dishes/popular/hakka-noodles.jpg",
       color: "#2196F3",
       gradient: "linear-gradient(135deg, #2196F3, #03A9F4)",
-      badges: ["??? Spicy"],
       isVeg: true,
       spicy: "Hot"
     },
@@ -71,7 +65,6 @@ const PopularDishes = () => {
       image: "/images/dishes/popular/margherita-pizza.jpg",
       color: "#E91E63",
       gradient: "linear-gradient(135deg, #E91E63, #C2185B)",
-      badges: ["?? New"],
       isVeg: true,
       spicy: "Mild"
     },
@@ -87,7 +80,6 @@ const PopularDishes = () => {
       image: "/images/dishes/popular/chole-bhature.jpg",
       color: "#795548",
       gradient: "linear-gradient(135deg, #795548, #5D4037)",
-      badges: ["? Popular"],
       isVeg: true,
       spicy: "Medium"
     },
@@ -103,7 +95,6 @@ const PopularDishes = () => {
       image: "/images/dishes/popular/Gulab Jamun.jpg",
       color: "#FF4081",
       gradient: "linear-gradient(135deg, #FF4081, #F50057)",
-      badges: ["?? Sweet"],
       isVeg: true,
       spicy: "None"
     },
@@ -147,7 +138,7 @@ const PopularDishes = () => {
           {popularDishes.map((dish) => (
             <div key={dish.id} className="dish-card">
               {/* Dish Badges */}
-              <div className="dish-badges">
+              {/* <div className="dish-badges">
                 {dish.badges.map((badge, index) => (
                   <span key={index} className="dish-badge">
                     {badge}
@@ -161,7 +152,7 @@ const PopularDishes = () => {
                 <span className="spicy-badge">
                   {renderSpicyLevel(dish.spicy)}
                 </span>
-              </div>
+              </div> */}
 
               {/* Dish Image */}
               <div className="dish-image">
@@ -181,9 +172,6 @@ const PopularDishes = () => {
                     }}
                   />
                   <div className="image-overlay"></div>
-                  <div className="category-badge">
-                    {dish.category}
-                  </div>
                 </div>
               </div>
 
