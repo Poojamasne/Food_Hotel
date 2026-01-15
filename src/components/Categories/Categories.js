@@ -47,7 +47,6 @@ const Categories = () => {
       <div className="container">
         <div className="section-header">
           <h2>Explore Our Food Categories</h2>
-          <p>Discover delicious dishes from various cuisines</p>
         </div>
 
         <div className="categories-grid">

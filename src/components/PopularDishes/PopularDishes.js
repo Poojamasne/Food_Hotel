@@ -134,7 +134,7 @@ const PopularDishes = () => {
               <FaFire /> Most Popular
             </div>
             <h2>Recommended Dishes</h2>
-            <p>Top picks loved by our customers</p>
+            
           </div>
           <div className="header-right">
             <div className="rating-badge">
