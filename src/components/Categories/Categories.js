@@ -80,14 +80,14 @@ const Categories = () => {
       name: "Italian",
       count: 28,
       description: "Pizzas, pasta & more",
-      image: "/images/dishes/categories/italian-category.jpg", 
+      image: "/images/dishes/categories/italian-category.jpg",
     },
     {
       id: 12,
       name: "Chinese",
       count: 32,
       description: "Noodles, Manchurian & Chinese delights",
-      image: "/images/dishes/categories/chinese-category.jpg", 
+      image: "/images/dishes/categories/chinese-category.jpg",
     },
   ];
 
@@ -101,20 +101,22 @@ const Categories = () => {
         <div className="categories-grid">
           {categories.map((category) => (
             <Link
-              to={`/category/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
+              to={`/category/${category.name
+                .toLowerCase()
+                .replace(/\s+/g, "-")}`}
               key={category.id}
               className="category-card"
             >
               <div className="category-image">
-  <div className="category-image-container">
-    <img
-      src={category.image}
-      alt={category.name}
-      className="category-image-real"
-      onError={(e) => {
-        e.target.onerror = null;
-        e.target.style.display = "none";
-        e.target.parentElement.innerHTML = `
+                <div className="category-image-container">
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="category-image-real"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.style.display = "none";
+                      e.target.parentElement.innerHTML = `
           <div class="image-fallback" style="background: linear-gradient(135deg, #8B4513, #D2691E)">
             <span class="fallback-text">
               ${category.name
@@ -124,12 +126,11 @@ const Categories = () => {
             </span>
           </div>
         `;
-      }}
-    />
-    <div className="image-overlay"></div>
-  </div>
-</div>
-
+                    }}
+                  />
+                  <div className="image-overlay"></div>
+                </div>
+              </div>
 
               <div className="card-content">
                 <div className="category-title">

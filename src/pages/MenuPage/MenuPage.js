@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import "./MenuPage.css";
 import { categories } from "../../data/categories";
 import { menuItems } from "../../data/menuData";
-import { FaStar, FaShoppingCart, FaFire, FaLeaf, FaDrumstickBite } from "react-icons/fa";
+import { FaMinus, FaTrash } from "react-icons/fa";
+import {
+  FaStar,
+  FaShoppingCart,
+  FaFire,
+  FaLeaf,
+  FaDrumstickBite,
+} from "react-icons/fa";
 
 const MenuPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -11,24 +18,47 @@ const MenuPage = () => {
 
   // Filter items based on category and search
   const filteredItems = menuItems.filter((item) => {
-    const categoryMatch = 
-      selectedCategory === "All" || 
-      item.category === selectedCategory.toLowerCase() || 
-      item.type === selectedCategory.toLowerCase().replace(" ", "-");
-    
-    const searchMatch = 
+    const selected = selectedCategory.toLowerCase().replace(/\s+/g, "-");
+
+const categoryMatch =
+  selectedCategory === "All" ||
+  item.category === selected ||
+  item.type === selected ||
+  item.category?.includes(selected) ||
+  item.type?.includes(selected);
+
+
+    const searchMatch =
       searchTerm === "" ||
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     return categoryMatch && searchMatch;
   });
 
   const addToCart = (itemId) => {
-    setCartItems(prev => ({
+    setCartItems((prev) => ({
       ...prev,
-      [itemId]: (prev[itemId] || 0) + 1
+      [itemId]: (prev[itemId] || 0) + 1,
     }));
+  };
+
+  const removeFromCart = (itemId) => {
+    setCartItems((prev) => {
+      if (!prev[itemId]) return prev;
+
+      const updatedCount = prev[itemId] - 1;
+
+      if (updatedCount <= 0) {
+        const { [itemId]: _, ...rest } = prev;
+        return rest;
+      }
+
+      return {
+        ...prev,
+        [itemId]: updatedCount,
+      };
+    });
   };
 
   const cartCount = Object.values(cartItems).reduce((a, b) => a + b, 0);
@@ -39,8 +69,10 @@ const MenuPage = () => {
       <div className="menu-header">
         <div className="container">
           <h1>Our Delicious Menu</h1>
-          <p className="subtitle">Savor authentic flavors crafted with passion</p>
-          
+          <p className="subtitle">
+            Savor authentic flavors crafted with passion
+          </p>
+
           {/* Search Bar */}
           <div className="menu-search">
             <input
@@ -63,25 +95,27 @@ const MenuPage = () => {
         <div className="container">
           <div className="section-header">
             <h2>Food Categories</h2>
-            <p>Explore our diverse culinary selections</p>
           </div>
-          
+
           <div className="category-filters">
             <button
-              className={`category-btn ${selectedCategory === "All" ? "active" : ""}`}
+              className={`category-btn ${
+                selectedCategory === "All" ? "active" : ""
+              }`}
               onClick={() => setSelectedCategory("All")}
             >
               <span className="category-icon">🍽️</span>
               All Items
             </button>
-            
+
             {categories.map((category) => (
               <button
                 key={category.id}
-                className={`category-btn ${selectedCategory === category.name ? "active" : ""}`}
+                className={`category-btn ${
+                  selectedCategory === category.name ? "active" : ""
+                }`}
                 onClick={() => setSelectedCategory(category.name)}
               >
-                <span className="category-icon">{category.icon}</span>
                 {category.name}
               </button>
             ))}
@@ -94,13 +128,15 @@ const MenuPage = () => {
         <div className="container">
           <div className="section-header">
             <h2>
-              {selectedCategory === "All" 
-                ? "All Menu Items" 
+              {selectedCategory === "All"
+                ? "All Menu Items"
                 : selectedCategory + " Specials"}
-              <span className="items-count">({filteredItems.length} items)</span>
+              <span className="items-count">
+                ({filteredItems.length} items)
+              </span>
             </h2>
           </div>
-          
+
           {filteredItems.length === 0 ? (
             <div className="no-results">
               <h3>No items found</h3>
@@ -128,22 +164,21 @@ const MenuPage = () => {
                       </span>
                     )}
                   </div>
-                  
+
                   {/* Image Section */}
                   <div className="menu-card-img">
                     {item.image ? (
                       <img src={item.image} alt={item.name} loading="lazy" />
                     ) : (
                       <div className="image-placeholder">
-                        {item.category === "veg" ? "🌱" : 
-                         item.category === "non-veg" ? "🍗" :
-                         item.type === "chinese" ? "🥢" :
-                         item.type === "south-indian" ? "🍛" : "🍽️"}
-                        <span>{item.category || item.type}</span>
-                      </div>
+  <span>
+    {(item.category || item.type)?.replace("-", " ").toUpperCase()}
+  </span>
+</div>
+
                     )}
                   </div>
-                  
+
                   {/* Content Section */}
                   <div className="menu-card-content">
                     <div className="card-header">
@@ -154,35 +189,63 @@ const MenuPage = () => {
                         </span>
                       )}
                     </div>
-                    
+
                     <p className="description">{item.description}</p>
-                    
+
                     <div className="item-tags">
-                      {item.spicy && <span className="tag spicy">🌶️ Spicy</span>}
-                      {item.healthy && <span className="tag healthy">💚 Healthy</span>}
-                      {item.time && <span className="tag time">⏱️ {item.time} min</span>}
+                      {item.spicy && (
+                        <span className="tag spicy">🌶️ Spicy</span>
+                      )}
+                      {item.healthy && (
+                        <span className="tag healthy">💚 Healthy</span>
+                      )}
+                      {item.time && (
+                        <span className="tag time">⏱️ {item.time} min</span>
+                      )}
                     </div>
-                    
+
                     <div className="menu-card-footer">
                       <div className="price-section">
                         <span className="price">₹{item.price}</span>
                         {item.originalPrice && (
-                          <span className="original-price">₹{item.originalPrice}</span>
+                          <span className="original-price">
+                            ₹{item.originalPrice}
+                          </span>
                         )}
                       </div>
-                      
-                      <button 
-                        className={`add-to-cart ${cartItems[item.id] ? 'added' : ''}`}
-                        onClick={() => addToCart(item.id)}
-                      >
+
+                      <div className="cart-actions">
                         {cartItems[item.id] ? (
                           <>
-                            <FaShoppingCart /> Added ({cartItems[item.id]})
+                            <button
+                              className="remove-btn"
+                              onClick={() => removeFromCart(item.id)}
+                              title="Remove"
+                            >
+                              <FaMinus />
+                            </button>
+
+                            <span className="item-count">
+                              {cartItems[item.id]}
+                            </span>
+
+                            <button
+                              className="add-btn"
+                              onClick={() => addToCart(item.id)}
+                              title="Add"
+                            >
+                              <FaShoppingCart />
+                            </button>
                           </>
                         ) : (
-                          "Add to Cart"
+                          <button
+                            className="add-to-cart"
+                            onClick={() => addToCart(item.id)}
+                          >
+                            Add to Cart
+                          </button>
                         )}
-                      </button>
+                      </div>
                     </div>
                   </div>
                 </div>
