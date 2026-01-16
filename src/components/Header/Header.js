@@ -68,12 +68,10 @@ const Header = () => {
             <div className="info-item"><FaMapMarkerAlt /> Main Road, City Center</div>
             <div className="info-item"><FaClock /> 8:00 AM - 11:00 PM</div>
           </div>
-          <div className="social-links">
-            <span>Follow us:</span>
-            <a href="#" className="social-icon">FB</a>
-            <a href="#" className="social-icon">IG</a>
-            <a href="#" className="social-icon">TW</a>
-          </div>
+          <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">FB</a>
+<a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">IG</a>
+<a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon">TW</a>
+
         </div>
       </div>
 

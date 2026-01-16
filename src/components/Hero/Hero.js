@@ -41,11 +41,12 @@ const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  const interval = setInterval(() => {
+    setCurrentSlide((prev) => (prev + 1) % banners.length);
+  }, 5000);
+  return () => clearInterval(interval);
+}, [banners.length]);
+
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % banners.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);

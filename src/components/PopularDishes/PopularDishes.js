@@ -1,7 +1,8 @@
 import React from "react";
 import "./PopularDishes.css";
-import { FaArrowRight } from "react-icons/fa";
-import { FaStar, FaFire, FaLeaf, FaClock, FaPlus, FaRupeeSign } from "react-icons/fa";
+import { 
+  FaArrowRight, FaStar, FaFire, FaLeaf, FaClock, FaPlus, FaRupeeSign 
+} from "react-icons/fa";
 
 const PopularDishes = () => {
   const popularDishes = [
@@ -16,9 +17,7 @@ const PopularDishes = () => {
       description: "Cottage cheese in rich creamy tomato gravy with butter",
       prepTime: "20 min",
       image: "/images/dishes/popular/panner_butter_masala.jpg",
-      color: "#FF9800",
       gradient: "linear-gradient(135deg, #FF9800, #FF5722)",
-      isVeg: true,
       spicy: "Mild"
     },
     { 
@@ -32,9 +31,7 @@ const PopularDishes = () => {
       description: "Crispy rice crepe stuffed with spiced potato filling",
       prepTime: "15 min",
       image: "/images/dishes/popular/Masala_Dosa.jpg",
-      color: "#9C27B0",
       gradient: "linear-gradient(135deg, #9C27B0, #673AB7)",
-      isVeg: true,
       spicy: "Medium"
     },
     { 
@@ -47,9 +44,7 @@ const PopularDishes = () => {
       description: "Stir fried noodles with fresh vegetables in Schezwan sauce",
       prepTime: "18 min",
       image: "/images/dishes/popular/hakka-noodles.jpg",
-      color: "#2196F3",
       gradient: "linear-gradient(135deg, #2196F3, #03A9F4)",
-      isVeg: true,
       spicy: "Hot"
     },
     { 
@@ -63,9 +58,7 @@ const PopularDishes = () => {
       description: "Classic pizza with mozzarella cheese and fresh basil",
       prepTime: "25 min",
       image: "/images/dishes/popular/margherita-pizza.jpg",
-      color: "#E91E63",
       gradient: "linear-gradient(135deg, #E91E63, #C2185B)",
-      isVeg: true,
       spicy: "Mild"
     },
     { 
@@ -78,9 +71,7 @@ const PopularDishes = () => {
       description: "Spicy chickpea curry served with fluffy fried bread",
       prepTime: "22 min",
       image: "/images/dishes/popular/chole-bhature.jpg",
-      color: "#795548",
       gradient: "linear-gradient(135deg, #795548, #5D4037)",
-      isVeg: true,
       spicy: "Medium"
     },
     { 
@@ -93,25 +84,24 @@ const PopularDishes = () => {
       description: "Deep fried milk balls soaked in sugar syrup",
       prepTime: "10 min",
       image: "/images/dishes/popular/Gulab Jamun.jpg",
-      color: "#FF4081",
       gradient: "linear-gradient(135deg, #FF4081, #F50057)",
-      isVeg: true,
       spicy: "None"
     },
   ];
 
+  // Function to render spicy badge
   const renderSpicyLevel = (level) => {
     const levels = {
-  Mild: { icon: <FaLeaf />, color: "#4CAF50" },
-  Medium: { icon: <FaFire />, color: "#FF9800" },
-  Hot: { icon: <FaFire />, color: "#F44336" },
-  None: { icon: <FaLeaf />, color: "#9C27B0" }
-};
-    
+      Mild: { icon: <FaLeaf />, color: "#4CAF50" },
+      Medium: { icon: <FaFire />, color: "#FF9800" },
+      Hot: { icon: <FaFire />, color: "#F44336" },
+      None: { icon: <FaLeaf />, color: "#9C27B0" }
+    };
+
     const config = levels[level] || levels["Mild"];
     return (
       <span className="spicy-level" style={{ color: config.color }}>
-        {config.emoji} {level}
+        {config.icon} {level}
       </span>
     );
   };
@@ -125,7 +115,6 @@ const PopularDishes = () => {
               <FaFire /> Most Popular
             </div>
             <h2>Recommended Dishes</h2>
-            
           </div>
           <div className="header-right">
             <div className="rating-badge">
@@ -137,23 +126,7 @@ const PopularDishes = () => {
         <div className="dishes-grid">
           {popularDishes.map((dish) => (
             <div key={dish.id} className="dish-card">
-              {/* Dish Badges */}
-              {/* <div className="dish-badges">
-                {dish.badges.map((badge, index) => (
-                  <span key={index} className="dish-badge">
-                    {badge}
-                  </span>
-                ))}
-                {dish.isVeg && (
-                  <span className="veg-badge">
-                    <FaLeaf /> Veg
-                  </span>
-                )}
-                <span className="spicy-badge">
-                  {renderSpicyLevel(dish.spicy)}
-                </span>
-              </div> */}
-
+              
               {/* Dish Image */}
               <div className="dish-image">
                 <div className="dish-image-container">
@@ -180,6 +153,7 @@ const PopularDishes = () => {
                 <div className="dish-header">
                   <h3>{dish.name}</h3>
                   <span className="dish-category">{dish.category}</span>
+                  {renderSpicyLevel(dish.spicy)}
                 </div>
                 
                 <p className="dish-description">{dish.description}</p>
@@ -254,10 +228,7 @@ const PopularDishes = () => {
         <div className="view-all-dishes">
           <button className="view-all-btn">
             <span className="btn-text">View All Dishes</span>
-            <span className="arrow-icon">
-  <FaArrowRight />
-</span>
-
+            <span className="arrow-icon"><FaArrowRight /></span>
           </button>
         </div>
       </div>
