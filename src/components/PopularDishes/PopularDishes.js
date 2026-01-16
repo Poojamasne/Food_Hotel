@@ -212,12 +212,10 @@ const PopularDishes = () => {
                     )}
                   </div>
                   <button className="add-to-cart-btn">
-                    <div className="btn-content">
-                      <FaPlus className="plus-icon" />
-                      <span className="btn-text">Add</span>
-                      <span className="btn-hover">Add to Cart</span>
-                    </div>
-                  </button>
+  <FaPlus />
+  <span>Add to Cart</span>
+</button>
+
                 </div>
               </div>
             </div>

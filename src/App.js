@@ -9,6 +9,13 @@ import AboutPage from "./pages/AboutPage/AboutPage";
 import Contact from "./pages/Contact/Contact";
 import Cart from "./pages/Cart/Cart";
 import OffersPage from "./pages/OffersPage/OffersPage";
+import Vegetarian from "./pages/CategoryPages/Vegetarian/Vegetarian";
+import NonVegetarian from "./pages/CategoryPages/NonVegetarian/NonVegetarian";
+import SouthIndian from "./pages/CategoryPages/SouthIndian/SouthIndian";
+import Starters from "./pages/CategoryPages/Starters/Starters";
+import MainCourse from "./pages/CategoryPages/MainCourse/MainCourse";
+import Desserts from "./pages/CategoryPages/Desserts/Desserts";
+import Beverages from "./pages/CategoryPages/Beverages/Beverages";
 
 function App() {
   return (
@@ -23,6 +30,25 @@ function App() {
             <Route path="/offers" element={<OffersPage />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/category/veg" element={<Vegetarian />} />
+            <Route path="/category/non-veg" element={<NonVegetarian />} />
+            <Route path="/category/south-indian" element={<SouthIndian />} />
+            <Route path="/category/starters" element={<Starters />} />
+            <Route path="/category/main-course" element={<MainCourse />} />
+            <Route path="/category/desserts" element={<Desserts />} />
+            <Route path="/category/beverages" element={<Beverages />} />
+            <Route
+              path="/category/veg-starters"
+              element={<Starters category="veg" />}
+            />
+            <Route
+              path="/category/non-veg-main-course"
+              element={<MainCourse category="non-veg" />}
+            />
+            <Route
+              path="/category/south-indian-meals"
+              element={<SouthIndian meals={true} />}
+            />
           </Routes>
         </main>
         <Footer />
