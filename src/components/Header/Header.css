@@ -245,12 +245,11 @@
   border-bottom-color: #FF9800;
 }
 
-/* Dropdown Styles */
 .dropdown-toggle {
   color: white;
   font-weight: 500;
   font-size: 1rem;
-  padding: 15px 20px;
+  padding: 19px 20px;
   display: flex;
   align-items: center;
   gap: 5px;
