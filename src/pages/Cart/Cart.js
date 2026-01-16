@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Cart.css";
 import { useCart } from "../../context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -36,41 +36,41 @@ const Cart = () => {
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [deliveryType, setDeliveryType] = useState("home");
-  const [suggestedItems, setSuggestedItems] = useState([]);
 
-  // Suggested items you might like
-  const suggestedItemsData = [
-    {
-      id: 101,
-      name: "Masala Dosa",
-      price: 180,
-      description: "Crispy rice crepe with potato filling",
-      image: "/images/dishes/popular/Masala_Dosa.jpg",
-      category: "South Indian",
-      type: "veg",
-      prepTime: "15 min"
-    },
-    {
-      id: 102,
-      name: "Veg Biryani",
-      price: 249,
-      description: "Aromatic basmati rice with vegetables",
-      image: "/images/dishes/popular/veg-biryani.jpg",
-      category: "Main Course",
-      type: "veg",
-      prepTime: "25 min"
-    },
-    {
-      id: 103,
-      name: "Gulab Jamun",
-      price: 120,
-      description: "Sweet milk balls in sugar syrup",
-      image: "/images/dishes/popular/Gulab Jamun.jpg",
-      category: "Desserts",
-      type: "veg",
-      prepTime: "10 min"
-    }
-  ];
+const suggestedItemsData = [
+  {
+    id: 101,
+    name: "Masala Dosa",
+    price: 180,
+    description: "Crispy rice crepe with potato filling",
+    image: "/images/dishes/popular/Masala_Dosa.jpg",
+    category: "South Indian",
+    type: "veg",
+    prepTime: "15 min"
+  },
+  {
+    id: 102,
+    name: "Veg Biryani",
+    price: 249,
+    description: "Aromatic basmati rice with vegetables",
+    image: "/images/dishes/popular/veg-biryani.jpg",
+    category: "Main Course",
+    type: "veg",
+    prepTime: "25 min"
+  },
+  {
+    id: 103,
+    name: "Gulab Jamun",
+    price: 120,
+    description: "Sweet milk balls in sugar syrup",
+    image: "/images/dishes/popular/Gulab Jamun.jpg",
+    category: "Desserts",
+    type: "veg",
+    prepTime: "10 min"
+  }
+];
+
+const suggestedItems = suggestedItemsData;
 
   // Promo codes
   const promoCodes = [
@@ -96,10 +96,6 @@ const Cart = () => {
   
   const total = subtotal - discount - promoDiscount + deliveryCharge + tax;
 
-  // Load suggested items
-  useEffect(() => {
-    setSuggestedItems(suggestedItemsData);
-  }, []);
 
   // Handle quantity changes
   const handleQuantityChange = (id, change) => {
