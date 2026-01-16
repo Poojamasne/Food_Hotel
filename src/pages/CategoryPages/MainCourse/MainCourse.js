@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import CategoryLayout from "../CategoryLayout";
 import CategoryItemCard from "../components/CategoryItemCard";
-import { FaUtensils, FaFilter, FaStar, FaFire } from "react-icons/fa";
+import { FaUtensils, FaStar} from "react-icons/fa";
 import { menuItems } from "../../../data/menuData";
 import "../components/CategoryControls.css";
 
 const MainCourse = ({ category = "all" }) => {
-  const [sortBy, setSortBy] = useState("popular");
-  const [viewMode, setViewMode] = useState("grid");
-  const [selectedType, setSelectedType] = useState("all");
+  const [sortBy] = useState("popular");
+const [viewMode] = useState("grid");
+const [selectedType, setSelectedType] = useState("all");
 
   // Filter main course items from menuData
   const mainCourseItems = menuItems.filter(item => {

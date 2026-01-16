@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import CategoryLayout from "../CategoryLayout";
 import CategoryItemCard from "../components/CategoryItemCard";
-import { FaStar, FaFilter, FaHeart } from "react-icons/fa";
+import { FaStar, FaHeart } from "react-icons/fa";
 import { menuItems } from "../../../data/menuData";
 import "../components/CategoryControls.css";
 
 const Desserts = () => {
-  const [sortBy, setSortBy] = useState("popular");
-  const [viewMode, setViewMode] = useState("grid");
+  const [sortBy] = useState("popular");
+  const [viewMode] = useState("grid");
 
-  // Filter dessert items from menuData
   const dessertItems = menuItems.filter(item => item.type === "desserts");
 
-  // Sort items
   const sortedItems = [...dessertItems].sort((a, b) => {
     switch (sortBy) {
       case "price-low":

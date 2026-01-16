@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import CategoryLayout from "../CategoryLayout";
 import CategoryItemCard from "../components/CategoryItemCard";
-import { FaDrumstickBite, FaFilter } from "react-icons/fa";
+import { FaDrumstickBite} from "react-icons/fa";
 import { menuItems } from "../../../data/menuData";
 import "../components/CategoryControls.css";
 
 const NonVegetarian = () => {
-  const [sortBy, setSortBy] = useState("popular");
-  const [viewMode, setViewMode] = useState("grid");
+  const [sortBy] = useState("popular");
+  const [viewMode] = useState("grid");
 
   // Filter non-vegetarian items from menuData
   const nonVegItems = menuItems.filter(item => item.category === "non-veg");

@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import CategoryLayout from "../CategoryLayout";
 import CategoryItemCard from "../components/CategoryItemCard";
-import { FaUtensils, FaFilter, FaStar } from "react-icons/fa";
+import { FaUtensils, FaStar } from "react-icons/fa";
 import { menuItems } from "../../../data/menuData";
 import "../components/CategoryControls.css";
 
 const SouthIndian = () => {
-  const [sortBy, setSortBy] = useState("popular");
-  const [viewMode, setViewMode] = useState("grid");
+   const [sortBy] = useState("popular");
+    const [viewMode] = useState("grid");
 
-  // Filter South Indian items from menuData
   const southIndianItems = menuItems.filter(item => item.type === "south-indian");
 
-  // Sort items
   const sortedItems = [...southIndianItems].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
