@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./MenuPage.css";
 import { categories } from "../../data/categories";
 import { menuItems } from "../../data/menuData";
-import { FaMinus, FaTrash } from "react-icons/fa";
 import {
   FaStar,
   FaShoppingCart,
   FaFire,
   FaLeaf,
   FaDrumstickBite,
+  FaMinus,
 } from "react-icons/fa";
 
 const MenuPage = () => {
@@ -16,17 +16,16 @@ const MenuPage = () => {
   const [cartItems, setCartItems] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter items based on category and search
+  /* ---------------- FILTER LOGIC ---------------- */
   const filteredItems = menuItems.filter((item) => {
     const selected = selectedCategory.toLowerCase().replace(/\s+/g, "-");
 
-const categoryMatch =
-  selectedCategory === "All" ||
-  item.category === selected ||
-  item.type === selected ||
-  item.category?.includes(selected) ||
-  item.type?.includes(selected);
-
+    const categoryMatch =
+      selectedCategory === "All" ||
+      item.category === selected ||
+      item.type === selected ||
+      item.category?.includes(selected) ||
+      item.type?.includes(selected);
 
     const searchMatch =
       searchTerm === "" ||
@@ -36,28 +35,23 @@ const categoryMatch =
     return categoryMatch && searchMatch;
   });
 
-  const addToCart = (itemId) => {
+  /* ---------------- CART LOGIC ---------------- */
+  const addToCart = (id) => {
     setCartItems((prev) => ({
       ...prev,
-      [itemId]: (prev[itemId] || 0) + 1,
+      [id]: (prev[id] || 0) + 1,
     }));
   };
 
-  const removeFromCart = (itemId) => {
+  const removeFromCart = (id) => {
     setCartItems((prev) => {
-      if (!prev[itemId]) return prev;
-
-      const updatedCount = prev[itemId] - 1;
-
-      if (updatedCount <= 0) {
-        const { [itemId]: _, ...rest } = prev;
+      if (!prev[id]) return prev;
+      const count = prev[id] - 1;
+      if (count <= 0) {
+        const { [id]: _, ...rest } = prev;
         return rest;
       }
-
-      return {
-        ...prev,
-        [itemId]: updatedCount,
-      };
+      return { ...prev, [id]: count };
     });
   };
 
@@ -65,15 +59,19 @@ const categoryMatch =
 
   return (
     <div className="menu-page">
-      {/* Header with Search */}
-      <div className="menu-header">
+      {/* ================= HEADER ================= */}
+      <div
+        className="menu-header"
+        style={{
+          backgroundImage: "url('/images/dishes/popular/Menu Header.jpg')",
+        }}
+      >
         <div className="container">
           <h1>Our Delicious Menu</h1>
           <p className="subtitle">
             Savor authentic flavors crafted with passion
           </p>
 
-          {/* Search Bar */}
           <div className="menu-search">
             <input
               type="text"
@@ -82,21 +80,20 @@ const categoryMatch =
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
+
             <div className="cart-indicator">
               <FaShoppingCart />
-              {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+              {cartCount > 0 && (
+                <span className="cart-count">{cartCount}</span>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Categories Section */}
+      {/* ================= CATEGORIES ================= */}
       <section className="menu-categories">
         <div className="container">
-          <div className="section-header">
-            <h2>Food Categories</h2>
-          </div>
-
           <div className="category-filters">
             <button
               className={`category-btn ${
@@ -104,38 +101,35 @@ const categoryMatch =
               }`}
               onClick={() => setSelectedCategory("All")}
             >
-              <span className="category-icon">🍽️</span>
-              All Items
+              🍽️ All Items
             </button>
 
-            {categories.map((category) => (
+            {categories.map((cat) => (
               <button
-                key={category.id}
+                key={cat.id}
                 className={`category-btn ${
-                  selectedCategory === category.name ? "active" : ""
+                  selectedCategory === cat.name ? "active" : ""
                 }`}
-                onClick={() => setSelectedCategory(category.name)}
+                onClick={() => setSelectedCategory(cat.name)}
               >
-                {category.name}
+                {cat.name}
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Menu Items Grid */}
+      {/* ================= MENU ITEMS ================= */}
       <section className="menu-items-section">
         <div className="container">
-          <div className="section-header">
-            <h2>
-              {selectedCategory === "All"
-                ? "All Menu Items"
-                : selectedCategory + " Specials"}
-              <span className="items-count">
-                ({filteredItems.length} items)
-              </span>
-            </h2>
-          </div>
+          <h2 className="section-title">
+            {selectedCategory === "All"
+              ? "All Menu Items"
+              : `${selectedCategory} Specials`}
+            <span className="items-count">
+              ({filteredItems.length})
+            </span>
+          </h2>
 
           {filteredItems.length === 0 ? (
             <div className="no-results">
@@ -146,7 +140,7 @@ const categoryMatch =
             <div className="menu-items-grid">
               {filteredItems.map((item) => (
                 <div key={item.id} className="menu-card">
-                  {/* Card Badges */}
+                  {/* BADGES */}
                   <div className="card-badges">
                     {item.isPopular && (
                       <span className="badge popular">
@@ -165,21 +159,24 @@ const categoryMatch =
                     )}
                   </div>
 
-                  {/* Image Section */}
+                  {/* IMAGE */}
                   <div className="menu-card-img">
                     {item.image ? (
-                      <img src={item.image} alt={item.name} loading="lazy" />
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        loading="lazy"
+                      />
                     ) : (
                       <div className="image-placeholder">
-  <span>
-    {(item.category || item.type)?.replace("-", " ").toUpperCase()}
-  </span>
-</div>
-
+                        {(item.category || item.type)
+                          ?.replace("-", " ")
+                          .toUpperCase()}
+                      </div>
                     )}
                   </div>
 
-                  {/* Content Section */}
+                  {/* CONTENT */}
                   <div className="menu-card-content">
                     <div className="card-header">
                       <h3>{item.name}</h3>
@@ -192,60 +189,31 @@ const categoryMatch =
 
                     <p className="description">{item.description}</p>
 
-                    <div className="item-tags">
-                      {item.spicy && (
-                        <span className="tag spicy">🌶️ Spicy</span>
-                      )}
-                      {item.healthy && (
-                        <span className="tag healthy">💚 Healthy</span>
-                      )}
-                      {item.time && (
-                        <span className="tag time">⏱️ {item.time} min</span>
-                      )}
-                    </div>
-
                     <div className="menu-card-footer">
-                      <div className="price-section">
-                        <span className="price">₹{item.price}</span>
-                        {item.originalPrice && (
-                          <span className="original-price">
-                            ₹{item.originalPrice}
-                          </span>
-                        )}
-                      </div>
+                      <span className="price">₹{item.price}</span>
 
-                      <div className="cart-actions">
-                        {cartItems[item.id] ? (
-                          <>
-                            <button
-                              className="remove-btn"
-                              onClick={() => removeFromCart(item.id)}
-                              title="Remove"
-                            >
-                              <FaMinus />
-                            </button>
-
-                            <span className="item-count">
-                              {cartItems[item.id]}
-                            </span>
-
-                            <button
-                              className="add-btn"
-                              onClick={() => addToCart(item.id)}
-                              title="Add"
-                            >
-                              <FaShoppingCart />
-                            </button>
-                          </>
-                        ) : (
+                      {cartItems[item.id] ? (
+                        <div className="cart-actions">
                           <button
-                            className="add-to-cart"
+                            onClick={() => removeFromCart(item.id)}
+                          >
+                            <FaMinus />
+                          </button>
+                          <span>{cartItems[item.id]}</span>
+                          <button
                             onClick={() => addToCart(item.id)}
                           >
-                            Add to Cart
+                            <FaShoppingCart />
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <button
+                          className="add-to-cart"
+                          onClick={() => addToCart(item.id)}
+                        >
+                          Add to Cart
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -255,16 +223,19 @@ const categoryMatch =
         </div>
       </section>
 
-      {/* CTA Section (Matching Home Page) */}
-      <section className="menu-cta">
+      {/* ================= CTA ================= */}
+      <section
+        className="menu-cta"
+        style={{
+          backgroundImage: "url('/images/dishes/popular/CTA Section.jpg')",
+        }}
+      >
         <div className="container">
-          <div className="cta-content">
-            <h2>Craving Something Special?</h2>
-            <p>Customize your order or book a table for special occasions</p>
-            <div className="cta-buttons">
-              <button className="cta-btn primary">Customize Order</button>
-              <button className="cta-btn secondary">Book a Table</button>
-            </div>
+          <h2>Craving Something Special?</h2>
+          <p>Customize your order or book a table</p>
+          <div className="cta-buttons">
+            <button className="cta-btn primary">Customize Order</button>
+            <button className="cta-btn secondary">Book a Table</button>
           </div>
         </div>
       </section>
