@@ -10,7 +10,7 @@ import {
   FaLeaf,
   FaChevronDown,
   FaBars,
-  FaTimes
+  FaTimes,
 } from "react-icons/fa";
 import SearchBar from "../SearchBar/SearchBar";
 
@@ -44,7 +44,7 @@ const Header = () => {
         setMobileDropdownOpen(false);
       }
     };
-    
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -64,14 +64,40 @@ const Header = () => {
       <div className="top-info-bar">
         <div className="container">
           <div className="info-items">
-            <div className="info-item"><FaPhone /> +91 98765 43210</div>
-            <div className="info-item"><FaMapMarkerAlt /> Main Road, City Center</div>
-            <div className="info-item"><FaClock /> 8:00 AM - 11:00 PM</div>
+            <div className="info-item">
+              <FaPhone /> +91 98765 43210
+            </div>
+            <div className="info-item">
+              <FaMapMarkerAlt /> Main Road, City Center
+            </div>
+            <div className="info-item">
+              <FaClock /> 8:00 AM - 11:00 PM
+            </div>
           </div>
-          <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">FB</a>
-<a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">IG</a>
-<a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon">TW</a>
-
+          <a
+            href="https://www.facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="social-icon"
+          >
+            FB
+          </a>
+          <a
+            href="https://www.instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="social-icon"
+          >
+            IG
+          </a>
+          <a
+            href="https://www.twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="social-icon"
+          >
+            TW
+          </a>
         </div>
       </div>
 
@@ -80,10 +106,14 @@ const Header = () => {
         <div className="container">
           <div className="logo-brand">
             <div className="logo">
-              <span className="logo-icon"><FaLeaf /></span>
+              <span className="logo-icon">
+                <FaLeaf />
+              </span>
               <div className="brand-text">
                 <h1>Zonixtec</h1>
-                <p className="tagline">Pure Veg • Authentic Taste • Since 1995</p>
+                <p className="tagline">
+                  Pure Veg • Authentic Taste • Since 1995
+                </p>
               </div>
             </div>
           </div>
@@ -94,7 +124,9 @@ const Header = () => {
 
           <div className="header-actions">
             <Link to="/order" className="order-btn">
-              <span className="btn-icon"><FaShoppingCart /></span>
+              <span className="btn-icon">
+                <FaShoppingCart />
+              </span>
               Order Online
             </Link>
             <Link to="/cart" className="cart-btn">
@@ -121,38 +153,49 @@ const Header = () => {
       <nav className={`main-nav ${mobileMenuOpen ? "open" : ""}`}>
         <div className="container">
           <ul className="nav-menu">
-            <li><Link to="/" className="active">Home</Link></li>
-            <li><Link to="/menu">Menu</Link></li>
+            <li>
+              <Link to="/" className="active">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/menu">Menu</Link>
+            </li>
 
             {/* Food Categories Dropdown */}
             <li className={`dropdown ${mobileDropdownOpen ? "open" : ""}`}>
-  <button
-    className="dropdown-toggle"
-    onClick={handleDropdownClick}
-    aria-haspopup="true"
-    aria-expanded={mobileDropdownOpen}
-  >
-    Food Categories <FaChevronDown className="dropdown-arrow" />
-  </button>
-  <div className="dropdown-menu">
-    {foodCategories.map((cat, idx) => (
-      <Link key={idx} to={`/category/${cat.slug}`}>
-        {cat.icon} {cat.name}
-      </Link>
-    ))}
-    <hr />
-    {combinedCategories.map((cat, idx) => (
-      <Link key={`combo-${idx}`} to={`/category/${cat.slug}`}>
-        {cat.name}
-      </Link>
-    ))}
-  </div>
-</li>
+              <button
+                className="dropdown-toggle"
+                onClick={handleDropdownClick}
+                aria-haspopup="true"
+                aria-expanded={mobileDropdownOpen}
+              >
+                Food Categories <FaChevronDown className="dropdown-arrow" />
+              </button>
+              <div className="dropdown-menu">
+                {foodCategories.map((cat, idx) => (
+                  <Link key={idx} to={`/category/${cat.slug}`}>
+                    {cat.icon} {cat.name}
+                  </Link>
+                ))}
+                <hr />
+                {combinedCategories.map((cat, idx) => (
+                  <Link key={`combo-${idx}`} to={`/category/${cat.slug}`}>
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </li>
 
-
-            <li><Link to="/offers">Today's Offers</Link></li>
-            <li><Link to="/about">About Us</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
+            <li>
+              <Link to="/offers">Today's Offers</Link>
+            </li>
+            <li>
+              <Link to="/about">About Us</Link>
+            </li>
+            <li>
+              <Link to="/contact">Contact</Link>
+            </li>
           </ul>
         </div>
       </nav>
