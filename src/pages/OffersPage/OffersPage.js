@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import "./OffersPage.css";
-import { FaFire, FaClock, FaTag, FaPercent, FaStar, FaLeaf, FaShoppingCart, FaHeart } from "react-icons/fa";
+import {
+  FaFire,
+  FaClock,
+  FaTag,
+  FaPercent,
+  FaStar,
+  FaShoppingCart
+} from "react-icons/fa";
 import OfferCard from "../../components/OfferCard/OfferCard";
 import OfferFilters from "../../components/OfferFilters/OfferFilters";
 
