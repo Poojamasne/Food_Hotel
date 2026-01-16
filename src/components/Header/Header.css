@@ -374,3 +374,41 @@
 }
 
 
+/* Ensure dropdown menu items look like regular nav links */
+.nav-menu li.dropdown .dropdown-toggle {
+  color: white;               /* same as other links */
+  font-weight: 500;           /* same weight */
+  font-size: 1rem;            /* match nav links */
+  padding: 15px 20px;         /* same padding */
+  display: flex;
+  align-items: center;
+  gap: 5px;                   /* space between text and arrow */
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.nav-menu li.dropdown .dropdown-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom-color: #FF9800; /* same hover effect as links */
+}
+
+/* Dropdown arrow */
+.nav-menu li.dropdown .dropdown-arrow {
+  font-size: 0.8rem;
+  margin-left: 5px;
+}
+
+/* Dropdown items */
+.nav-menu li.dropdown .dropdown-menu a {
+  color: #333; 
+  font-weight: 500;
+  padding: 12px 20px;
+  transition: background 0.3s;
+}
+
+.nav-menu li.dropdown .dropdown-menu a:hover {
+  background: #f8f9fa;
+  color: #8B4513;
+}

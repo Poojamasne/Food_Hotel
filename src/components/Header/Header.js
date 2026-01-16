@@ -127,27 +127,30 @@ const Header = () => {
             <li><Link to="/menu">Menu</Link></li>
 
             {/* Food Categories Dropdown */}
-            <li
-              className={`dropdown ${mobileDropdownOpen ? "open" : ""}`}
-              onClick={handleDropdownClick}
-            >
-              <a href="#">
-                Food Categories <FaChevronDown className="dropdown-arrow" />
-              </a>
-              <div className="dropdown-menu">
-                {foodCategories.map((cat, idx) => (
-                  <Link key={idx} to={`/category/${cat.slug}`}>
-                    {cat.icon} {cat.name}
-                  </Link>
-                ))}
-                <hr />
-                {combinedCategories.map((cat, idx) => (
-                  <Link key={`combo-${idx}`} to={`/category/${cat.slug}`}>
-                    {cat.name}
-                  </Link>
-                ))}
-              </div>
-            </li>
+            <li className={`dropdown ${mobileDropdownOpen ? "open" : ""}`}>
+  <button
+    className="dropdown-toggle"
+    onClick={handleDropdownClick}
+    aria-haspopup="true"
+    aria-expanded={mobileDropdownOpen}
+  >
+    Food Categories <FaChevronDown className="dropdown-arrow" />
+  </button>
+  <div className="dropdown-menu">
+    {foodCategories.map((cat, idx) => (
+      <Link key={idx} to={`/category/${cat.slug}`}>
+        {cat.icon} {cat.name}
+      </Link>
+    ))}
+    <hr />
+    {combinedCategories.map((cat, idx) => (
+      <Link key={`combo-${idx}`} to={`/category/${cat.slug}`}>
+        {cat.name}
+      </Link>
+    ))}
+  </div>
+</li>
+
 
             <li><Link to="/offers">Today's Offers</Link></li>
             <li><Link to="/about">About Us</Link></li>

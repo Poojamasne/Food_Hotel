@@ -1,4 +1,4 @@
-/* Menu Page Container */
+
 .menu-page {
   overflow-x: hidden;
   background: linear-gradient(to bottom, #ffffff, #fff9f5);
@@ -10,7 +10,7 @@
   padding: 0 20px;
 }
 
-/* Header Section */
+
 .menu-header {
   background-size: cover;
   background-position: center;
@@ -20,7 +20,7 @@
   padding: 100px 0 60px;
 }
 
-/* Dark overlay for readability */
+
 .menu-header::before {
   content: "";
   position: absolute;
@@ -110,7 +110,6 @@
   justify-content: center;
 }
 
-/* Categories Section */
 .menu-categories {
   padding: 60px 0 40px;
   background: white;
