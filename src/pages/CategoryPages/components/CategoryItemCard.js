@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./CategoryItemCard.css";
-import { FaStar, FaShoppingCart, FaHeart, FaLeaf, FaDrumstickBite, FaPlus, FaMinus } from "react-icons/fa";
+import { FaStar, FaHeart, FaLeaf, FaDrumstickBite, FaPlus, FaMinus } from "react-icons/fa";
 
 const CategoryItemCard = ({ item }) => {
   const [quantity, setQuantity] = useState(1);
@@ -30,11 +30,6 @@ const CategoryItemCard = ({ item }) => {
     setIsFavorite(!isFavorite);
   };
 
-  const getCategoryIcon = () => {
-    if (item.category === "veg") return <FaLeaf />;
-    if (item.category === "non-veg") return <FaDrumstickBite />;
-    return null;
-  };
 
   return (
     <div className="menu-card">

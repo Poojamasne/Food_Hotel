@@ -1,18 +1,8 @@
 import React from "react";
 import "./CategoryLayout.css";
 import { Link } from "react-router-dom";
-import {
-  FaArrowLeft,
-  FaFire,
-  FaStar,
-  FaLeaf,
-  FaDrumstickBite,
-  FaClock,
-  FaUtensils,
-  FaPercent,
-  FaShoppingCart,
-  FaHeart
-} from "react-icons/fa";
+import { FaArrowLeft, FaShoppingCart } from "react-icons/fa";
+
 
 const CategoryLayout = ({ 
   children, 

@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import CategoryLayout from "../CategoryLayout";
 import CategoryItemCard from "../components/CategoryItemCard";
-import { FaLeaf, FaStar, FaFilter } from "react-icons/fa";
+import { FaLeaf } from "react-icons/fa";
 import { menuItems } from "../../../data/menuData";
 import "../components/CategoryControls.css";
 
 const Vegetarian = () => {
-  const [sortBy, setSortBy] = useState("popular");
-  const [viewMode, setViewMode] = useState("grid");
+    const [sortBy] = useState("popular");
+    const [viewMode] = useState("grid");
 
-  // Filter vegetarian items from menuData
   const vegetarianItems = menuItems.filter(item => item.category === "veg");
 
-  // Sort items
   const sortedItems = [...vegetarianItems].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
