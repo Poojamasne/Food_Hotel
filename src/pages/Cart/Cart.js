@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Cart.css";
+import { useCart } from "../../context/CartContext";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaShoppingCart,
   FaTrash,
@@ -8,84 +10,77 @@ import {
   FaArrowLeft,
   FaTag,
   FaLeaf,
+  FaDrumstickBite,
   FaCreditCard,
   FaTruck,
   FaShieldAlt,
   FaStar,
   FaFire,
-  FaChevronRight
+  FaChevronRight,
+  FaHome,
+  FaUtensils,
+  FaRupeeSign
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
-
-// Sample cart data
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Paneer Butter Masala",
-    description: "Creamy cottage cheese in rich tomato gravy",
-    price: 299,
-    originalPrice: 349,
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    category: "Main Course",
-    type: "veg",
-    prepTime: "20 mins",
-    tags: ["Best Seller", "Spicy"]
-  },
-  {
-    id: 2,
-    name: "Garlic Naan",
-    description: "Soft bread with garlic butter and herbs",
-    price: 79,
-    quantity: 3,
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    category: "Bread",
-    type: "veg",
-    tags: ["Fresh", "Hot"]
-  },
-  {
-    id: 3,
-    name: "Mango Lassi",
-    description: "Refreshing yogurt drink with mango",
-    price: 129,
-    originalPrice: 159,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    category: "Beverages",
-    type: "veg",
-    prepTime: "5 mins",
-    tags: ["Seasonal", "Refreshing"]
-  },
-  {
-    id: 4,
-    name: "Chocolate Brownie",
-    description: "Warm chocolate brownie with ice cream",
-    price: 189,
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1564355808539-22fda35bed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    category: "Desserts",
-    type: "veg",
-    tags: ["Sweet", "Premium"]
-  }
-];
-
-// Promo codes
-const promoCodes = [
-  { code: "ZONIX10", discount: 10, minOrder: 500, description: "10% off on first order" },
-  { code: "SAVE20", discount: 20, minOrder: 1000, description: "Flat ₹200 off" },
-  { code: "WEEKEND15", discount: 15, minOrder: 800, description: "15% off on weekends" },
-  { code: "FREEDEL", discount: 0, minOrder: 300, description: "Free delivery", type: "delivery" }
-];
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const { 
+    cartItems, 
+    updateQuantity, 
+    removeFromCart, 
+    getCartTotal,
+    clearCart,
+    addToCart 
+  } = useCart();
+  
+  const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState(null);
-  const [deliveryType, setDeliveryType] = useState("home"); // 'home' or 'pickup'
+  const [deliveryType, setDeliveryType] = useState("home");
   const [suggestedItems, setSuggestedItems] = useState([]);
 
+  // Suggested items you might like
+  const suggestedItemsData = [
+    {
+      id: 101,
+      name: "Masala Dosa",
+      price: 180,
+      description: "Crispy rice crepe with potato filling",
+      image: "/images/dishes/popular/Masala_Dosa.jpg",
+      category: "South Indian",
+      type: "veg",
+      prepTime: "15 min"
+    },
+    {
+      id: 102,
+      name: "Veg Biryani",
+      price: 249,
+      description: "Aromatic basmati rice with vegetables",
+      image: "/images/dishes/popular/veg-biryani.jpg",
+      category: "Main Course",
+      type: "veg",
+      prepTime: "25 min"
+    },
+    {
+      id: 103,
+      name: "Gulab Jamun",
+      price: 120,
+      description: "Sweet milk balls in sugar syrup",
+      image: "/images/dishes/popular/Gulab Jamun.jpg",
+      category: "Desserts",
+      type: "veg",
+      prepTime: "10 min"
+    }
+  ];
+
+  // Promo codes
+  const promoCodes = [
+    { code: "WELCOME10", discount: 10, minOrder: 500, description: "10% off on first order" },
+    { code: "SAVE20", discount: 20, minOrder: 1000, description: "Flat ₹200 off on ₹1000+" },
+    { code: "FREEDEL", discount: 0, minOrder: 300, description: "Free delivery", type: "delivery" }
+  ];
+
   // Calculate totals
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = getCartTotal();
   const discount = cartItems.reduce((sum, item) => {
     const itemDiscount = (item.originalPrice || item.price) - item.price;
     return sum + (itemDiscount * item.quantity);
@@ -103,57 +98,37 @@ const Cart = () => {
 
   // Load suggested items
   useEffect(() => {
-    const suggestions = [
-      {
-        id: 101,
-        name: "Masala Dosa",
-        price: 159,
-        image: "https://images.unsplash.com/photo-1630383249896-424e482df2cc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-        category: "South Indian",
-        type: "veg"
-      },
-      {
-        id: 102,
-        name: "Veg Biryani",
-        price: 249,
-        image: "https://images.unsplash.com/photo-1563379091339-03246963d9d6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-        category: "Rice",
-        type: "veg"
-      },
-      {
-        id: 103,
-        name: "Gulab Jamun",
-        price: 99,
-        image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-        category: "Desserts",
-        type: "veg"
-      }
-    ];
-    setSuggestedItems(suggestions);
+    setSuggestedItems(suggestedItemsData);
   }, []);
 
   // Handle quantity changes
-  const updateQuantity = (id, change) => {
-    setCartItems(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQuantity = Math.max(1, item.quantity + change);
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    }));
+  const handleQuantityChange = (id, change) => {
+    const item = cartItems.find(item => item.id === id);
+    if (item) {
+      const newQuantity = Math.max(1, item.quantity + change);
+      updateQuantity(id, newQuantity);
+    }
   };
 
   // Remove item from cart
-  const removeItem = (id) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  const handleRemoveItem = (id) => {
+    if (window.confirm("Are you sure you want to remove this item from cart?")) {
+      removeFromCart(id);
+    }
   };
 
   // Apply promo code
-  const applyPromo = () => {
+  const handleApplyPromo = () => {
+    if (!promoCode.trim()) {
+      alert("Please enter a promo code");
+      return;
+    }
+
     const promo = promoCodes.find(p => p.code === promoCode.toUpperCase());
     if (promo) {
       if (subtotal >= promo.minOrder) {
         setAppliedPromo(promo);
+        alert(`Promo code "${promo.code}" applied successfully!`);
       } else {
         alert(`Minimum order of ₹${promo.minOrder} required for this promo.`);
       }
@@ -164,30 +139,50 @@ const Cart = () => {
   };
 
   // Remove promo code
-  const removePromo = () => {
+  const handleRemovePromo = () => {
     setAppliedPromo(null);
   };
 
   // Add suggested item to cart
-  const addSuggestedItem = (item) => {
+  const handleAddSuggestedItem = (item) => {
     const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
     if (existingItem) {
-      updateQuantity(item.id, 1);
+      handleQuantityChange(item.id, 1);
     } else {
-      setCartItems(prev => [...prev, { ...item, quantity: 1 }]);
+      addToCart(item, 1);
     }
+    alert(`${item.name} added to cart!`);
   };
 
   // Handle checkout
   const handleCheckout = () => {
-    // In a real app, this would redirect to checkout page
-    alert(`Order placed successfully! Total: ₹${total.toFixed(2)}`);
+    if (cartItems.length === 0) {
+      alert("Your cart is empty. Add some items first!");
+      return;
+    }
+    
+    // Navigate to checkout page
+    navigate("/checkout");
+  };
+
+  // Clear all items
+  const handleClearCart = () => {
+    if (cartItems.length === 0) return;
+    
+    if (window.confirm("Are you sure you want to clear your cart?")) {
+      clearCart();
+    }
+  };
+
+  // Continue shopping
+  const handleContinueShopping = () => {
+    navigate("/menu");
   };
 
   return (
     <div className="cart-page">
       {/* Breadcrumb */}
-      <div className="breadcrumb">
+      <div className="cart-breadcrumb">
         <div className="container">
           <Link to="/" className="breadcrumb-link">
             <FaArrowLeft /> Back to Home
@@ -201,14 +196,28 @@ const Cart = () => {
         <div className="cart-content">
           {/* Left Column - Cart Items */}
           <div className="cart-items-section">
-            <div className="section-header">
-              <h1>
+            <div className="cart-header">
+              <h1 className="cart-title">
                 <FaShoppingCart /> Your Shopping Cart
                 <span className="item-count">({cartItems.length} items)</span>
               </h1>
-              <Link to="/menu" className="continue-shopping">
-                Continue Shopping
-              </Link>
+              
+              <div className="cart-actions-header">
+                {cartItems.length > 0 && (
+                  <button 
+                    className="clear-cart-btn"
+                    onClick={handleClearCart}
+                  >
+                    <FaTrash /> Clear Cart
+                  </button>
+                )}
+                <button 
+                  className="continue-shopping-btn"
+                  onClick={handleContinueShopping}
+                >
+                  Continue Shopping
+                </button>
+              </div>
             </div>
 
             {cartItems.length === 0 ? (
@@ -228,72 +237,119 @@ const Cart = () => {
                 <div className="cart-items-list">
                   {cartItems.map(item => (
                     <div key={item.id} className="cart-item-card">
-                      <div className="item-image">
-                        <img src={item.image} alt={item.name} />
-                        {item.type === "veg" && (
-                          <span className="veg-indicator">
-                            <FaLeaf />
-                          </span>
-                        )}
+                      <div className="item-image-container">
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="item-image"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `
+                              <div class="image-fallback">
+                                <span>${item.name.charAt(0)}</span>
+                              </div>
+                            `;
+                          }}
+                        />
+                        <div className="item-type-indicator">
+                          {item.type === "veg" ? (
+                            <span className="veg-indicator">
+                              <FaLeaf /> Veg
+                            </span>
+                          ) : (
+                            <span className="nonveg-indicator">
+                              <FaDrumstickBite /> Non-Veg
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="item-details">
                         <div className="item-header">
-                          <h3>{item.name}</h3>
+                          <div className="item-info">
+                            <h3 className="item-name">{item.name}</h3>
+                            <p className="item-description">{item.description}</p>
+                            {item.category && (
+                              <span className="item-category">{item.category}</span>
+                            )}
+                          </div>
                           <button 
                             className="remove-btn"
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => handleRemoveItem(item.id)}
+                            aria-label="Remove item"
                           >
                             <FaTrash />
                           </button>
                         </div>
 
-                        <p className="item-description">{item.description}</p>
-
-                        <div className="item-tags">
-                          {item.tags?.map((tag, index) => (
-                            <span key={index} className="item-tag">
-                              {tag === "Best Seller" && <FaFire />}
-                              {tag === "Spicy" && "🌶️"}
-                              {tag}
-                            </span>
-                          ))}
-                          {item.prepTime && (
-                            <span className="item-tag time">
-                              ⏱️ {item.prepTime}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="item-footer">
-                          <div className="quantity-controls">
-                            <button 
-                              className="quantity-btn"
-                              onClick={() => updateQuantity(item.id, -1)}
-                            >
-                              <FaMinus />
-                            </button>
-                            <span className="quantity">{item.quantity}</span>
-                            <button 
-                              className="quantity-btn"
-                              onClick={() => updateQuantity(item.id, 1)}
-                            >
-                              <FaPlus />
-                            </button>
-                          </div>
-
-                          <div className="item-pricing">
-                            {item.originalPrice && (
-                              <span className="original-price">
-                                ₹{item.originalPrice}
+                        {item.tags && item.tags.length > 0 && (
+                          <div className="item-tags">
+                            {item.tags.includes("Popular") && (
+                              <span className="tag popular-tag">
+                                <FaFire /> Popular
                               </span>
                             )}
-                            <span className="current-price">
-                              ₹{item.price}
-                            </span>
-                            <span className="item-total">
-                              ₹{(item.price * item.quantity).toFixed(2)}
-                            </span>
+                            {item.tags.includes("Spicy") && (
+                              <span className="tag spicy-tag">🌶️ Spicy</span>
+                            )}
+                            {item.tags.includes("Best Seller") && (
+                              <span className="tag bestseller-tag">
+                                <FaStar /> Best Seller
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="item-footer">
+                          <div className="quantity-section">
+                            <div className="quantity-controls">
+                              <button 
+                                className="quantity-btn decrease"
+                                onClick={() => handleQuantityChange(item.id, -1)}
+                                disabled={item.quantity <= 1}
+                              >
+                                <FaMinus />
+                              </button>
+                              <span className="quantity-value">{item.quantity}</span>
+                              <button 
+                                className="quantity-btn increase"
+                                onClick={() => handleQuantityChange(item.id, 1)}
+                              >
+                                <FaPlus />
+                              </button>
+                            </div>
+                            <div className="quantity-label">
+                              {item.quantity} {item.quantity === 1 ? 'item' : 'items'}
+                            </div>
+                          </div>
+
+                          <div className="price-section">
+                            <div className="price-details">
+                              {item.originalPrice && item.originalPrice > item.price ? (
+                                <>
+                                  <span className="original-price">
+                                    <FaRupeeSign /> {item.originalPrice}
+                                  </span>
+                                  <span className="discounted-price">
+                                    <FaRupeeSign /> {item.price}
+                                  </span>
+                                  <span className="savings">
+                                    Save <FaRupeeSign />{(item.originalPrice - item.price) * item.quantity}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="current-price">
+                                  <FaRupeeSign /> {item.price}
+                                </span>
+                              )}
+                            </div>
+                            <div className="item-total">
+                              <span className="total-label">Total:</span>
+                              <span className="total-value">
+                                <FaRupeeSign />{(item.price * item.quantity).toFixed(2)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -302,48 +358,85 @@ const Cart = () => {
                 </div>
 
                 {/* Delivery Options */}
-                <div className="delivery-options">
-                  <h3>
+                <div className="delivery-options-section">
+                  <h3 className="section-title">
                     <FaTruck /> Delivery Options
                   </h3>
-                  <div className="option-buttons">
+                  <div className="delivery-buttons">
                     <button 
-                      className={`option-btn ${deliveryType === 'home' ? 'active' : ''}`}
+                      className={`delivery-btn ${deliveryType === 'home' ? 'active' : ''}`}
                       onClick={() => setDeliveryType('home')}
                     >
-                      <FaTruck /> Home Delivery
-                      <span className="option-detail">
-                        {deliveryCharge === 0 ? "Free" : `₹${deliveryCharge}`}
-                      </span>
+                      <div className="delivery-btn-content">
+                        <FaHome className="delivery-icon" />
+                        <div className="delivery-info">
+                          <span className="delivery-title">Home Delivery</span>
+                          <span className="delivery-time">30-45 mins</span>
+                        </div>
+                        <span className="delivery-charge">
+                          {deliveryCharge === 0 ? "FREE" : `₹${deliveryCharge}`}
+                        </span>
+                      </div>
                     </button>
                     <button 
-                      className={`option-btn ${deliveryType === 'pickup' ? 'active' : ''}`}
+                      className={`delivery-btn ${deliveryType === 'pickup' ? 'active' : ''}`}
                       onClick={() => setDeliveryType('pickup')}
                     >
-                      <FaShoppingCart /> Pickup from Restaurant
-                      <span className="option-detail">Free</span>
+                      <div className="delivery-btn-content">
+                        <FaUtensils className="delivery-icon" />
+                        <div className="delivery-info">
+                          <span className="delivery-title">Pickup from Restaurant</span>
+                          <span className="delivery-time">15-20 mins</span>
+                        </div>
+                        <span className="delivery-charge">FREE</span>
+                      </div>
                     </button>
                   </div>
                 </div>
 
                 {/* Suggested Items */}
                 {suggestedItems.length > 0 && (
-                  <div className="suggested-items">
-                    <h3>
+                  <div className="suggested-items-section">
+                    <h3 className="section-title">
                       <FaStar /> You might also like
                     </h3>
-                    <div className="suggested-grid">
+                    <div className="suggested-items-grid">
                       {suggestedItems.map(item => (
-                        <div key={item.id} className="suggested-card">
-                          <img src={item.image} alt={item.name} />
+                        <div key={item.id} className="suggested-item-card">
+                          <div className="suggested-image">
+                            <img 
+                              src={item.image} 
+                              alt={item.name}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.style.display = 'none';
+                                e.target.parentElement.innerHTML = `
+                                  <div class="suggested-image-fallback">
+                                    <span>${item.name.charAt(0)}</span>
+                                  </div>
+                                `;
+                              }}
+                            />
+                            {item.type === "veg" ? (
+                              <span className="suggested-veg">Veg</span>
+                            ) : (
+                              <span className="suggested-nonveg">Non-Veg</span>
+                            )}
+                          </div>
                           <div className="suggested-details">
-                            <h4>{item.name}</h4>
-                            <p className="suggested-category">{item.category}</p>
+                            <h4 className="suggested-name">{item.name}</h4>
+                            <p className="suggested-desc">{item.description}</p>
+                            <div className="suggested-meta">
+                              <span className="suggested-category">{item.category}</span>
+                              <span className="suggested-time">⏱️ {item.prepTime}</span>
+                            </div>
                             <div className="suggested-footer">
-                              <span className="suggested-price">₹{item.price}</span>
+                              <span className="suggested-price">
+                                <FaRupeeSign /> {item.price}
+                              </span>
                               <button 
                                 className="add-suggested-btn"
-                                onClick={() => addSuggestedItem(item)}
+                                onClick={() => handleAddSuggestedItem(item)}
                               >
                                 <FaPlus /> Add
                               </button>
@@ -360,124 +453,163 @@ const Cart = () => {
 
           {/* Right Column - Order Summary */}
           <div className="order-summary-section">
-            <div className="summary-card">
-              <h2>
+            <div className="order-summary-card">
+              <h2 className="summary-title">
                 <FaCreditCard /> Order Summary
               </h2>
 
               {/* Price Breakdown */}
               <div className="price-breakdown">
                 <div className="price-row">
-                  <span>Subtotal</span>
-                  <span>₹{subtotal.toFixed(2)}</span>
+                  <span className="price-label">Subtotal</span>
+                  <span className="price-value">₹{subtotal.toFixed(2)}</span>
                 </div>
                 
                 {discount > 0 && (
-                  <div className="price-row discount">
-                    <span>Item Discount</span>
-                    <span>- ₹{discount.toFixed(2)}</span>
+                  <div className="price-row discount-row">
+                    <span className="price-label">Item Discount</span>
+                    <span className="price-value discount-value">- ₹{discount.toFixed(2)}</span>
                   </div>
                 )}
 
                 <div className="price-row">
-                  <span>Delivery Charge</span>
-                  <span>
-                    {deliveryCharge === 0 ? "Free" : `₹${deliveryCharge.toFixed(2)}`}
+                  <span className="price-label">Delivery Charge</span>
+                  <span className="price-value">
+                    {deliveryCharge === 0 ? "FREE" : `₹${deliveryCharge.toFixed(2)}`}
                   </span>
                 </div>
 
                 <div className="price-row">
-                  <span>Tax (5% GST)</span>
-                  <span>₹{tax.toFixed(2)}</span>
+                  <span className="price-label">Tax (5% GST)</span>
+                  <span className="price-value">₹{tax.toFixed(2)}</span>
                 </div>
 
                 {/* Promo Code Section */}
                 <div className="promo-section">
+                  <h4 className="promo-title">
+                    <FaTag /> Apply Promo Code
+                  </h4>
+                  
                   {appliedPromo ? (
                     <div className="applied-promo">
-                      <span className="promo-applied">
-                        <FaTag /> {appliedPromo.code} Applied
-                      </span>
-                      <span className="promo-discount">
-                        - ₹{promoDiscount.toFixed(2)}
-                      </span>
-                      <button 
-                        className="remove-promo-btn"
-                        onClick={removePromo}
-                      >
-                        ×
-                      </button>
+                      <div className="promo-info">
+                        <span className="promo-code-badge">
+                          <FaTag /> {appliedPromo.code}
+                        </span>
+                        <span className="promo-description">{appliedPromo.description}</span>
+                      </div>
+                      <div className="promo-actions">
+                        <span className="promo-discount">
+                          - ₹{promoDiscount.toFixed(2)}
+                        </span>
+                        <button 
+                          className="remove-promo-btn"
+                          onClick={handleRemovePromo}
+                          aria-label="Remove promo code"
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <div className="promo-input">
+                    <div className="promo-input-container">
                       <input
                         type="text"
                         placeholder="Enter promo code"
                         value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value)}
-                        className="promo-code-input"
+                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                        className="promo-input"
                       />
                       <button 
                         className="apply-promo-btn"
-                        onClick={applyPromo}
+                        onClick={handleApplyPromo}
+                        disabled={!promoCode.trim()}
                       >
                         Apply
                       </button>
                     </div>
                   )}
-                </div>
-              </div>
 
-              {/* Total */}
-              <div className="total-section">
-                <div className="total-row">
-                  <span>Total Amount</span>
-                  <span className="total-amount">₹{total.toFixed(2)}</span>
-                </div>
-                <p className="tax-info">Inclusive of all taxes</p>
-              </div>
-
-              {/* Checkout Button */}
-              <button 
-                className="checkout-btn"
-                onClick={handleCheckout}
-                disabled={cartItems.length === 0}
-              >
-                Proceed to Checkout
-                <FaChevronRight />
-              </button>
-
-              {/* Security Info */}
-              <div className="security-info">
-                <FaShieldAlt />
-                <span>Secure Payment • SSL Encrypted</span>
-              </div>
-
-              {/* Payment Methods */}
-              <div className="payment-methods">
-                <h4>Accepted Payment Methods</h4>
-                <div className="payment-icons">
-                  <span className="payment-icon">💳</span>
-                  <span className="payment-icon">🏦</span>
-                  <span className="payment-icon">📱</span>
-                  <span className="payment-icon">💰</span>
-                  <span className="payment-icon">💲</span>
-                </div>
-              </div>
-
-              {/* Available Promo Codes */}
-              <div className="available-promos">
-                <h4>
-                  <FaTag /> Available Offers
-                </h4>
-                <div className="promo-list">
-                  {promoCodes.slice(0, 2).map((promo, index) => (
-                    <div key={index} className="promo-item">
-                      <span className="promo-code">{promo.code}</span>
-                      <span className="promo-desc">{promo.description}</span>
-                      <span className="promo-min">Min. ₹{promo.minOrder}</span>
+                  {/* Available Promos */}
+                  <div className="available-promos">
+                    <h5>Available Offers:</h5>
+                    <div className="promo-list">
+                      {promoCodes.slice(0, 2).map((promo, index) => (
+                        <div key={index} className="promo-item">
+                          <span className="promo-item-code">{promo.code}</span>
+                          <span className="promo-item-desc">{promo.description}</span>
+                          <span className="promo-item-min">Min. ₹{promo.minOrder}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                </div>
+
+                {/* Total Section */}
+                <div className="total-section">
+                  <div className="total-row">
+                    <span className="total-label">Total Amount</span>
+                    <span className="total-amount">₹{total.toFixed(2)}</span>
+                  </div>
+                  <p className="tax-info">Inclusive of all taxes</p>
+                  
+                  {total > 500 && (
+                    <div className="savings-notice">
+                      🎉 You saved ₹{discount + promoDiscount} on this order!
+                    </div>
+                  )}
+                </div>
+
+                {/* Checkout Button */}
+                <button 
+                  className={`checkout-btn ${cartItems.length === 0 ? 'disabled' : ''}`}
+                  onClick={handleCheckout}
+                  disabled={cartItems.length === 0}
+                >
+                  <span className="checkout-text">
+                    Proceed to Checkout
+                  </span>
+                  <span className="checkout-price">
+                    ₹{total.toFixed(2)}
+                  </span>
+                  <FaChevronRight className="checkout-arrow" />
+                </button>
+
+                {/* Security Info */}
+                <div className="security-info">
+                  <FaShieldAlt className="security-icon" />
+                  <span className="security-text">100% Secure Payment • SSL Encrypted</span>
+                </div>
+
+                {/* Payment Methods */}
+                <div className="payment-methods">
+                  <h4 className="payment-title">Accepted Payment Methods</h4>
+                  <div className="payment-icons">
+                    <span className="payment-icon">💳 Credit/Debit Card</span>
+                    <span className="payment-icon">🏦 Net Banking</span>
+                    <span className="payment-icon">📱 UPI</span>
+                    <span className="payment-icon">💰 Cash on Delivery</span>
+                  </div>
+                </div>
+
+                {/* Order Info */}
+                <div className="order-info">
+                  <div className="info-item">
+                    <span className="info-label">Estimated Delivery:</span>
+                    <span className="info-value">
+                      {deliveryType === 'home' ? '30-45 minutes' : 'Ready in 15-20 minutes'}
+                    </span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Free Delivery:</span>
+                    <span className="info-value">On orders above ₹500</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Need Help?</span>
+                    <span className="info-value">
+                      <Link to="/contact" className="help-link">Contact Support</Link>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

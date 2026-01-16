@@ -1,4 +1,5 @@
-export const menuItems = [
+// Menu Data
+export const menuData = [
   // ================= VEG ITEMS =================
   {
     id: 1,
@@ -9,6 +10,7 @@ export const menuItems = [
     type: "north-indian",
     rating: 4.5,
     image: "/images/dishes/popular/panner_butter_masala.jpg",
+    tags: ["Best Seller", "Spicy"]
   },
   {
     id: 2,
@@ -19,6 +21,7 @@ export const menuItems = [
     type: "north-indian",
     rating: 4.3,
     image: "/images/dishes/popular/dal-makhani.jpg",
+    tags: ["Popular"]
   },
   {
     id: 3,
@@ -29,8 +32,8 @@ export const menuItems = [
     type: "south-indian",
     rating: 4.4,
     image: "/images/dishes/popular/veg-biryani.jpg",
+    tags: ["Best Seller"]
   },
-
   // ================= NON-VEG ITEMS =================
   {
     id: 4,
@@ -41,6 +44,7 @@ export const menuItems = [
     type: "north-indian",
     rating: 4.7,
     image: "/images/dishes/popular/butter-chicken.jpg",
+    tags: ["Best Seller", "Spicy"]
   },
   {
     id: 5,
@@ -51,6 +55,7 @@ export const menuItems = [
     type: "south-indian",
     rating: 4.8,
     image: "/images/dishes/popular/chicken-biryani.jpg",
+    tags: ["Popular", "Spicy"]
   },
   {
     id: 6,
@@ -61,6 +66,7 @@ export const menuItems = [
     type: "south-indian",
     rating: 4.5,
     image: "/images/dishes/popular/fish-curry.jpg",
+    tags: ["Spicy"]
   },
   {
     id: 7,
@@ -71,8 +77,8 @@ export const menuItems = [
     type: "south-indian",
     rating: 4.5,
     image: "/images/dishes/popular/chicken-chettinad.jpg",
+    tags: ["Spicy"]
   },
-
   // ================= CHINESE ITEMS =================
   {
     id: 8,
@@ -104,7 +110,6 @@ export const menuItems = [
     rating: 4.0,
     image: "/images/dishes/popular/spring-rolls.jpg",
   },
-
   // ================= SOUTH INDIAN =================
   {
     id: 11,
@@ -115,6 +120,7 @@ export const menuItems = [
     type: "south-indian",
     rating: 4.6,
     image: "/images/dishes/popular/Masala_Dosa.jpg",
+    tags: ["Popular"]
   },
   {
     id: 12,
@@ -126,7 +132,6 @@ export const menuItems = [
     rating: 4.2,
     image: "/images/dishes/popular/idli-sambar.jpg",
   },
-
   // ================= DESSERTS =================
   {
     id: 13,
@@ -137,8 +142,8 @@ export const menuItems = [
     type: "desserts",
     rating: 4.5,
     image: "/images/dishes/popular/Gulab Jamun.jpg",
+    tags: ["Sweet"]
   },
-
   // ================= BEVERAGES =================
   {
     id: 14,
@@ -150,7 +155,6 @@ export const menuItems = [
     rating: 4.4,
     image: "/images/dishes/categories/mango-lassi.jpg",
   },
-
   // ================= ITALIAN =================
   {
     id: 15,
@@ -161,5 +165,23 @@ export const menuItems = [
     type: "italian",
     rating: 4.6,
     image: "/images/dishes/popular/margherita-pizza.jpg",
+    tags: ["Popular"]
   },
 ];
+
+// Categories for filtering
+export const categories = [
+  { id: 1, name: "All", icon: "🍽️" },
+  { id: 2, name: "Vegetarian", icon: "🥬" },
+  { id: 3, name: "Non-Vegetarian", icon: "🍗" },
+  { id: 4, name: "South Indian", icon: "🥘" },
+  { id: 5, name: "Chinese", icon: "🥢" },
+  { id: 6, name: "Italian", icon: "🍕" },
+  { id: 7, name: "North Indian", icon: "🍛" },
+  { id: 8, name: "Starters", icon: "🍢" },
+  { id: 9, name: "Desserts", icon: "🍰" },
+  { id: 10, name: "Beverages", icon: "🥤" }
+];
+
+
+export const menuItems = menuData;

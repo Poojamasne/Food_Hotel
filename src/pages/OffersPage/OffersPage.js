@@ -122,34 +122,18 @@ const OffersPage = () => {
       rating: 4.9,
       totalOrders: 134
     },
-    {
-      id: 8,
-      title: "Corporate Lunch Box",
-      description: "Healthy lunch box delivery for offices with main course, salad, and drink.",
-      originalPrice: 299,
-      discountedPrice: 199,
-      discountPercent: 33,
-      category: "lunch",
-      tags: ["Corporate", "Delivery"],
-      timeLeft: "04:15:20",
-      image: "https://images.unsplash.com/photo-1563379091339-03246963d9d6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      isVeg: true,
-      rating: 4.3,
-      totalOrders: 389
-    }
   ];
 
-  // Filter offers based on active filter
   const filteredOffers = activeFilter === "all" 
     ? allOffers 
     : allOffers.filter(offer => offer.category === activeFilter);
 
-  // Handle filter change
+
   const handleFilterChange = (filter) => {
     setActiveFilter(filter);
   };
 
-  // Featured offers (first 3)
+ 
   const featuredOffers = allOffers.slice(0, 3);
 
   return (

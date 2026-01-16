@@ -8,6 +8,7 @@ import MenuPage from "./pages/MenuPage/MenuPage";
 import AboutPage from "./pages/AboutPage/AboutPage";
 import Contact from "./pages/Contact/Contact";
 import Cart from "./pages/Cart/Cart";
+import Checkout from './pages/Checkout/Checkout';
 import OffersPage from "./pages/OffersPage/OffersPage";
 import Vegetarian from "./pages/CategoryPages/Vegetarian/Vegetarian";
 import NonVegetarian from "./pages/CategoryPages/NonVegetarian/NonVegetarian";
@@ -30,6 +31,7 @@ function App() {
             <Route path="/offers" element={<OffersPage />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<Cart />} />
+             <Route path="/checkout" element={<Checkout />} />
             <Route path="/category/veg" element={<Vegetarian />} />
             <Route path="/category/non-veg" element={<NonVegetarian />} />
             <Route path="/category/south-indian" element={<SouthIndian />} />

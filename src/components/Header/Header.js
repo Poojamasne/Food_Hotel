@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./Header.css";
 import { Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
+
 import {
   FaShoppingCart,
   FaUser,
@@ -18,6 +20,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 992);
+  const { cartCount } = useCart();
 
   const foodCategories = [
     { name: "Vegetarian", icon: <FaLeaf />, slug: "veg" },
@@ -58,6 +61,10 @@ const Header = () => {
     // On desktop, let CSS hover handle it
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
     <header className="header">
       {/* Top Info Bar */}
@@ -74,30 +81,32 @@ const Header = () => {
               <FaClock /> 8:00 AM - 11:00 PM
             </div>
           </div>
-          <a
-            href="https://www.facebook.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-icon"
-          >
-            FB
-          </a>
-          <a
-            href="https://www.instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-icon"
-          >
-            IG
-          </a>
-          <a
-            href="https://www.twitter.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-icon"
-          >
-            TW
-          </a>
+          <div className="social-links">
+            <a
+              href="https://www.facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+            >
+              FB
+            </a>
+            <a
+              href="https://www.instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+            >
+              IG
+            </a>
+            <a
+              href="https://www.twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+            >
+              TW
+            </a>
+          </div>
         </div>
       </div>
 
@@ -105,17 +114,19 @@ const Header = () => {
       <div className="main-header">
         <div className="container">
           <div className="logo-brand">
-            <div className="logo">
-              <span className="logo-icon">
-                <FaLeaf />
-              </span>
-              <div className="brand-text">
-                <h1>Zonixtec</h1>
-                <p className="tagline">
-                  Pure Veg • Authentic Taste • Since 1995
-                </p>
+            <Link to="/" className="logo-link">
+              <div className="logo">
+                <span className="logo-icon">
+                  <FaLeaf />
+                </span>
+                <div className="brand-text">
+                  <h1>Zonixtec</h1>
+                  <p className="tagline">
+                    Pure Veg • Authentic Taste • Since 1995
+                  </p>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
 
           <div className="header-search">
@@ -123,16 +134,18 @@ const Header = () => {
           </div>
 
           <div className="header-actions">
-            <Link to="/order" className="order-btn">
+            <Link to="/menu" className="order-btn">
               <span className="btn-icon">
                 <FaShoppingCart />
               </span>
               Order Online
             </Link>
             <Link to="/cart" className="cart-btn">
-              <FaShoppingCart />
-              <span className="cart-count">0</span>
+              <FaShoppingCart className="cart-icon" />
               <span className="cart-text">Cart</span>
+              {cartCount > 0 && (
+                <span className="cart-count">{cartCount}</span>
+              )}
             </Link>
             <Link to="/login" className="user-btn">
               <FaUser />
@@ -141,7 +154,8 @@ const Header = () => {
             {/* Hamburger Icon */}
             <button
               className="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={toggleMobileMenu}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
               {mobileMenuOpen ? <FaTimes /> : <FaBars />}
             </button>
@@ -154,12 +168,14 @@ const Header = () => {
         <div className="container">
           <ul className="nav-menu">
             <li>
-              <Link to="/" className="active">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
                 Home
               </Link>
             </li>
             <li>
-              <Link to="/menu">Menu</Link>
+              <Link to="/menu" onClick={() => setMobileMenuOpen(false)}>
+                Menu
+              </Link>
             </li>
 
             {/* Food Categories Dropdown */}
@@ -174,13 +190,27 @@ const Header = () => {
               </button>
               <div className="dropdown-menu">
                 {foodCategories.map((cat, idx) => (
-                  <Link key={idx} to={`/category/${cat.slug}`}>
+                  <Link 
+                    key={idx} 
+                    to={`/category/${cat.slug}`}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setMobileDropdownOpen(false);
+                    }}
+                  >
                     {cat.icon} {cat.name}
                   </Link>
                 ))}
                 <hr />
                 {combinedCategories.map((cat, idx) => (
-                  <Link key={`combo-${idx}`} to={`/category/${cat.slug}`}>
+                  <Link 
+                    key={`combo-${idx}`} 
+                    to={`/category/${cat.slug}`}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setMobileDropdownOpen(false);
+                    }}
+                  >
                     {cat.name}
                   </Link>
                 ))}
@@ -188,13 +218,19 @@ const Header = () => {
             </li>
 
             <li>
-              <Link to="/offers">Today's Offers</Link>
+              <Link to="/offers" onClick={() => setMobileMenuOpen(false)}>
+                Today's Offers
+              </Link>
             </li>
             <li>
-              <Link to="/about">About Us</Link>
+              <Link to="/about" onClick={() => setMobileMenuOpen(false)}>
+                About Us
+              </Link>
             </li>
             <li>
-              <Link to="/contact">Contact</Link>
+              <Link to="/contact" onClick={() => setMobileMenuOpen(false)}>
+                Contact
+              </Link>
             </li>
           </ul>
         </div>

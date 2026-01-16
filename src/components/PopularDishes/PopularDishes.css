@@ -1,6 +1,5 @@
 /* Popular Dishes Section */
 .popular-dishes {
-  padding: 80px 0;
   background: linear-gradient(to bottom, #ffffff, #fff9f5);
   position: relative;
   overflow: hidden;
@@ -298,6 +297,7 @@
   max-height: 52px;           
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

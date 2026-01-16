@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./MenuPage.css";
-import { categories } from "../../data/categories";
-import { menuItems } from "../../data/menuData";
+import { categories, menuData } from "../../data/menuData";
+import { useCart } from "../../context/CartContext";
 import {
   FaStar,
   FaShoppingCart,
@@ -9,68 +9,80 @@ import {
   FaLeaf,
   FaDrumstickBite,
   FaMinus,
+  FaPlus
 } from "react-icons/fa";
 
 const MenuPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [cartItems, setCartItems] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const { cartItems, addToCart, updateQuantity, getItemCount } = useCart();
 
-  /* ---------------- FILTER LOGIC ---------------- */
-  const filteredItems = menuItems.filter((item) => {
-    const selected = selectedCategory.toLowerCase().replace(/\s+/g, "-");
-
-    const categoryMatch =
-      selectedCategory === "All" ||
-      item.category === selected ||
-      item.type === selected ||
-      item.category?.includes(selected) ||
-      item.type?.includes(selected);
-
-    const searchMatch =
+  // Fixed filter logic
+  const filteredItems = menuData.filter((item) => {
+    // First check search term
+    const searchMatch = 
       searchTerm === "" ||
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.description.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return categoryMatch && searchMatch;
+    
+    if (!searchMatch) return false;
+    
+    // Then check category filter
+    if (selectedCategory === "All") return true;
+    
+    const selected = selectedCategory.toLowerCase();
+    
+    // Check by category type (veg/non-veg)
+    if (selected === "vegetarian") return item.category === "veg";
+    if (selected === "non-vegetarian") return item.category === "non-veg";
+    
+    // Check by cuisine type
+    const itemType = item.type?.toLowerCase() || "";
+    const selectedType = selected.replace(" ", "-");
+    
+    if (selectedType === "south-indian") return itemType === "south-indian";
+    if (selectedType === "north-indian") return itemType === "north-indian";
+    if (selectedType === "chinese") return itemType === "chinese";
+    if (selectedType === "italian") return itemType === "italian";
+    if (selectedType === "desserts") return itemType === "desserts";
+    if (selectedType === "beverages") return itemType === "beverages";
+    if (selectedType === "starters") return itemType === "starters";
+    
+    // Default return false
+    return false;
   });
 
-  /* ---------------- CART LOGIC ---------------- */
-  const addToCart = (id) => {
-    setCartItems((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleAddToCart = (item) => {
+    addToCart(item, 1);
   };
 
-  const removeFromCart = (id) => {
-    setCartItems((prev) => {
-      if (!prev[id]) return prev;
-      const count = prev[id] - 1;
-      if (count <= 0) {
-        const { [id]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [id]: count };
-    });
+  const handleIncreaseQuantity = (item) => {
+    const currentCount = getItemCount(item.id);
+    updateQuantity(item.id, currentCount + 1);
   };
 
-  const cartCount = Object.values(cartItems).reduce((a, b) => a + b, 0);
+  const handleDecreaseQuantity = (item) => {
+    const currentCount = getItemCount(item.id);
+    updateQuantity(item.id, currentCount - 1);
+  };
 
   return (
     <div className="menu-page">
-      {/* ================= HEADER ================= */}
-      <div
+      {/* Header with Background Image */}
+      <div 
         className="menu-header"
         style={{
-          backgroundImage: "url('/images/dishes/popular/Menu Header.jpg')",
+          backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/dishes/popular/Menu Header.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat"
         }}
       >
         <div className="container">
           <h1>Our Delicious Menu</h1>
-          <p className="subtitle">
-            Savor authentic flavors crafted with passion
-          </p>
+          <p className="subtitle">Savor authentic flavors crafted with passion</p>
 
           <div className="menu-search">
             <input
@@ -80,55 +92,45 @@ const MenuPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
-
             <div className="cart-indicator">
               <FaShoppingCart />
-              {cartCount > 0 && (
-                <span className="cart-count">{cartCount}</span>
-              )}
+              {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ================= CATEGORIES ================= */}
+      {/* Categories */}
       <section className="menu-categories">
         <div className="container">
           <div className="category-filters">
             <button
-              className={`category-btn ${
-                selectedCategory === "All" ? "active" : ""
-              }`}
+              className={`category-btn ${selectedCategory === "All" ? "active" : ""}`}
               onClick={() => setSelectedCategory("All")}
             >
               🍽️ All Items
             </button>
-
-            {categories.map((cat) => (
+            {categories.slice(1).map((cat) => (
               <button
                 key={cat.id}
-                className={`category-btn ${
-                  selectedCategory === cat.name ? "active" : ""
-                }`}
+                className={`category-btn ${selectedCategory === cat.name ? "active" : ""}`}
                 onClick={() => setSelectedCategory(cat.name)}
               >
-                {cat.name}
+                {cat.icon} {cat.name}
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ================= MENU ITEMS ================= */}
+      {/* Menu Items */}
       <section className="menu-items-section">
         <div className="container">
           <h2 className="section-title">
             {selectedCategory === "All"
               ? "All Menu Items"
               : `${selectedCategory} Specials`}
-            <span className="items-count">
-              ({filteredItems.length})
-            </span>
+            <span className="items-count">({filteredItems.length})</span>
           </h2>
 
           {filteredItems.length === 0 ? (
@@ -138,105 +140,101 @@ const MenuPage = () => {
             </div>
           ) : (
             <div className="menu-items-grid">
-              {filteredItems.map((item) => (
-                <div key={item.id} className="menu-card">
-                  {/* BADGES */}
-                  <div className="card-badges">
-                    {item.isPopular && (
-                      <span className="badge popular">
-                        <FaFire /> Popular
-                      </span>
-                    )}
-                    {item.category === "veg" && (
-                      <span className="badge veg">
-                        <FaLeaf /> Veg
-                      </span>
-                    )}
-                    {item.category === "non-veg" && (
-                      <span className="badge non-veg">
-                        <FaDrumstickBite /> Non-Veg
-                      </span>
-                    )}
-                  </div>
-
-                  {/* IMAGE */}
-                  <div className="menu-card-img">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="image-placeholder">
-                        {(item.category || item.type)
-                          ?.replace("-", " ")
-                          .toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* CONTENT */}
-                  <div className="menu-card-content">
-                    <div className="card-header">
-                      <h3>{item.name}</h3>
-                      {item.rating && (
-                        <span className="rating">
-                          <FaStar /> {item.rating}
+              {filteredItems.map((item) => {
+                const itemInCart = getItemCount(item.id);
+                
+                return (
+                  <div key={item.id} className="menu-card">
+                    <div className="card-badges">
+                      {item.tags?.includes("Best Seller") && (
+                        <span className="badge popular">
+                          <FaFire /> Popular
+                        </span>
+                      )}
+                      {item.category === "veg" && (
+                        <span className="badge veg">
+                          <FaLeaf /> Veg
+                        </span>
+                      )}
+                      {item.category === "non-veg" && (
+                        <span className="badge non-veg">
+                          <FaDrumstickBite /> Non-Veg
                         </span>
                       )}
                     </div>
 
-                    <p className="description">{item.description}</p>
-
-                    <div className="menu-card-footer">
-                      <span className="price">₹{item.price}</span>
-
-                      {cartItems[item.id] ? (
-                        <div className="cart-actions">
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                          >
-                            <FaMinus />
-                          </button>
-                          <span>{cartItems[item.id]}</span>
-                          <button
-                            onClick={() => addToCart(item.id)}
-                          >
-                            <FaShoppingCart />
-                          </button>
-                        </div>
+                    <div className="menu-card-img">
+                      {item.image ? (
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          loading="lazy" 
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/images/dishes/default-food.jpg";
+                          }}
+                        />
                       ) : (
-                        <button
-                          className="add-to-cart"
-                          onClick={() => addToCart(item.id)}
-                        >
-                          Add to Cart
-                        </button>
+                        <div className="image-placeholder">
+                          {item.name.charAt(0)}
+                        </div>
                       )}
                     </div>
+
+                    <div className="menu-card-content">
+                      <div className="card-header">
+                        <h3>{item.name}</h3>
+                        {item.rating && (
+                          <span className="rating">
+                            <FaStar /> {item.rating}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="description">{item.description}</p>
+                      
+                      <div className="item-meta">
+                        <span className="item-type">
+                          {item.type ? item.type.replace("-", " ").toUpperCase() : ""}
+                        </span>
+                      </div>
+
+                      <div className="menu-card-footer">
+                        <div className="price-section">
+                          <span className="price">₹{item.price}</span>
+                        </div>
+                        
+                        {itemInCart > 0 ? (
+                          <div className="cart-actions">
+                            <button 
+                              className="quantity-btn"
+                              onClick={() => handleDecreaseQuantity(item)}
+                            >
+                              <FaMinus />
+                            </button>
+                            <span className="quantity-count">{itemInCart}</span>
+                            <button 
+                              className="quantity-btn"
+                              onClick={() => handleIncreaseQuantity(item)}
+                            >
+                              <FaPlus />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="add-to-cart"
+                            onClick={() => handleAddToCart(item)}
+                          >
+                            <FaShoppingCart /> Add to Cart
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
-        </div>
-      </section>
-
-      {/* ================= CTA ================= */}
-      <section
-        className="menu-cta"
-        style={{
-          backgroundImage: "url('/images/dishes/popular/CTA Section.jpg')",
-        }}
-      >
-        <div className="container">
-          <h2>Craving Something Special?</h2>
-          <p>Customize your order or book a table</p>
-          <div className="cta-buttons">
-            <button className="cta-btn primary">Customize Order</button>
-            <button className="cta-btn secondary">Book a Table</button>
-          </div>
         </div>
       </section>
     </div>
@@ -244,5 +242,3 @@ const MenuPage = () => {
 };
 
 export default MenuPage;
- 
-

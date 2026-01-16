@@ -18,9 +18,9 @@
   position: relative;
   color: white;
 
-  height: 500px;              /* SAME as home hero */
+  height: 500px;              
   display: flex;
-  align-items: center;        /* vertical center */
+  align-items: center;       
 }
 
 
@@ -29,7 +29,6 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
 }
 
 .menu-header .container {
@@ -329,6 +328,7 @@
   font-size: 0.95rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -442,7 +442,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .menu-cta .container {

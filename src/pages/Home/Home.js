@@ -93,14 +93,14 @@ const Home = () => {
 
       {/* CTA Section with Background Image */}
       <section
-  className="cta-section"
-  style={{
-    backgroundImage: `url(${process.env.PUBLIC_URL}/images/cta-bg.jpg)`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-  }}
->
+        className="cta-section"
+        style={{
+          backgroundImage: `url(/images/cta-bg.jpg)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <div className="container">
           <div className="cta-content">
             <h2>Ready to Taste Excellence?</h2>
