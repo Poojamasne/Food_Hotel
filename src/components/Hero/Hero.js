@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./Hero.css";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
+  
   const banners = [
     {
       id: 1,
@@ -11,6 +14,8 @@ const Hero = () => {
       image: "/images/dishes/banners/banner1.jpg",
       buttonText: "Order Now",
       color: "#FF6B6B",
+      link: "/offers", // Add navigation link
+      query: "category=chinese", // Optional query params
     },
     {
       id: 2,
@@ -19,6 +24,7 @@ const Hero = () => {
       image: "/images/dishes/banners/banner2.jpg",
       buttonText: "Explore Menu",
       color: "#4ECDC4",
+      link: "/category/south-indian", // Direct to category
     },
     {
       id: 3,
@@ -27,6 +33,8 @@ const Hero = () => {
       image: "/images/dishes/banners/banner3.jpg",
       buttonText: "View Deal",
       color: "#45B7D1",
+      link: "/menu", // Menu page
+      query: "section=combo-deals", // Optional: specific section
     },
     {
       id: 4,
@@ -35,21 +43,36 @@ const Hero = () => {
       image: "/images/dishes/banners/banner4.jpg",
       buttonText: "Try Now",
       color: "#96CEB4",
+      link: "/category/italian", // Direct to Italian category
     },
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-  const interval = setInterval(() => {
-    setCurrentSlide((prev) => (prev + 1) % banners.length);
-  }, 5000);
-  return () => clearInterval(interval);
-}, [banners.length]);
-
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [banners.length]);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % banners.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
+
+  const handleButtonClick = (banner) => {
+    // Scroll to top before navigation
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Navigate to the specified link
+    let navigatePath = banner.link;
+    
+    // Add query parameters if they exist
+    if (banner.query) {
+      navigatePath += `?${banner.query}`;
+    }
+    
+    navigate(navigatePath);
+  };
 
   return (
     <div className="hero-slider">
@@ -68,7 +91,13 @@ const Hero = () => {
           <div className="slide-content">
             <h2>{banner.title}</h2>
             <p>{banner.description}</p>
-            <button className="slide-button">{banner.buttonText}</button>
+            <button 
+              className="slide-button"
+              onClick={() => handleButtonClick(banner)}
+              style={{ backgroundColor: banner.color }}
+            >
+              {banner.buttonText}
+            </button>
           </div>
         </div>
       ))}
