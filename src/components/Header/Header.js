@@ -7,9 +7,9 @@ import { useAuth } from "../../context/AuthContext";
 import {
   FaShoppingCart,
   FaUser,
-  FaPhone,
-  FaMapMarkerAlt,
-  FaClock,
+  // FaPhone,
+  // FaMapMarkerAlt,
+  // FaClock,
   FaLeaf,
   FaChevronDown,
   FaBars,
@@ -58,7 +58,7 @@ const Header = () => {
   return (
     <header className="header">
       {/* Top Info Bar */}
-      <div className="top-info-bar">
+      {/* <div className="top-info-bar">
         <div className="container">
           <div className="info-items">
             <div className="info-item">
@@ -98,7 +98,7 @@ const Header = () => {
             </a>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Header */}
       <div className="main-header">

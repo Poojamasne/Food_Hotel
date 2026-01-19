@@ -155,6 +155,7 @@ const ManageMenu = () => {
         return;
       }
 
+      // Fetch menu items
       const response = await fetch('https://backend-hotel-management.onrender.com/api/admin/products', {
         method: 'GET',
         headers: {
@@ -170,10 +171,34 @@ const ManageMenu = () => {
         if (data.success) {
           setMenuItems(data.data || []);
           
-          // Extract unique categories from products
-          const apiCategories = [...new Set(data.data.map(item => item.category_name).filter(Boolean))];
-          const combinedCategories = [...new Set([...apiCategories, ...ALL_CATEGORIES.map(c => c.name)])];
-          setCategories(combinedCategories);
+          // Fetch actual categories from backend
+          try {
+            const categoriesResponse = await fetch('https://backend-hotel-management.onrender.com/api/categories', {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (categoriesResponse.ok) {
+              const categoriesData = await categoriesResponse.json();
+              if (categoriesData.success && categoriesData.data) {
+                // Use actual categories from backend
+                setCategories(categoriesData.data);
+              } else {
+                // Fallback to frontend categories
+                setCategories(ALL_CATEGORIES);
+              }
+            } else {
+              // Fallback to frontend categories
+              setCategories(ALL_CATEGORIES);
+            }
+          } catch (catError) {
+            console.error('Error fetching categories:', catError);
+            // Fallback to frontend categories
+            setCategories(ALL_CATEGORIES);
+          }
         } else {
           setError(data.message || 'Failed to load menu items');
         }
@@ -300,68 +325,68 @@ const ManageMenu = () => {
       }
 
       // Prepare tags as array if provided
-      const tagsArray = newItem.tags ? newItem.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+      const tagsArray = newItem.tags ? 
+        newItem.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
       
       // Prepare ingredients as array if provided
-      const ingredientsArray = newItem.ingredients ? newItem.ingredients.split(',').map(ing => ing.trim()).filter(ing => ing) : [];
+      const ingredientsArray = newItem.ingredients ? 
+        newItem.ingredients.split(',').map(ing => ing.trim()).filter(ing => ing) : [];
 
-      // Find the selected category
-      const selectedCategoryObj = ALL_CATEGORIES.find(cat => cat.id === parseInt(newItem.category_id));
-      const categoryName = selectedCategoryObj ? selectedCategoryObj.name : '';
+      // Find the selected category from your categories array
+      const selectedCategory = categories.find(cat => {
+        if (typeof cat === 'object') {
+          return cat.id === parseInt(newItem.category_id);
+        }
+        return false;
+      });
+      
+      const categoryId = selectedCategory ? selectedCategory.id : parseInt(newItem.category_id);
+      const categoryName = selectedCategory ? selectedCategory.name : 'Category';
+      const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
 
-      // Prepare the request data
+      // Prepare image - Initialize with null
+      let imageData = null;
+      if (newItem.imageFile) {
+        try {
+          // Compress the image
+          const compressedImage = await compressImage(newItem.imageFile, 600, 0.6);
+          imageData = compressedImage.base64;
+        } catch (error) {
+          console.warn('Image compression failed:', error);
+          if (newItem.imagePreview && newItem.imagePreview.startsWith('data:image')) {
+            imageData = newItem.imagePreview;
+          }
+        }
+      } else if (newItem.imagePreview && newItem.imagePreview.startsWith('data:image')) {
+        imageData = newItem.imagePreview;
+      }
+
+      // Prepare the request data - convert booleans to strings for backend
       const itemData = {
         name: newItem.name,
-        description: newItem.description,
+        description: newItem.description || '',
         price: parseFloat(newItem.price),
-        original_price: newItem.original_price ? parseFloat(newItem.original_price) : parseFloat(newItem.price),
-        category_id: parseInt(newItem.category_id),
-        category_name: categoryName,
+        original_price: newItem.original_price ? parseFloat(newItem.original_price) : null,
+        category_id: categoryId,
+        category_slug: categorySlug,
         type: newItem.type,
         tags: tagsArray,
-        prep_time: newItem.prep_time,
+        prep_time: newItem.prep_time || '15 min',
         ingredients: ingredientsArray,
         is_available: newItem.is_available,
         is_popular: newItem.is_popular,
         is_featured: newItem.is_featured
       };
 
-      // Add image if available (compressed)
-      let finalItemData = { ...itemData };
-      
-      if (newItem.imageFile) {
-        try {
-          // Compress the image
-          const compressedImage = await compressImage(newItem.imageFile, 600, 0.6);
-          
-          // Convert compressed image to Base64
-          const base64Image = compressedImage.base64;
-          
-          // Check size
-          if (base64Image.length > 500000) { // ~500KB
-            alert('Image is still too large after compression. Please use a smaller image.');
-            setIsSubmitting(false);
-            return;
-          }
-          
-          // Add compressed image to data
-          finalItemData.image = base64Image;
-          
-        } catch (error) {
-          console.warn('Image compression failed:', error);
-          // Fallback to original image or skip
-          if (newItem.imagePreview && newItem.imagePreview.length < 1000000) {
-            finalItemData.image = newItem.imagePreview;
-          } else {
-            finalItemData.image = '/images/dishes/default-food.jpg';
-          }
-        }
-      } else {
-        // Use default image if no image uploaded
-        finalItemData.image = '/images/dishes/default-food.jpg';
+      // Only add image if we have one
+      if (imageData) {
+        itemData.image = imageData;
       }
 
-      console.log('Sending item data (size):', JSON.stringify(finalItemData).length);
+      console.log('Sending item data:', {
+        ...itemData,
+        image: imageData ? 'Image attached' : 'No image'
+      });
 
       const response = await fetch('https://backend-hotel-management.onrender.com/api/admin/products', {
         method: 'POST',
@@ -369,40 +394,42 @@ const ManageMenu = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(finalItemData)
+        body: JSON.stringify(itemData)
       });
 
+      const responseText = await response.text();
+      console.log('Response status:', response.status);
+      console.log('Response body:', responseText);
+
       if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          // Add new item to state
-          setMenuItems([...menuItems, data.data]);
-          resetNewItemForm();
-          setShowAddModal(false);
-          alert('Item added successfully!');
-        } else {
-          alert(data.message || 'Failed to add item');
+        try {
+          const data = JSON.parse(responseText);
+          if (data.success) {
+            // Add new item to state
+            setMenuItems([...menuItems, data.data]);
+            resetNewItemForm();
+            setShowAddModal(false);
+            alert('Item added successfully!');
+            // Refresh the menu items
+            fetchMenuItems();
+          } else {
+            alert(data.message || 'Failed to add item');
+          }
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          alert('Unexpected response format: ' + responseText);
         }
       } else {
-        const errorText = await response.text();
-        console.error('Server response:', response.status, errorText);
-        
-        if (response.status === 413) {
-          alert('Image file is too large. Please use a smaller image (max 500KB).');
-        } else if (response.status === 400) {
-          try {
-            const errorData = JSON.parse(errorText);
-            alert(errorData.message || 'Invalid request. Please check your data.');
-          } catch {
-            alert('Invalid request. Please check your data.');
-          }
-        } else {
-          alert(`Error ${response.status}: Failed to add item`);
+        try {
+          const errorData = JSON.parse(responseText);
+          alert(`Error ${response.status}: ${errorData.message || 'Failed to add item'}`);
+        } catch (parseError) {
+          alert(`Error ${response.status}: ${responseText || 'Failed to add item'}`);
         }
       }
     } catch (err) {
       console.error('Error adding item:', err);
-      alert('Error adding item. Please try again.');
+      alert('Error adding item. Please try again. Error: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -415,8 +442,21 @@ const ManageMenu = () => {
     // Find category ID from name or use existing
     let categoryId = item.category_id;
     if (!categoryId && item.category_name) {
-      const foundCategory = ALL_CATEGORIES.find(cat => cat.name === item.category_name);
-      categoryId = foundCategory ? foundCategory.id : '';
+      // Try to find category in categories array
+      const foundCategory = categories.find(cat => {
+        if (typeof cat === 'object') {
+          return cat.name === item.category_name;
+        }
+        return cat === item.category_name;
+      });
+      
+      if (foundCategory) {
+        categoryId = typeof foundCategory === 'object' ? foundCategory.id : '';
+      } else {
+        // Fallback to ALL_CATEGORIES
+        const foundInAllCategories = ALL_CATEGORIES.find(cat => cat.name === item.category_name);
+        categoryId = foundInAllCategories ? foundInAllCategories.id : '';
+      }
     }
 
     setEditItem({
@@ -462,8 +502,15 @@ const ManageMenu = () => {
       const ingredientsArray = editItem.ingredients ? editItem.ingredients.split(',').map(ing => ing.trim()).filter(ing => ing) : [];
 
       // Find the selected category
-      const selectedCategoryObj = ALL_CATEGORIES.find(cat => cat.id === parseInt(editItem.category_id));
+      const selectedCategoryObj = categories.find(cat => {
+        if (typeof cat === 'object') {
+          return cat.id === parseInt(editItem.category_id);
+        }
+        return false;
+      });
+      
       const categoryName = selectedCategoryObj ? selectedCategoryObj.name : '';
+      const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
 
       // Prepare update data
       const updateData = {
@@ -472,7 +519,7 @@ const ManageMenu = () => {
         price: parseFloat(editItem.price),
         original_price: editItem.original_price ? parseFloat(editItem.original_price) : parseFloat(editItem.price),
         category_id: editItem.category_id ? parseInt(editItem.category_id) : null,
-        category_name: categoryName,
+        category_slug: categorySlug,
         type: editItem.type,
         tags: tagsArray,
         prep_time: editItem.prep_time,
@@ -525,6 +572,8 @@ const ManageMenu = () => {
           setShowEditModal(false);
           setSelectedItem(null);
           alert('Item updated successfully!');
+          // Refresh the menu items
+          fetchMenuItems();
         } else {
           alert(data.message || 'Failed to update item');
         }
@@ -598,6 +647,20 @@ const ManageMenu = () => {
   const inferCategory = (item) => {
     if (item.category_name) return item.category_name;
     
+    // Try to find category from categories array
+    if (item.category_id) {
+      const foundCategory = categories.find(cat => {
+        if (typeof cat === 'object') {
+          return cat.id === item.category_id;
+        }
+        return false;
+      });
+      if (foundCategory && typeof foundCategory === 'object') {
+        return foundCategory.name;
+      }
+    }
+    
+    // Fallback to name-based inference
     const name = item.name?.toLowerCase() || '';
     const type = item.type || 'veg';
     
@@ -630,7 +693,7 @@ const ManageMenu = () => {
 
   const getImagePreview = (image) => {
     if (!image || image === 'null' || image === 'undefined' || image === '') {
-      return '/images/dishes/default-food.jpg';
+      return null;
     }
     
     if (image.startsWith('data:image')) {
@@ -642,10 +705,18 @@ const ManageMenu = () => {
     }
     
     if (image.startsWith('/')) {
-      return image;
+      // Convert relative paths to absolute URLs
+      if (image.startsWith('/images/')) {
+        return `https://food-hotel-one.vercel.app${image}`;
+      }
+      return `https://backend-hotel-management.onrender.com${image}`;
     }
     
-    return '/images/dishes/default-food.jpg';
+    if (image.length > 1000 && !image.includes(' ') && !image.includes('<')) {
+      return `data:image/jpeg;base64,${image}`;
+    }
+    
+    return null;
   };
 
   const getStatusText = (isAvailable) => {
@@ -712,9 +783,16 @@ const ManageMenu = () => {
           <FaFilter />
           <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
             <option value="All">All Categories</option>
-            {categories.map((cat, index) => (
-              <option key={index} value={cat}>{cat}</option>
-            ))}
+            {categories.map((cat, index) => {
+              const categoryName = typeof cat === 'object' ? cat.name : cat;
+              const categoryId = typeof cat === 'object' ? cat.id : index;
+              
+              return (
+                <option key={categoryId} value={categoryName}>
+                  {categoryName}
+                </option>
+              );
+            })}
           </select>
         </div>
       </div>
@@ -769,6 +847,7 @@ const ManageMenu = () => {
                   ? Math.round(((originalPrice - item.price) / originalPrice) * 100)
                   : 0;
                 const hasDiscount = discountPercentage > 0;
+                const imagePreview = getImagePreview(item.image);
                 
                 return (
                   <tr key={item.id}>
@@ -776,14 +855,20 @@ const ManageMenu = () => {
                     <td className="item-cell">
                       <div className="item-info">
                         <div className="item-image">
-                          <img 
-                            src={getImagePreview(item.image)} 
-                            alt={item.name} 
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '/images/dishes/default-food.jpg';
-                            }}
-                          />
+                          {imagePreview ? (
+                            <img 
+                              src={imagePreview} 
+                              alt={item.name} 
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="no-image-placeholder">
+                              <FaImage />
+                              <span>No Image</span>
+                            </div>
+                          )}
                         </div>
                         <div className="item-details">
                           <div className="item-name-row">
@@ -944,9 +1029,16 @@ const ManageMenu = () => {
                     disabled={isSubmitting}
                   >
                     <option value="">Select Category</option>
-                    {ALL_CATEGORIES.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
+                    {categories.map((cat, index) => {
+                      const categoryId = typeof cat === 'object' ? cat.id : index + 1;
+                      const categoryName = typeof cat === 'object' ? cat.name : cat;
+                      
+                      return (
+                        <option key={categoryId} value={categoryId}>
+                          {categoryName}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
@@ -1214,9 +1306,16 @@ const ManageMenu = () => {
                     disabled={isSubmitting}
                   >
                     <option value="">Select Category</option>
-                    {ALL_CATEGORIES.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
+                    {categories.map((cat, index) => {
+                      const categoryId = typeof cat === 'object' ? cat.id : index + 1;
+                      const categoryName = typeof cat === 'object' ? cat.name : cat;
+                      
+                      return (
+                        <option key={categoryId} value={categoryId}>
+                          {categoryName}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
