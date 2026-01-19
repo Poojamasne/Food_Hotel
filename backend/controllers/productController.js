@@ -234,50 +234,142 @@ exports.createProduct = async (req, res) => {
     }
 };
 
-// @desc    Update product (Admin only)
+// @desc    Update product (Admin only) - SIMPLE FIXED VERSION
 // @route   PUT /api/admin/products/:id
 exports.updateProduct = async (req, res) => {
-    try {
-        const productId = req.params.id;
-        const updateData = req.body;
-        
-        console.log('Update product request:', productId, updateData);
-        
-        // Check if product exists
-        const existingProduct = await Product.findById(productId);
-        if (!existingProduct) {
-            return res.status(404).json({
-                success: false,
-                message: 'Product not found'
-            });
-        }
-        
-        // Handle boolean conversions
-        if (updateData.is_available !== undefined) {
-            updateData.is_available = updateData.is_available === true || updateData.is_available === 'true';
-        }
-        if (updateData.is_popular !== undefined) {
-            updateData.is_popular = updateData.is_popular === true || updateData.is_popular === 'true';
-        }
-        if (updateData.is_featured !== undefined) {
-            updateData.is_featured = updateData.is_featured === true || updateData.is_featured === 'true';
-        }
-        
-        const product = await Product.update(productId, updateData);
-        
-        res.json({
-            success: true,
-            message: 'Product updated successfully',
-            data: product
-        });
-    } catch (error) {
-        console.error('Update product error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error',
-            error: error.message
-        });
+  try {
+    const productId = req.params.id;
+    
+    console.log('=== UPDATE START ===');
+    console.log('Product ID:', productId);
+    
+    // Check if product exists
+    const existingProduct = await Product.findById(productId);
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
     }
+    
+    console.log('Existing product found:', existingProduct.id, existingProduct.name);
+    
+    // SIMPLE APPROACH: Create updateData from scratch
+    let updateData = {};
+    
+    // Handle name
+    if (req.body.name && req.body.name.trim() !== '') {
+      updateData.name = req.body.name.trim();
+    }
+    
+    // Handle price
+    if (req.body.price && !isNaN(parseFloat(req.body.price))) {
+      updateData.price = parseFloat(req.body.price);
+    }
+    
+    // Handle type
+    if (req.body.type && ['veg', 'non-veg'].includes(req.body.type.toLowerCase())) {
+      updateData.type = req.body.type.toLowerCase();
+    }
+    
+    // Handle description
+    if (req.body.description !== undefined) {
+      updateData.description = req.body.description;
+    }
+    
+    // Handle category_id
+    if (req.body.category_id && !isNaN(parseInt(req.body.category_id))) {
+      updateData.category_id = parseInt(req.body.category_id);
+    }
+    
+    // Handle image - MOST IMPORTANT!
+    if (req.file) {
+      updateData.image = `/uploads/products/${req.file.filename}`;
+      console.log('New image uploaded:', updateData.image);
+    } else if (req.body.image && req.body.image !== 'undefined') {
+      updateData.image = req.body.image;
+    }
+    
+    // Handle booleans
+    if (req.body.is_available !== undefined) {
+      updateData.is_available = req.body.is_available === 'true' || req.body.is_available === '1' || req.body.is_available === true;
+    }
+    
+    if (req.body.is_popular !== undefined) {
+      updateData.is_popular = req.body.is_popular === 'true' || req.body.is_popular === '1' || req.body.is_popular === true;
+    }
+    
+    if (req.body.is_featured !== undefined) {
+      updateData.is_featured = req.body.is_featured === 'true' || req.body.is_featured === '1' || req.body.is_featured === true;
+    }
+    
+    // Handle original_price
+    if (req.body.original_price && !isNaN(parseFloat(req.body.original_price))) {
+      updateData.original_price = parseFloat(req.body.original_price);
+    }
+    
+    // Handle prep_time
+    if (req.body.prep_time) {
+      updateData.prep_time = req.body.prep_time;
+    }
+    
+    // Handle tags
+    if (req.body.tags !== undefined) {
+      try {
+        if (typeof req.body.tags === 'string') {
+          updateData.tags = JSON.parse(req.body.tags);
+        } else {
+          updateData.tags = req.body.tags;
+        }
+      } catch (error) {
+        updateData.tags = req.body.tags.split(',').map(tag => tag.trim());
+      }
+    }
+    
+    // Handle ingredients
+    if (req.body.ingredients !== undefined) {
+      try {
+        if (typeof req.body.ingredients === 'string') {
+          updateData.ingredients = JSON.parse(req.body.ingredients);
+        } else {
+          updateData.ingredients = req.body.ingredients;
+        }
+      } catch (error) {
+        updateData.ingredients = req.body.ingredients.split(',').map(ing => ing.trim());
+      }
+    }
+    
+    console.log('Final updateData object:', JSON.stringify(updateData, null, 2));
+    console.log('Number of fields to update:', Object.keys(updateData).length);
+    
+    // CRITICAL: If no fields, add at least one field to update
+    if (Object.keys(updateData).length === 0) {
+      console.log('No fields provided. Using name as default update.');
+      updateData.name = existingProduct.name;
+    }
+    
+    // Call update method
+    console.log('Calling Product.update() with data:', updateData);
+    const product = await Product.update(productId, updateData);
+    
+    console.log('✅ Update successful!');
+    
+    res.json({
+      success: true,
+      message: 'Product updated successfully',
+      data: product
+    });
+    
+  } catch (error) {
+    console.error('❌ Update product error:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error.message
+    });
+  }
 };
 
 // @desc    Delete product (Admin only)

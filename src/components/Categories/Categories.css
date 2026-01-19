@@ -177,7 +177,7 @@
   margin-top: 30px;
 }
 
-.view-all-btn {
+/* .view-all-btn {
   background: transparent;
   color: #8B4513;
   border: 2px solid #8B4513;
@@ -192,9 +192,9 @@
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
-}
+} */
 
-.view-all-btn:hover {
+/* .view-all-btn:hover {
   background: #8B4513;
   color: white;
   transform: translateY(-3px);
@@ -203,7 +203,7 @@
 
 .view-all-btn:hover .arrow {
   transform: translateX(10px) rotate(90deg);
-}
+} */
 
 /* Responsive Adjustments */
 @media (max-width: 992px) {

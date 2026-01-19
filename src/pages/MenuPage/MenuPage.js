@@ -22,6 +22,21 @@ const MenuPage = () => {
   const { cartItems, addToCart, updateQuantity, getItemCount } = useCart();
   const { token } = useAuth();
 
+  // Category mapping for API calls and filtering
+  const categoryMapping = {
+    // Frontend Category: [API category_slug values]
+    "All": ["all"],
+    "Vegetarian": ["veg"],
+    "Non-Vegetarian": ["non-veg"],
+    "South Indian": ["south-indian", "southindian"],
+    "North Indian": ["north-indian", "northindian"],
+    "Chinese": ["chinese"],
+    "Italian": ["italian"],
+    "Desserts": ["desserts", "dessert"],
+    "Beverages": ["beverages", "beverage", "drinks"],
+    "Starters": ["starters", "starter", "appetizer"]
+  };
+
   // Fetch menu data from API
   useEffect(() => {
     const fetchMenuData = async () => {
@@ -37,26 +52,8 @@ const MenuPage = () => {
           headers['Authorization'] = `Bearer ${token}`;
         }
 
-        // Map category names to API slugs
-        const categoryMap = {
-          "All": "all",
-          "Vegetarian": "veg",
-          "Non-Vegetarian": "non-veg", 
-          "South Indian": "south-indian",
-          "North Indian": "north-indian",
-          "Chinese": "chinese",
-          "Italian": "italian",
-          "Desserts": "desserts",
-          "Beverages": "beverages",
-          "Starters": "starters"
-        };
-
-        let apiUrl = 'https://backend-hotel-management.onrender.com/api/products';
-        const apiSlug = categoryMap[selectedCategory];
-        
-        if (selectedCategory !== "All" && apiSlug) {
-          apiUrl = `https://backend-hotel-management.onrender.com/api/products/category/${apiSlug}`;
-        }
+        // Always fetch all products, we'll filter on frontend
+        const apiUrl = 'https://backend-hotel-management.onrender.com/api/products';
 
         const response = await fetch(apiUrl, {
           headers: headers
@@ -69,20 +66,25 @@ const MenuPage = () => {
         const data = await response.json();
         
         if (data.success) {
-          // Transform API data to match your existing structure
+          // Transform API data
           const transformedData = data.data.map(product => ({
             id: product.id,
             name: product.name,
             description: product.description || `${product.name} - Delicious dish`,
             price: product.price || 0,
-            category: product.category_slug || "veg", // Map to your category format
-            type: product.category_name || "",
-            rating: parseFloat(product.rating) || 4.0, // Ensure it's a number
-            tags: product.is_bestseller ? ["Best Seller"] : [],
-            image: getImagePath(product.image)
+            category_slug: product.category_slug || "", // Keep original slug
+            category_name: product.category_name || "",
+            type: product.type || "veg", // veg or non-veg
+            rating: parseFloat(product.rating) || 4.0,
+            tags: product.is_popular ? ["Popular"] : [],
+            image: getImagePath(product.image),
+            // Add category_type for easier filtering
+            category_type: getCategoryType(product)
           }));
           
           setMenuData(transformedData);
+          console.log("Fetched data:", transformedData.length, "items");
+          console.log("Sample item:", transformedData[0]);
         } else {
           throw new Error(data.message || 'Failed to load menu');
         }
@@ -95,12 +97,52 @@ const MenuPage = () => {
     };
 
     fetchMenuData();
-  }, [selectedCategory, token]);
+  }, [token]);
+
+  // Helper function to categorize items
+  const getCategoryType = (product) => {
+    const slug = product.category_slug ? product.category_slug.toLowerCase() : "";
+    const name = product.category_name ? product.category_name.toLowerCase() : "";
+    
+    // Check for food type first
+    if (product.type === "veg") return "Vegetarian";
+    if (product.type === "non-veg") return "Non-Vegetarian";
+    
+    // Check category slugs
+    if (slug.includes("south") || slug.includes("dosa") || slug.includes("idli")) {
+      return "South Indian";
+    }
+    if (slug.includes("north") || slug.includes("paneer") || slug.includes("butter")) {
+      return "North Indian";
+    }
+    if (slug.includes("chinese") || slug.includes("manchurian")) {
+      return "Chinese";
+    }
+    if (slug.includes("italian") || slug.includes("pasta") || slug.includes("pizza")) {
+      return "Italian";
+    }
+    if (slug.includes("dessert") || slug.includes("ice") || slug.includes("sweet")) {
+      return "Desserts";
+    }
+    if (slug.includes("beverage") || slug.includes("drink") || slug.includes("coffee") || slug.includes("soda")) {
+      return "Beverages";
+    }
+    if (slug.includes("starter") || slug.includes("appetizer")) {
+      return "Starters";
+    }
+    
+    return "Vegetarian"; // Default
+  };
 
   // Helper function to get image path
   const getImagePath = (apiImagePath) => {
-    if (!apiImagePath) {
+    if (!apiImagePath || apiImagePath === "null" || apiImagePath === "undefined") {
       return "/images/dishes/default-food.jpg";
+    }
+    
+    // If it's already a full URL
+    if (apiImagePath.startsWith('http')) {
+      return apiImagePath;
     }
     
     // If it's a relative path, prepend backend URL
@@ -108,42 +150,67 @@ const MenuPage = () => {
       return `https://backend-hotel-management.onrender.com${apiImagePath}`;
     }
     
-    return apiImagePath;
+    // If it's just a filename
+    return `https://backend-hotel-management.onrender.com/uploads/products/${apiImagePath}`;
   };
 
-  // Fixed filter logic (same as before)
+  // Fixed filter logic
   const filteredItems = menuData.filter((item) => {
-    // First check search term
-    const searchMatch = 
-      searchTerm === "" ||
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    // 1. Search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const nameMatch = item.name.toLowerCase().includes(searchLower);
+      const descMatch = item.description.toLowerCase().includes(searchLower);
+      const categoryMatch = item.category_name?.toLowerCase().includes(searchLower);
+      
+      if (!nameMatch && !descMatch && !categoryMatch) {
+        return false;
+      }
+    }
     
-    if (!searchMatch) return false;
-    
-    // Then check category filter
-    if (selectedCategory === "All") return true;
+    // 2. Category filter
+    if (selectedCategory === "All") {
+      return true;
+    }
     
     const selected = selectedCategory.toLowerCase();
     
-    // Check by category type (veg/non-veg)
-    if (selected === "vegetarian") return item.category === "veg";
-    if (selected === "non-vegetarian") return item.category === "non-veg";
+    // Handle Vegetarian/Non-Vegetarian
+    if (selected === "vegetarian") {
+      return item.type === "veg";
+    }
+    if (selected === "non-vegetarian") {
+      return item.type === "non-veg";
+    }
     
-    // Check by cuisine type
-    const itemType = item.type?.toLowerCase() || "";
-    const selectedType = selected.replace(" ", "-");
+    // Handle other categories using mapping
+    const categorySlugs = categoryMapping[selectedCategory] || [];
     
-    if (selectedType === "south-indian") return itemType === "south-indian";
-    if (selectedType === "north-indian") return itemType === "north-indian";
-    if (selectedType === "chinese") return itemType === "chinese";
-    if (selectedType === "italian") return itemType === "italian";
-    if (selectedType === "desserts") return itemType === "desserts";
-    if (selectedType === "beverages") return itemType === "beverages";
-    if (selectedType === "starters") return itemType === "starters";
+    // Check if item matches any of the mapped slugs
+    const itemSlug = item.category_slug ? item.category_slug.toLowerCase() : "";
+    const itemName = item.category_name ? item.category_name.toLowerCase() : "";
+    const itemType = item.category_type ? item.category_type.toLowerCase() : "";
     
-    // Default return false
-    return false;
+    // Check against all possible matches
+    const matchesSlug = categorySlugs.some(slug => 
+      itemSlug.includes(slug) || slug.includes(itemSlug)
+    );
+    
+    const matchesName = categorySlugs.some(slug => 
+      itemName.includes(slug) || slug.includes(itemName)
+    );
+    
+    const matchesType = categorySlugs.some(slug => 
+      itemType.includes(slug) || slug.includes(itemType)
+    );
+    
+    // Also check if item name contains category keywords
+    const itemNameCheck = item.name.toLowerCase();
+    const hasCategoryKeyword = categorySlugs.some(slug => 
+      itemNameCheck.includes(slug)
+    );
+    
+    return matchesSlug || matchesName || matchesType || hasCategoryKeyword;
   });
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -175,6 +242,14 @@ const MenuPage = () => {
     // Return formatted number
     return numRating.toFixed(1);
   };
+
+  // Debug: Log filtered items
+  useEffect(() => {
+    if (filteredItems.length > 0) {
+      console.log(`Filtered ${filteredItems.length} items for category: ${selectedCategory}`);
+      console.log("First few items:", filteredItems.slice(0, 3));
+    }
+  }, [filteredItems, selectedCategory]);
 
   return (
     <div className="menu-page">
@@ -252,6 +327,12 @@ const MenuPage = () => {
             <div className="no-results">
               <h3>No items found</h3>
               <p>Try a different search or category</p>
+              <button 
+                className="btn-retry"
+                onClick={() => window.location.reload()}
+              >
+                Refresh Page
+              </button>
             </div>
           ) : (
             <div className="menu-items-grid">
@@ -262,17 +343,17 @@ const MenuPage = () => {
                 return (
                   <div key={item.id} className="menu-card">
                     <div className="card-badges">
-                      {item.tags?.includes("Best Seller") && (
+                      {item.tags?.includes("Popular") && (
                         <span className="badge popular">
                           <FaFire /> Popular
                         </span>
                       )}
-                      {item.category === "veg" && (
+                      {item.type === "veg" && (
                         <span className="badge veg">
                           <FaLeaf /> Veg
                         </span>
                       )}
-                      {item.category === "non-veg" && (
+                      {item.type === "non-veg" && (
                         <span className="badge non-veg">
                           <FaDrumstickBite /> Non-Veg
                         </span>
@@ -310,8 +391,8 @@ const MenuPage = () => {
                       <p className="description">{item.description}</p>
                       
                       <div className="item-meta">
-                        <span className="item-type">
-                          {item.type ? item.type.replace("-", " ").toUpperCase() : ""}
+                        <span className="item-category">
+                          {item.category_name || item.category_type || "General"}
                         </span>
                       </div>
 

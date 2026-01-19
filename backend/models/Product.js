@@ -134,9 +134,10 @@ class Product {
         }
         
         if (filters.category_slug) {
-            query += ' AND p.category_slug = ?';
-            values.push(filters.category_slug);
-        }
+    query += ' AND (c.slug = ? OR p.category_slug = ?)';
+    values.push(filters.category_slug);
+    values.push(filters.category_slug);
+  }
         
         if (filters.type) {
             query += ' AND p.type = ?';
@@ -192,52 +193,102 @@ class Product {
         );
         return rows[0];
     }
+ 
+// Update product - SIMPLE FIXED VERSION
+static async update(id, updateData) {
+  console.log('=== PRODUCT.update() CALLED ===');
+  console.log('Product ID to update:', id);
+  console.log('Update data received:', updateData);
+  
+  if (!updateData || Object.keys(updateData).length === 0) {
+    throw new Error('No data provided for update');
+  }
+  
+  try {
+    // Build UPDATE query
+    const fields = [];
+    const values = [];
     
-    // Update product
-    static async update(id, updateData) {
-        const fields = [];
-        const values = [];
-        
-        for (const [key, value] of Object.entries(updateData)) {
-            if (key === 'tags' || key === 'ingredients') {
-                // Convert arrays to JSON strings
-                fields.push(`${key} = ?`);
-                values.push(value && Array.isArray(value) && value.length > 0 ? JSON.stringify(value) : null);
-            } else if (key === 'price' || key === 'original_price') {
-                // Convert to float
-                fields.push(`${key} = ?`);
-                values.push(parseFloat(value));
-            } else if (key === 'category_id') {
-                // Convert to integer
-                fields.push(`${key} = ?`);
-                values.push(parseInt(value));
-            } else if (key === 'is_available' || key === 'is_popular' || key === 'is_featured') {
-                // Convert boolean to MySQL tinyint
-                fields.push(`${key} = ?`);
-                values.push(value ? 1 : 0);
-            } else if (key === 'type' && value) {
-                // Ensure type is lowercase for ENUM
-                fields.push(`${key} = ?`);
-                values.push(value.toLowerCase());
-            } else {
-                fields.push(`${key} = ?`);
-                values.push(value);
-            }
+    // Always update updated_at
+    fields.push('updated_at = NOW()');
+    
+    // Process each field
+    for (const [key, value] of Object.entries(updateData)) {
+      console.log(`Processing field: ${key} = ${value} (type: ${typeof value})`);
+      
+      // Skip if value is undefined or null
+      if (value === undefined || value === null) {
+        console.log(`Skipping ${key} because it's undefined/null`);
+        continue;
+      }
+      
+      // Skip empty strings for some fields (but allow for description)
+      if (value === '' && key !== 'description' && key !== 'prep_time') {
+        console.log(`Skipping ${key} because it's empty string`);
+        continue;
+      }
+      
+      // Handle different field types
+      if (key === 'tags' || key === 'ingredients') {
+        fields.push(`${key} = ?`);
+        if (Array.isArray(value)) {
+          values.push(JSON.stringify(value));
+        } else if (typeof value === 'string' && value.startsWith('[')) {
+          // Already JSON string
+          values.push(value);
+        } else {
+          // Convert to array and stringify
+          const arr = typeof value === 'string' ? value.split(',').map(item => item.trim()) : [value];
+          values.push(JSON.stringify(arr));
         }
-        
-        // Always update updated_at
-        fields.push('updated_at = NOW()');
-        
-        values.push(id);
-        
-        await db.execute(
-            `UPDATE products SET ${fields.join(', ')} WHERE id = ?`,
-            values
-        );
-        
-        return this.findById(id);
+      } else if (key === 'price' || key === 'original_price') {
+        fields.push(`${key} = ?`);
+        values.push(parseFloat(value));
+      } else if (key === 'category_id') {
+        fields.push(`${key} = ?`);
+        values.push(parseInt(value));
+      } else if (key === 'is_available' || key === 'is_popular' || key === 'is_featured') {
+        fields.push(`${key} = ?`);
+        const boolValue = value === true || value === 'true' || value === '1' || value === 1;
+        values.push(boolValue ? 1 : 0);
+      } else if (key === 'type') {
+        fields.push(`${key} = ?`);
+        values.push(value.toString().toLowerCase());
+      } else if (key === 'image') {
+        fields.push(`${key} = ?`);
+        // Store image path as-is
+        values.push(value);
+      } else {
+        // All other fields (name, description, prep_time, etc.)
+        fields.push(`${key} = ?`);
+        values.push(value);
+      }
     }
     
+    // Add ID for WHERE clause
+    values.push(id);
+    
+    console.log('SQL fields:', fields);
+    console.log('SQL values:', values);
+    
+    // Build and execute SQL
+    const sql = `UPDATE products SET ${fields.join(', ')} WHERE id = ?`;
+    console.log('Executing SQL:', sql);
+    
+    const [result] = await db.execute(sql, values);
+    console.log('Update result - Rows affected:', result.affectedRows);
+    
+    // Return updated product
+    return await this.findById(id);
+    
+  } catch (error) {
+    console.error('Database update error:', error);
+    console.error('SQL Error:', error.sqlMessage);
+    console.error('SQL:', error.sql);
+    throw error;
+  }
+}
+
     // Delete product (soft delete - set is_available to false)
     static async delete(id) {
         await db.execute(

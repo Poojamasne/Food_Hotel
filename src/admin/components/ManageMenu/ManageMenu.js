@@ -80,67 +80,43 @@ const ManageMenu = () => {
     is_featured: false
   });
 
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 10;
+
+
   // Get token from localStorage
   const getToken = () => {
     return localStorage.getItem('adminToken');
   };
 
-  // Image compression function
-  const compressImage = (file, maxWidth = 800, quality = 0.7) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          
-          // Calculate new dimensions
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          // Convert to compressed JPEG
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                reject(new Error('Canvas to Blob conversion failed'));
-                return;
-              }
-              
-              const compressedReader = new FileReader();
-              compressedReader.readAsDataURL(blob);
-              compressedReader.onloadend = () => {
-                resolve({
-                  base64: compressedReader.result,
-                  blob: blob,
-                  size: blob.size
-                });
-              };
-            },
-            'image/jpeg',
-            quality
-          );
-        };
-        
-        img.onerror = reject;
-      };
-      
-      reader.onerror = reject;
-    });
-  };
+  const handleImageUpload = (e, isEdit = false) => {
+  const file = e.target.files[0];
+  if (file) {
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (isEdit) {
+        setEditItem({ 
+          ...editItem, 
+          imagePreview: reader.result,
+          imageFile: file // 🔥 Make sure this is set
+        });
+      } else {
+        setNewItem({ 
+          ...newItem, 
+          imagePreview: reader.result,
+          imageFile: file // 🔥 Make sure this is set
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
 
   // Fetch menu items from API
   const fetchMenuItems = useCallback(async () => {
@@ -241,7 +217,7 @@ const ManageMenu = () => {
           const data = await response.json();
           if (data.success) {
             // Remove item from state
-            setMenuItems(menuItems.filter(item => item.id !== id));
+            setMenuItems(prev => prev.filter(item => item.id !== id));
             alert('Item deleted successfully!');
           } else {
             alert(data.message || 'Failed to delete item');
@@ -290,10 +266,14 @@ const ManageMenu = () => {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          // Update item in state
-          setMenuItems(menuItems.map(i => 
-            i.id === item.id ? { ...i, is_available: updatedItem.is_available } : i
-          ));
+          setMenuItems(prev =>
+  prev.map(i =>
+    i.id === item.id
+      ? { ...i, is_available: updatedItem.is_available }
+      : i
+  )
+);
+
           alert(`Item ${updatedItem.is_available ? 'activated' : 'deactivated'} successfully!`);
         } else {
           alert(data.message || 'Failed to update item status');
@@ -385,168 +365,196 @@ const handleAddItem = async () => {
   }
 };
 
-
-  // Handle edit item
-  const handleEditItem = (item) => {
-    setSelectedItem(item);
-    
-    // Find category ID from name or use existing
-    let categoryId = item.category_id;
-    if (!categoryId && item.category_name) {
-      // Try to find category in categories array
-      const foundCategory = categories.find(cat => {
-        if (typeof cat === 'object') {
-          return cat.name === item.category_name;
-        }
-        return cat === item.category_name;
-      });
-      
-      if (foundCategory) {
-        categoryId = typeof foundCategory === 'object' ? foundCategory.id : '';
-      } else {
-        // Fallback to ALL_CATEGORIES
-        const foundInAllCategories = ALL_CATEGORIES.find(cat => cat.name === item.category_name);
-        categoryId = foundInAllCategories ? foundInAllCategories.id : '';
+// Handle edit item - IMPROVED
+const handleEditItem = (item) => {
+  console.log('Editing item:', item);
+  
+  setSelectedItem(item);
+  
+  // Convert JSON arrays to display strings
+  let tagsDisplay = '';
+  if (item.tags) {
+    if (Array.isArray(item.tags)) {
+      tagsDisplay = item.tags.join(', ');
+    } else if (typeof item.tags === 'string') {
+      try {
+        const parsed = JSON.parse(item.tags);
+        tagsDisplay = Array.isArray(parsed) ? parsed.join(', ') : item.tags;
+      } catch {
+        tagsDisplay = item.tags;
       }
     }
+  }
+  
+  let ingredientsDisplay = '';
+  if (item.ingredients) {
+    if (Array.isArray(item.ingredients)) {
+      ingredientsDisplay = item.ingredients.join(', ');
+    } else if (typeof item.ingredients === 'string') {
+      try {
+        const parsed = JSON.parse(item.ingredients);
+        ingredientsDisplay = Array.isArray(parsed) ? parsed.join(', ') : item.ingredients;
+      } catch {
+        ingredientsDisplay = item.ingredients;
+      }
+    }
+  }
+  
+  // IMPORTANT: Make sure category_id is set correctly
+  const categoryId = item.category_id || '2'; // Default to Non-Veg if not found
+  
+  setEditItem({
+    name: item.name || '',
+    description: item.description || '',
+    category_id: categoryId,
+    price: item.price || '',
+    original_price: item.original_price || item.price || '',
+    image: item.image || null,
+    imagePreview: item.image || null,
+    imageFile: null,
+    type: item.type || 'non-veg',
+    tags: tagsDisplay,
+    prep_time: item.prep_time || '15 min',
+    ingredients: ingredientsDisplay,
+    is_available: item.is_available !== undefined ? item.is_available : true,
+    is_popular: item.is_popular !== undefined ? item.is_popular : false,
+    is_featured: item.is_featured !== undefined ? item.is_featured : false
+  });
+  
+  console.log('Edit item state set:', {
+    name: item.name,
+    category_id: categoryId,
+    price: item.price,
+    type: item.type
+  });
+  
+  setShowEditModal(true);
+};
 
-
+const handleUpdateItem = async () => {
+  try {
+    setIsSubmitting(true);
+    const token = getToken();
     
-    setEditItem({
-      name: item.name || '',
-      description: item.description || '',
-      category_id: categoryId || '',
-      price: item.price || '',
-      original_price: item.original_price || item.price || '',
-      image: item.image || null,
-      imagePreview: item.image || null,
-      imageFile: null,
-      type: item.type || 'veg',
-      tags: Array.isArray(item.tags) ? item.tags.join(', ') : item.tags || '',
-      prep_time: item.prep_time || '15 min',
-      ingredients: Array.isArray(item.ingredients) ? item.ingredients.join(', ') : item.ingredients || '',
-      is_available: item.is_available !== undefined ? item.is_available : true,
-      is_popular: item.is_popular !== undefined ? item.is_popular : false,
-      is_featured: item.is_featured !== undefined ? item.is_featured : false
-    });
-    setShowEditModal(true);
-  };
-
-  // Handle update item
-  const handleUpdateItem = async () => {
-    if (!editItem.name || !editItem.price) {
-      alert('Please fill in all required fields');
+    if (!token) {
+      alert('Authentication required');
+      setIsSubmitting(false);
       return;
     }
 
-    try {
-      setIsSubmitting(true);
-      const token = getToken();
-      if (!token) {
-        alert('Authentication required');
-        setIsSubmitting(false);
-        return;
+    if (!selectedItem || !selectedItem.id) {
+      alert('No item selected for update');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Create FormData object
+    const formData = new FormData();
+    
+    // Add all form fields from editItem state
+    formData.append('name', editItem.name || selectedItem.name);
+    formData.append('description', editItem.description || '');
+    formData.append('price', editItem.price || '0');
+    
+    // Add original price if exists
+    if (editItem.original_price) {
+      formData.append('original_price', editItem.original_price);
+    }
+    
+    // Add category_id - make sure it's a number
+    formData.append('category_id', editItem.category_id || selectedItem.category_id || '2');
+    
+    // Add food type
+    formData.append('type', editItem.type || 'non-veg');
+    
+    // Add preparation time
+    formData.append('prep_time', editItem.prep_time || '15 min');
+    
+    // Add availability status
+    formData.append('is_available', editItem.is_available ? 'true' : 'false');
+    
+    // Add popularity and featured status
+    formData.append('is_popular', editItem.is_popular ? 'true' : 'false');
+    formData.append('is_featured', editItem.is_featured ? 'true' : 'false');
+    
+    // Add tags if exists
+    if (editItem.tags && editItem.tags.trim()) {
+      try {
+        // Check if it's already an array
+        if (typeof editItem.tags === 'string' && editItem.tags.includes('[')) {
+          formData.append('tags', editItem.tags);
+        } else {
+          const tagsArray = editItem.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+          formData.append('tags', JSON.stringify(tagsArray));
+        }
+      } catch (error) {
+        console.error('Error processing tags:', error);
       }
-
-      // Prepare tags as array if provided
-      const tagsArray = editItem.tags ? editItem.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-      
-      // Prepare ingredients as array if provided
-      const ingredientsArray = editItem.ingredients ? editItem.ingredients.split(',').map(ing => ing.trim()).filter(ing => ing) : [];
-
-      // Find the selected category
-      const selectedCategoryObj = categories.find(cat => {
-        if (typeof cat === 'object') {
-          return cat.id === parseInt(editItem.category_id);
+    }
+    
+    // Add ingredients if exists
+    if (editItem.ingredients && editItem.ingredients.trim()) {
+      try {
+        if (typeof editItem.ingredients === 'string' && editItem.ingredients.includes('[')) {
+          formData.append('ingredients', editItem.ingredients);
+        } else {
+          const ingredientsArray = editItem.ingredients.split(',').map(ing => ing.trim()).filter(ing => ing);
+          formData.append('ingredients', JSON.stringify(ingredientsArray));
         }
-        return false;
-      });
-      
-      const categoryName = selectedCategoryObj ? selectedCategoryObj.name : '';
-      const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
-
-      // Prepare update data
-      const updateData = {
-        name: editItem.name,
-        description: editItem.description,
-        price: parseFloat(editItem.price),
-        original_price: editItem.original_price ? parseFloat(editItem.original_price) : parseFloat(editItem.price),
-        category_id: editItem.category_id ? parseInt(editItem.category_id) : null,
-        category_slug: categorySlug,
-        type: editItem.type,
-        tags: tagsArray,
-        prep_time: editItem.prep_time,
-        ingredients: ingredientsArray,
-        is_available: editItem.is_available,
-        is_popular: editItem.is_popular,
-        is_featured: editItem.is_featured
-      };
-
-      // Add image if new image was uploaded
-      if (editItem.imageFile) {
-        try {
-          // Compress the image
-          const compressedImage = await compressImage(editItem.imageFile, 600, 0.6);
-          updateData.image = compressedImage.base64;
-        } catch (error) {
-          console.warn('Image compression failed:', error);
-          if (editItem.imagePreview && editItem.imagePreview.length < 1000000) {
-            updateData.image = editItem.imagePreview;
-          }
-        }
-      } else if (editItem.imagePreview && editItem.imagePreview !== editItem.image) {
-        // Use existing image preview if it's different from original
-        updateData.image = editItem.imagePreview;
+      } catch (error) {
+        console.error('Error processing ingredients:', error);
       }
+    }
+    
+    // Add image file if new image is selected
+    if (editItem.imageFile) {
+      formData.append('image', editItem.imageFile);
+      console.log('New image file added:', editItem.imageFile.name);
+    } else if (editItem.image) {
+      // Keep existing image path
+      formData.append('image', editItem.image);
+      console.log('Keeping existing image:', editItem.image);
+    }
 
-      // Remove null/undefined values
-      Object.keys(updateData).forEach(key => {
-        if (updateData[key] === null || updateData[key] === undefined) {
-          delete updateData[key];
-        }
-      });
+    // Debug: Log all form data entries
+    console.log('=== FORM DATA BEING SENT ===');
+    console.log('Product ID:', selectedItem.id);
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
 
-      const response = await fetch(`https://backend-hotel-management.onrender.com/api/admin/products/${selectedItem.id}`, {
+    // Send update request
+    const response = await fetch(
+      `https://backend-hotel-management.onrender.com/api/admin/products/${selectedItem.id}`,
+      {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`
+          // DO NOT set Content-Type for FormData - browser sets it automatically
         },
-        body: JSON.stringify(updateData)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          // Update item in state
-          setMenuItems(menuItems.map(item => 
-            item.id === selectedItem.id ? { ...item, ...updateData } : item
-          ));
-          setShowEditModal(false);
-          setSelectedItem(null);
-          alert('Item updated successfully!');
-          // Refresh the menu items
-          fetchMenuItems();
-        } else {
-          alert(data.message || 'Failed to update item');
-        }
-      } else {
-        const errorText = await response.text();
-        console.error('Server response:', response.status, errorText);
-        
-        if (response.status === 413) {
-          alert('Image file is too large. Please use a smaller image (max 500KB).');
-        } else {
-          alert(`Error ${response.status}: Failed to update item`);
-        }
+        body: formData
       }
-    } catch (err) {
-      console.error('Error updating item:', err);
-      alert('Error updating item. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+    );
+
+    const result = await response.json();
+    console.log('Server response:', result);
+    
+    if (response.ok && result.success) {
+      alert('Item updated successfully!');
+      setShowEditModal(false);
+      setSelectedItem(null);
+      fetchMenuItems(); // Refresh the list
+    } else {
+      alert(`Error: ${result.message || 'Update failed'}`);
     }
-  };
+    
+  } catch (err) {
+    console.error('Update error:', err);
+    alert('Error: ' + (err.message || 'Something went wrong'));
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const resetNewItemForm = () => {
     setNewItem({
@@ -566,34 +574,6 @@ const handleAddItem = async () => {
       is_popular: false,
       is_featured: false
     });
-  };
-
-  const handleImageUpload = (e, isEdit = false) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        alert('Image size should be less than 5MB');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (isEdit) {
-          setEditItem({ 
-            ...editItem, 
-            imagePreview: reader.result,
-            imageFile: file 
-          });
-        } else {
-          setNewItem({ 
-            ...newItem, 
-            imagePreview: reader.result,
-            imageFile: file 
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   // Helper function to infer category
@@ -643,6 +623,19 @@ const handleAddItem = async () => {
     const matchesCategory = selectedCategory === 'All' || inferCategory(item) === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+const paginatedItems = filteredItems.slice(
+  (currentPage - 1) * itemsPerPage,
+  currentPage * itemsPerPage
+);
+
+
+  useEffect(() => {
+  setCurrentPage(1);
+}, [searchQuery, selectedCategory]);
+
 
   const getImagePreview = (image) => {
     if (!image || image === 'null' || image === 'undefined' || image === '') {
@@ -794,7 +787,7 @@ const handleAddItem = async () => {
                 </td>
               </tr>
             ) : (
-              filteredItems.map(item => {
+              paginatedItems.map(item => {
                 const originalPrice = item.original_price || item.price;
                 const discountPercentage = originalPrice > item.price 
                   ? Math.round(((originalPrice - item.price) / originalPrice) * 100)
@@ -904,6 +897,51 @@ const handleAddItem = async () => {
             )}
           </tbody>
         </table>
+       {totalPages > 1 && filteredItems.length > 0 && (
+  <div className="pagination">
+    <button
+      disabled={currentPage === 1}
+      onClick={() => setCurrentPage(p => p - 1)}
+    >
+      Prev
+    </button>
+
+    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+      // Show only 5 pages at most
+      let page;
+      if (totalPages <= 5) {
+        page = i + 1;
+      } else if (currentPage <= 3) {
+        page = i + 1;
+      } else if (currentPage >= totalPages - 2) {
+        page = totalPages - 4 + i;
+      } else {
+        page = currentPage - 2 + i;
+      }
+      
+      return (
+        <button
+          key={page}
+          className={page === currentPage ? 'active' : ''}
+          onClick={() => setCurrentPage(page)}
+        >
+          {page}
+        </button>
+      );
+    })}
+
+    <button
+      disabled={currentPage === totalPages}
+      onClick={() => setCurrentPage(p => p + 1)}
+    >
+      Next
+    </button>
+    
+    <span className="page-info">
+      Page {currentPage} of {totalPages} ({filteredItems.length} items)
+    </span>
+  </div>
+)}
       </div>
 
       {/* Add Item Modal */}
