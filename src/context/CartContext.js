@@ -22,16 +22,16 @@ export const CartProvider = ({ children }) => {
   };
 
   // API Headers
-  const getHeaders = () => {
+  const getHeaders = React.useCallback(() => {
     const token = getToken();
     return {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })
     };
-  };
+  }, []);
 
   // Sync local cart with server when user logs in
-  const syncCartWithServer = async (localCart) => {
+  const syncCartWithServer = React.useCallback(async (localCart) => {
     if (!getToken() || localCart.length === 0) return;
     
     try {
@@ -53,7 +53,7 @@ export const CartProvider = ({ children }) => {
     } finally {
       setSyncLoading(false);
     }
-  };
+  }, [getHeaders]);
 
   // Fetch cart from API on mount
   useEffect(() => {
@@ -125,7 +125,7 @@ export const CartProvider = ({ children }) => {
     };
 
     fetchCart();
-  }, []);
+  }, [getHeaders, syncCartWithServer]);
 
   // Save to localStorage and update count
   useEffect(() => {

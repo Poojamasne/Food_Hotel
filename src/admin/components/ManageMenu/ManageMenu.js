@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './ManageMenu.css';
 import { 
   FaPlus, 
@@ -15,6 +15,20 @@ import {
   FaRedo,
   FaImage
 } from 'react-icons/fa';
+
+// All categories - moved outside component
+const ALL_CATEGORIES = [
+  { id: 1, name: 'Vegetarian' },
+  { id: 2, name: 'Non-Vegetarian' },
+  { id: 3, name: 'South Indian' },
+  { id: 4, name: 'North Indian' },
+  { id: 5, name: 'Chinese' },
+  { id: 6, name: 'Italian' },
+  { id: 7, name: 'Starters' },
+  { id: 8, name: 'Main Course' },
+  { id: 9, name: 'Desserts' },
+  { id: 10, name: 'Beverages' }
+];
 
 const ManageMenu = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -65,20 +79,6 @@ const ManageMenu = () => {
     is_popular: false,
     is_featured: false
   });
-
-  // All categories
-  const allCategories = [
-    { id: 1, name: 'Vegetarian' },
-    { id: 2, name: 'Non-Vegetarian' },
-    { id: 3, name: 'South Indian' },
-    { id: 4, name: 'North Indian' },
-    { id: 5, name: 'Chinese' },
-    { id: 6, name: 'Italian' },
-    { id: 7, name: 'Starters' },
-    { id: 8, name: 'Main Course' },
-    { id: 9, name: 'Desserts' },
-    { id: 10, name: 'Beverages' }
-  ];
 
   // Get token from localStorage
   const getToken = () => {
@@ -142,23 +142,8 @@ const ManageMenu = () => {
     });
   };
 
-  // Convert Base64 to Blob
-  const base64ToBlob = (base64) => {
-    const parts = base64.split(';base64,');
-    const contentType = parts[0].split(':')[1];
-    const raw = window.atob(parts[1]);
-    const rawLength = raw.length;
-    const uInt8Array = new Uint8Array(rawLength);
-    
-    for (let i = 0; i < rawLength; ++i) {
-      uInt8Array[i] = raw.charCodeAt(i);
-    }
-    
-    return new Blob([uInt8Array], { type: contentType });
-  };
-
   // Fetch menu items from API
-  const fetchMenuItems = async () => {
+  const fetchMenuItems = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -187,7 +172,7 @@ const ManageMenu = () => {
           
           // Extract unique categories from products
           const apiCategories = [...new Set(data.data.map(item => item.category_name).filter(Boolean))];
-          const combinedCategories = [...new Set([...apiCategories, ...allCategories.map(c => c.name)])];
+          const combinedCategories = [...new Set([...apiCategories, ...ALL_CATEGORIES.map(c => c.name)])];
           setCategories(combinedCategories);
         } else {
           setError(data.message || 'Failed to load menu items');
@@ -202,12 +187,12 @@ const ManageMenu = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Initial data fetch
   useEffect(() => {
     fetchMenuItems();
-  }, []);
+  }, [fetchMenuItems]);
 
   // Handle delete item
   const handleDelete = async (id) => {
@@ -321,7 +306,7 @@ const ManageMenu = () => {
       const ingredientsArray = newItem.ingredients ? newItem.ingredients.split(',').map(ing => ing.trim()).filter(ing => ing) : [];
 
       // Find the selected category
-      const selectedCategoryObj = allCategories.find(cat => cat.id === parseInt(newItem.category_id));
+      const selectedCategoryObj = ALL_CATEGORIES.find(cat => cat.id === parseInt(newItem.category_id));
       const categoryName = selectedCategoryObj ? selectedCategoryObj.name : '';
 
       // Prepare the request data
@@ -430,7 +415,7 @@ const ManageMenu = () => {
     // Find category ID from name or use existing
     let categoryId = item.category_id;
     if (!categoryId && item.category_name) {
-      const foundCategory = allCategories.find(cat => cat.name === item.category_name);
+      const foundCategory = ALL_CATEGORIES.find(cat => cat.name === item.category_name);
       categoryId = foundCategory ? foundCategory.id : '';
     }
 
@@ -477,7 +462,7 @@ const ManageMenu = () => {
       const ingredientsArray = editItem.ingredients ? editItem.ingredients.split(',').map(ing => ing.trim()).filter(ing => ing) : [];
 
       // Find the selected category
-      const selectedCategoryObj = allCategories.find(cat => cat.id === parseInt(editItem.category_id));
+      const selectedCategoryObj = ALL_CATEGORIES.find(cat => cat.id === parseInt(editItem.category_id));
       const categoryName = selectedCategoryObj ? selectedCategoryObj.name : '';
 
       // Prepare update data
@@ -959,7 +944,7 @@ const ManageMenu = () => {
                     disabled={isSubmitting}
                   >
                     <option value="">Select Category</option>
-                    {allCategories.map(cat => (
+                    {ALL_CATEGORIES.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
@@ -1229,7 +1214,7 @@ const ManageMenu = () => {
                     disabled={isSubmitting}
                   >
                     <option value="">Select Category</option>
-                    {allCategories.map(cat => (
+                    {ALL_CATEGORIES.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>

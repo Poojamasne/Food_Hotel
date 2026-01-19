@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './Dashboard.css';
 import { 
   FaShoppingCart, 
   FaUsers, 
   FaRupeeSign, 
-  FaUtensils,
   FaCalendarAlt,
   FaArrowLeft,
   FaArrowRight,
   FaTachometerAlt,
   FaBox,
-  FaMoneyBillWave,
   FaClipboardList
 } from 'react-icons/fa';
 
@@ -28,11 +26,7 @@ const Dashboard = () => {
   };
 
   // Fetch dashboard data
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -81,7 +75,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   // Prepare stats from API data
   const prepareStats = () => {

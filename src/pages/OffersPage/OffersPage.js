@@ -17,6 +17,61 @@ import OfferFilters from "../../components/OfferFilters/OfferFilters";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 
+// Format time left for offer
+const formatTimeLeft = (validUntil) => {
+  if (!validUntil) return "24:00:00";
+  
+  const now = new Date();
+  const end = new Date(validUntil);
+  const diff = end - now;
+  
+  if (diff <= 0) return "Expired";
+  
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
+
+// Sample offers for fallback
+const getSampleOffers = () => {
+  return [
+    {
+      id: 1,
+      title: "Family Feast Combo",
+      description: "Complete meal for 4 people with 4 starters, 2 main course, rice, naan, and desserts.",
+      originalPrice: 2499,
+      discountedPrice: 1899,
+      discountPercent: 24,
+      category: "combo",
+      tags: ["Popular", "Family"],
+      timeLeft: formatTimeLeft(new Date(Date.now() + 24 * 60 * 60 * 1000)),
+      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      isVeg: true,
+      rating: 4.7,
+      totalOrders: 254,
+      isActive: true
+    },
+    {
+      id: 2,
+      title: "Weekend Special Buffet",
+      description: "Unlimited buffet with live counters, desserts, and beverages. Saturday-Sunday only.",
+      originalPrice: 899,
+      discountedPrice: 699,
+      discountPercent: 22,
+      category: "buffet",
+      tags: ["Weekend", "Buffet"],
+      timeLeft: formatTimeLeft(new Date(Date.now() + 12 * 60 * 60 * 1000)),
+      image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      isVeg: true,
+      rating: 4.9,
+      totalOrders: 189,
+      isActive: true
+    },
+  ];
+};
+
 const OffersPage = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
@@ -112,22 +167,6 @@ const OffersPage = () => {
     return now <= validDate;
   };
 
-  // Format time left for offer
-  const formatTimeLeft = (validUntil) => {
-    if (!validUntil) return "24:00:00";
-    
-    const now = new Date();
-    const end = new Date(validUntil);
-    const diff = end - now;
-    
-    if (diff <= 0) return "Expired";
-    
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
 
   // Get image path
   const getImagePath = (apiImagePath) => {
@@ -174,43 +213,6 @@ const OffersPage = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Sample offers for fallback
-  const getSampleOffers = () => {
-    return [
-      {
-        id: 1,
-        title: "Family Feast Combo",
-        description: "Complete meal for 4 people with 4 starters, 2 main course, rice, naan, and desserts.",
-        originalPrice: 2499,
-        discountedPrice: 1899,
-        discountPercent: 24,
-        category: "combo",
-        tags: ["Popular", "Family"],
-        timeLeft: formatTimeLeft(new Date(Date.now() + 24 * 60 * 60 * 1000)),
-        image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        isVeg: true,
-        rating: 4.7,
-        totalOrders: 254,
-        isActive: true
-      },
-      {
-        id: 2,
-        title: "Weekend Special Buffet",
-        description: "Unlimited buffet with live counters, desserts, and beverages. Saturday-Sunday only.",
-        originalPrice: 899,
-        discountedPrice: 699,
-        discountPercent: 22,
-        category: "buffet",
-        tags: ["Weekend", "Buffet"],
-        timeLeft: formatTimeLeft(new Date(Date.now() + 12 * 60 * 60 * 1000)),
-        image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        isVeg: true,
-        rating: 4.9,
-        totalOrders: 189,
-        isActive: true
-      },
-    ];
-  };
 
   const filteredOffers = activeFilter === "all" 
     ? allOffers 

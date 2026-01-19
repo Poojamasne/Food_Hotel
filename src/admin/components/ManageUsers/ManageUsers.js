@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './ManageUsers.css';
 import { 
   FaUser,
@@ -16,8 +16,6 @@ import {
   FaUserCheck,
   FaUserTimes,
   FaShoppingCart,
-  FaStar,
-  FaRupeeSign,
   FaSpinner,
   FaRedo,
   FaKey,
@@ -54,8 +52,8 @@ const ManageUsers = () => {
     return localStorage.getItem('adminToken');
   };
 
-  // Fetch users from API
-  const fetchUsers = async () => {
+  // Fetch users function
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -94,12 +92,12 @@ const ManageUsers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Initial data fetch
   useEffect(() => {
     fetchUsers();
-  }, [refreshKey]);
+  }, [refreshKey, fetchUsers]);
 
   // Handle delete user
   const handleDeleteUser = async (id) => {
@@ -173,44 +171,6 @@ const ManageUsers = () => {
     } catch (err) {
       console.error('Error updating user status:', err);
       alert('Error updating user status. Please try again.');
-    }
-  };
-
-  // Handle role change
-  const handleRoleChange = async (id, role) => {
-    try {
-      const token = getToken();
-      if (!token) {
-        alert('Authentication required');
-        return;
-      }
-
-      const response = await fetch(`http://localhost:5000/api/admin/users/${id}/role`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ role })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setUsers(users.map(user => 
-            user.id === id ? { ...user, role, roleDisplay: role === 'admin' ? 'Admin' : role === 'staff' ? 'Staff' : 'Customer' } : user
-          ));
-          alert(`User role updated to ${role} successfully!`);
-        } else {
-          alert(data.message || 'Failed to update user role');
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        alert(errorData.message || 'Failed to update user role');
-      }
-    } catch (err) {
-      console.error('Error updating user role:', err);
-      alert('Error updating user role. Please try again.');
     }
   };
 
