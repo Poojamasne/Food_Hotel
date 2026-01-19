@@ -102,7 +102,6 @@ const MenuPage = () => {
   // Helper function to categorize items
   const getCategoryType = (product) => {
     const slug = product.category_slug ? product.category_slug.toLowerCase() : "";
-    const name = product.category_name ? product.category_name.toLowerCase() : "";
     
     // Check for food type first
     if (product.type === "veg") return "Vegetarian";
