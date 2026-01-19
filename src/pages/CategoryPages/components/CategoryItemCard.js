@@ -1,35 +1,51 @@
 import React, { useState } from "react";
 import "./CategoryItemCard.css";
 import { FaStar, FaHeart, FaLeaf, FaDrumstickBite, FaPlus, FaMinus } from "react-icons/fa";
+import { useCart } from "../../../context/CartContext"; 
 
 const CategoryItemCard = ({ item }) => {
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isInCart, setIsInCart] = useState(false);
+  const { addToCart, cartItems, updateQuantity } = useCart(); 
+
+  
+  const isInCart = cartItems.some(cartItem => cartItem.id === item.id);
+  
+  const cartItem = cartItems.find(cartItem => cartItem.id === item.id);
+  const currentQuantity = cartItem ? cartItem.quantity : 1;
 
   const handleAddToCart = () => {
-    setIsInCart(true);
-    // In real app, this would dispatch to Redux/Context
-    console.log(`Added ${quantity} ${item.name}(s) to cart`);
-    alert(`Added ${quantity} ${item.name}(s) to cart!`);
+    addToCart({ ...item }, quantity); 
   };
 
   const handleIncrement = () => {
-    setQuantity(prev => prev + 1);
+    if (isInCart) {
+    
+      updateQuantity(item.id, currentQuantity + 1);
+    } else {
+     
+      setQuantity(prev => prev + 1);
+    }
   };
 
   const handleDecrement = () => {
-    if (quantity > 1) {
-      setQuantity(prev => prev - 1);
+    if (isInCart) {
+      if (currentQuantity > 1) {
+        updateQuantity(item.id, currentQuantity - 1);
+      } else {
+       
+        updateQuantity(item.id, 0);
+      }
     } else {
-      setIsInCart(false);
+      if (quantity > 1) {
+        setQuantity(prev => prev - 1);
+      }
     }
   };
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
-
 
   return (
     <div className="menu-card">
@@ -110,18 +126,22 @@ const CategoryItemCard = ({ item }) => {
               <button onClick={handleDecrement}>
                 <FaMinus />
               </button>
-              <span>{quantity}</span>
+              <span>{currentQuantity}</span>
               <button onClick={handleIncrement}>
                 <FaPlus />
               </button>
             </div>
           ) : (
-            <button
-              className="add-to-cart"
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </button>
+            <div className="add-to-cart-container">
+              <div className="quantity-control">
+              </div>
+              <button
+                className="add-to-cart-btn"
+                onClick={handleAddToCart}
+              >
+                Add to Cart
+              </button>
+            </div>
           )}
         </div>
       </div>

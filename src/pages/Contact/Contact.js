@@ -9,7 +9,8 @@ import {
   FaInstagram, 
   FaTwitter, 
   FaYoutube,
-  FaPaperPlane
+  FaPaperPlane,
+  FaSpinner
 } from "react-icons/fa";
 
 const Contact = () => {
@@ -22,6 +23,8 @@ const Contact = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,23 +32,65 @@ const Contact = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (error) setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, you would send this data to your backend
-    console.log("Form submitted:", formData);
-    setSubmitted(true);
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: ""
-    });
     
-    // Reset success message after 3 seconds
-    setTimeout(() => setSubmitted(false), 3000);
+    // Validation
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send message');
+      }
+
+      if (data.success) {
+        setSubmitted(true);
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: ""
+        });
+        
+        // Reset success message after 3 seconds
+        setTimeout(() => setSubmitted(false), 3000);
+      } else {
+        setError(data.message || 'Something went wrong');
+      }
+    } catch (err) {
+      console.error('Error submitting contact form:', err);
+      setError(err.message || 'Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -150,7 +195,13 @@ const Contact = () => {
 
             {submitted && (
               <div className="success-message">
-                <p>Thank you! Your message has been sent successfully.</p>
+                <p>✅ Thank you! Your message has been sent successfully.</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="error-message">
+                <p>❌ {error}</p>
               </div>
             )}
 
@@ -166,6 +217,7 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter your full name"
+                    disabled={loading}
                   />
                 </div>
                 <div className="form-group">
@@ -178,6 +230,7 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter your email"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -192,6 +245,7 @@ const Contact = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="Enter your phone number"
+                    disabled={loading}
                   />
                 </div>
                 <div className="form-group">
@@ -204,6 +258,7 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     placeholder="What is this regarding?"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -218,12 +273,26 @@ const Contact = () => {
                   required
                   rows="6"
                   placeholder="Type your message here..."
+                  disabled={loading}
                 />
               </div>
 
-              <button type="submit" className="submit-btn">
-                <FaPaperPlane />
-                Send Message
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <FaSpinner className="spinner" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <FaPaperPlane />
+                    Send Message
+                  </>
+                )}
               </button>
             </form>
           </div>
@@ -233,7 +302,6 @@ const Contact = () => {
         <div className="map-section">
           <h2>Find Us Here</h2>
           <div className="map-container">
-            {/* In a real app, you would embed Google Maps here */}
             <div className="map-placeholder">
               <div className="map-overlay">
                 <h3>Zonixtec Restaurant</h3>

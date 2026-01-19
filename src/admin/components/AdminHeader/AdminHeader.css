@@ -1,0 +1,150 @@
+/* src/admin/components/AdminHeader/AdminHeader.css */
+.admin-header {
+  height: 70px;
+  background: white;
+  border-bottom: 1px solid #E8E8E8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+  flex: 1;
+}
+
+.search-box {
+  position: relative;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  border: 2px solid #E0E0E0;
+  border-radius: 25px;
+  outline: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #FAFAFA;
+}
+
+.search-input:focus {
+  border-color: #D2691E;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #D2691E;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.header-icon-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #666;
+  position: relative;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.header-icon-btn:hover {
+  background: #F5F5F5;
+  color: #8B4513;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #FF5252;
+  color: white;
+  font-size: 11px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.admin-profile:hover {
+  background: #F5F5F5;
+}
+
+.admin-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #E0E0E0;
+}
+
+.admin-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.admin-role {
+  font-size: 12px;
+  color: #D2691E;
+  font-weight: 500;
+}
+
+.profile-dropdown-icon {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 0 15px;
+  }
+  
+  .search-box {
+    max-width: 250px;
+  }
+  
+  .header-right {
+    gap: 15px;
+  }
+  
+  .admin-info {
+    display: none;
+  }
+}

@@ -194,13 +194,6 @@
   margin-bottom: 15px;
 }
 
-.section-header p {
-  color: #666;
-  font-size: 1.1rem;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
 /* Values Section */
 .values-grid {
   display: grid;

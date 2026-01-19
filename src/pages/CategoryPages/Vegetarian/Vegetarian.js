@@ -1,15 +1,86 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CategoryLayout from "../CategoryLayout";
 import CategoryItemCard from "../components/CategoryItemCard";
-import { FaLeaf } from "react-icons/fa";
-import { menuItems } from "../../../data/menuData";
+import { FaLeaf, FaSpinner } from "react-icons/fa";
+import { useAuth } from "../../../context/AuthContext";
 import "../components/CategoryControls.css";
 
 const Vegetarian = () => {
-    const [sortBy] = useState("popular");
-    const [viewMode] = useState("grid");
+  const [sortBy] = useState("popular");
+  const [viewMode] = useState("grid");
+  const [vegetarianItems, setVegetarianItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
 
-  const vegetarianItems = menuItems.filter(item => item.category === "veg");
+  // Fetch vegetarian items from API
+  useEffect(() => {
+    const fetchVegetarianItems = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch('http://localhost:5000/api/products/category/veg', {
+          headers: headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch vegetarian items: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          // Transform API data to match your component structure
+          const transformedItems = data.data.map(product => ({
+            id: product.id,
+            name: product.name,
+            description: product.description || `${product.name} - Delicious vegetarian dish`,
+            price: product.price || 0,
+            category: "veg",
+            type: product.category_name || "Vegetarian",
+            rating: product.rating || 4.0,
+            tags: product.is_bestseller ? ["Best Seller"] : [],
+            image: getImagePath(product.image),
+            is_available: product.is_available !== false
+          }));
+          
+          setVegetarianItems(transformedItems);
+        } else {
+          throw new Error(data.message || 'Failed to load vegetarian items');
+        }
+      } catch (err) {
+        console.error('Error fetching vegetarian items:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVegetarianItems();
+  }, [token]);
+
+  // Helper function to get image path
+  const getImagePath = (apiImagePath) => {
+    if (!apiImagePath) {
+      return "/images/dishes/default-food.jpg";
+    }
+    
+    // If it's a relative path, prepend backend URL
+    if (apiImagePath.startsWith('/')) {
+      return `http://localhost:5000${apiImagePath}`;
+    }
+    
+    return apiImagePath;
+  };
 
   const sortedItems = [...vegetarianItems].sort((a, b) => {
     switch (sortBy) {
@@ -18,9 +89,9 @@ const Vegetarian = () => {
       case "price-high":
         return b.price - a.price;
       case "rating":
-        return b.rating - a.rating;
+        return (b.rating || 0) - (a.rating || 0);
       default:
-        return b.rating - a.rating; // popular by rating
+        return (b.rating || 0) - (a.rating || 0); // popular by rating
     }
   });
 
@@ -37,11 +108,22 @@ const Vegetarian = () => {
       <div className="category-controls">
         <div className="controls-left">
           <h2 className="dishes-count">
-            {vegetarianItems.length} Vegetarian Dishes Available
+            {loading ? (
+              <span>Loading vegetarian dishes...</span>
+            ) : error ? (
+              <span>Vegetarian Dishes</span>
+            ) : (
+              <span>{vegetarianItems.length} Vegetarian Dishes Available</span>
+            )}
           </h2>
           <p className="subtitle">Pure veg • No artificial colors • Fresh ingredients</p>
         </div>
         
+        {loading && (
+          <div className="loading-indicator">
+            <FaSpinner className="spinner" /> Loading...
+          </div>
+        )}
       </div>
 
       {/* Veg Info Banner */}
@@ -61,54 +143,80 @@ const Vegetarian = () => {
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="loading-container">
+          <FaSpinner className="loading-spinner-large" />
+          <p>Loading vegetarian dishes...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="error-message">
+          <h3>Unable to load vegetarian dishes</h3>
+          <p>{error}</p>
+          <button 
+            className="retry-btn"
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+
       {/* Dishes Grid */}
-      {sortedItems.length === 0 ? (
+      {!loading && !error && sortedItems.length === 0 ? (
         <div className="no-items" style={{ '--category-color': '#4CAF50' }}>
           <FaLeaf className="no-items-icon" />
           <h3>No vegetarian items found</h3>
           <p>Check back soon for new additions!</p>
         </div>
       ) : (
-        <div className={`dishes-grid ${viewMode}`}>
-          {sortedItems.map((item) => (
-            <CategoryItemCard 
-              key={item.id} 
-              item={item} 
-              viewMode={viewMode}
-            />
-          ))}
-        </div>
+        !loading && !error && (
+          <div className={`dishes-grid ${viewMode}`}>
+            {sortedItems.map((item) => (
+              <CategoryItemCard 
+                key={item.id} 
+                item={item} 
+                viewMode={viewMode}
+              />
+            ))}
+          </div>
+        )
       )}
 
       {/* Health Benefits */}
-      <div className="benefits-section" style={{ '--category-color': '#4CAF50' }}>
-        <h3>
-          <FaLeaf className="benefits-icon" />
-          Health Benefits of Vegetarian Food
-        </h3>
-        <div className="benefits-grid">
-          <div className="benefit-card">
-            <div className="benefit-icon">❤️</div>
-            <h4>Heart Health</h4>
-            <p>Lower risk of heart disease and high blood pressure</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">⚖️</div>
-            <h4>Weight Management</h4>
-            <p>Helps in maintaining healthy weight and BMI</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">🩺</div>
-            <h4>Low Cholesterol</h4>
-            <p>Naturally cholesterol-free, better for your arteries</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">🌿</div>
-            <h4>Rich in Fiber</h4>
-            <p>High fiber content for better digestion</p>
+      {!loading && !error && (
+        <div className="benefits-section" style={{ '--category-color': '#4CAF50' }}>
+          <h3>
+            <FaLeaf className="benefits-icon" />
+            Health Benefits of Vegetarian Food
+          </h3>
+          <div className="benefits-grid">
+            <div className="benefit-card">
+              <div className="benefit-icon">❤️</div>
+              <h4>Heart Health</h4>
+              <p>Lower risk of heart disease and high blood pressure</p>
+            </div>
+            <div className="benefit-card">
+              <div className="benefit-icon">⚖️</div>
+              <h4>Weight Management</h4>
+              <p>Helps in maintaining healthy weight and BMI</p>
+            </div>
+            <div className="benefit-card">
+              <div className="benefit-icon">🩺</div>
+              <h4>Low Cholesterol</h4>
+              <p>Naturally cholesterol-free, better for your arteries</p>
+            </div>
+            <div className="benefit-card">
+              <div className="benefit-icon">🌿</div>
+              <h4>Rich in Fiber</h4>
+              <p>High fiber content for better digestion</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </CategoryLayout>
   );
 };

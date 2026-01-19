@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Checkout.css";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaUser,
@@ -10,22 +11,38 @@ import {
   FaCreditCard,
   FaShieldAlt,
   FaArrowLeft,
-  FaCheckCircle
+  FaCheckCircle,
+  FaSpinner
 } from "react-icons/fa";
 
 const Checkout = () => {
   const { cartItems, getCartTotal, clearCart } = useCart();
+  const { user, token, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [orderType, setOrderType] = useState("delivery");
   const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
+    name: user?.name || "",
+    phone: user?.phone || "",
+    email: user?.email || "",
     address: "",
     tableNumber: "",
     specialInstructions: ""
   });
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  // Pre-fill user data if available
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || "",
+        phone: user.phone || "",
+        email: user.email || ""
+      }));
+    }
+  }, [user]);
 
   const subtotal = getCartTotal();
   const deliveryCharge = orderType === "delivery" ? (subtotal > 500 ? 0 : 49) : 0;
@@ -42,48 +59,122 @@ const Checkout = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError("");
 
-    // Simple validation
+    // Check authentication
+    if (!isAuthenticated) {
+      alert("Please login to place an order");
+      navigate('/login');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validation
     if (!formData.name.trim()) {
-      alert("Please enter your name");
+      setError("Please enter your name");
       setIsSubmitting(false);
       return;
     }
 
     if (!formData.phone.trim() || formData.phone.length !== 10) {
-      alert("Please enter a valid 10-digit phone number");
+      setError("Please enter a valid 10-digit phone number");
       setIsSubmitting(false);
       return;
     }
 
     if (orderType === "delivery" && !formData.address.trim()) {
-      alert("Please enter your delivery address");
+      setError("Please enter your delivery address");
       setIsSubmitting(false);
       return;
     }
 
-    const orderData = {
-      ...formData,
-      orderType,
-      paymentMethod,
-      items: cartItems,
-      subtotal,
-      deliveryCharge,
-      tax,
-      total,
-      orderDate: new Date().toISOString(),
-      orderId: `ORD-${Date.now()}`
-    };
+    try {
+      // Prepare order data according to API expectations
+      const orderData = {
+        items: cartItems.map(item => ({
+          productId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          total: item.price * item.quantity
+        })),
+        customerDetails: {
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email || "",
+          address: formData.address,
+          specialInstructions: formData.specialInstructions
+        },
+        orderType: orderType,
+        tableNumber: orderType === "dine-in" ? formData.tableNumber : null,
+        paymentMethod: paymentMethod,
+        subtotal: subtotal,
+        deliveryCharge: deliveryCharge,
+        tax: tax,
+        total: total,
+        notes: formData.specialInstructions || ""
+      };
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Order placed:", orderData);
-      alert(`🎉 Order Confirmed!\nOrder ID: ${orderData.orderId}\nTotal: ₹${total.toFixed(2)}\nThank you for your order!`);
-      
-      // Clear cart and redirect
-      clearCart();
-      navigate("/");
-    }, 1000);
+      // Make API call to create order
+      const response = await fetch('http://localhost:5000/api/orders/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          items: orderData.items,
+          subtotal: subtotal,
+          delivery_charge: deliveryCharge,
+          tax_amount: tax,
+          final_amount: total,
+          delivery_type: orderType === 'delivery' ? 'home' : 'pickup',
+          delivery_address: formData.address || '',
+          payment_method: paymentMethod,
+          notes: formData.specialInstructions || ''
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to place order');
+      }
+
+      if (data.success) {
+        const orderId = data.data.orderId || data.data.id;
+        const orderNumber = data.data.orderNumber;
+        
+        // Clear cart
+        await clearCart();
+        
+        // Redirect to order confirmation
+        navigate(`/order-confirmation/${orderId}`, {
+          state: {
+            orderId: orderId,
+            orderNumber: orderNumber,
+            orderType: orderType,
+            customerName: formData.name,
+            customerPhone: formData.phone,
+            deliveryAddress: formData.address,
+            paymentMethod: paymentMethod,
+            subtotal: subtotal.toFixed(2),
+            deliveryCharge: deliveryCharge.toFixed(2),
+            tax: tax.toFixed(2),
+            totalAmount: total.toFixed(2),
+            estimatedTime: orderType === 'delivery' ? '30-45 minutes' : '15-20 minutes',
+            items: cartItems
+          }
+        });
+      } else {
+        throw new Error(data.message || 'Order failed');
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+      setError(error.message || 'Failed to place order. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -114,6 +205,12 @@ const Checkout = () => {
           </Link>
           <h1 className="page-title">Checkout</h1>
         </div>
+
+        {error && (
+          <div className="alert alert-danger">
+            <strong>Error:</strong> {error}
+          </div>
+        )}
 
         <div className="checkout-content">
           {/* Left Column - Customer Details */}
@@ -161,6 +258,7 @@ const Checkout = () => {
                     onChange={handleInputChange}
                     placeholder="Enter your full name"
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
                 <div className="form-group">
@@ -174,6 +272,19 @@ const Checkout = () => {
                     placeholder="10-digit mobile number"
                     pattern="[0-9]{10}"
                     required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="email">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Enter your email"
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -195,6 +306,7 @@ const Checkout = () => {
                         placeholder="House No., Street, Area, City, Pincode"
                         rows="3"
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
                   </>
@@ -212,6 +324,7 @@ const Checkout = () => {
                         value={formData.tableNumber}
                         onChange={handleInputChange}
                         placeholder="e.g., Table 12, VIP Lounge"
+                        disabled={isSubmitting}
                       />
                     </div>
                   </>
@@ -230,6 +343,7 @@ const Checkout = () => {
                     onChange={handleInputChange}
                     placeholder="e.g., Less spicy, extra sauce, allergies, etc."
                     rows="2"
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -247,6 +361,7 @@ const Checkout = () => {
                       value="cod"
                       checked={paymentMethod === 'cod'}
                       onChange={() => setPaymentMethod('cod')}
+                      disabled={isSubmitting}
                     />
                     <div className="payment-content">
                       <span className="payment-title">Cash on Delivery</span>
@@ -261,6 +376,7 @@ const Checkout = () => {
                       value="card"
                       checked={paymentMethod === 'card'}
                       onChange={() => setPaymentMethod('card')}
+                      disabled={isSubmitting}
                     />
                     <div className="payment-content">
                       <span className="payment-title">Credit/Debit Card</span>
@@ -275,6 +391,7 @@ const Checkout = () => {
                       value="upi"
                       checked={paymentMethod === 'upi'}
                       onChange={() => setPaymentMethod('upi')}
+                      disabled={isSubmitting}
                     />
                     <div className="payment-content">
                       <span className="payment-title">UPI Payment</span>
@@ -343,7 +460,7 @@ const Checkout = () => {
               {/* Terms and Conditions */}
               <div className="terms">
                 <label className="terms-checkbox">
-                  <input type="checkbox" required />
+                  <input type="checkbox" required disabled={isSubmitting} />
                   <span>
                     I agree to the <Link to="/terms">Terms & Conditions</Link> and 
                     confirm that all information provided is accurate.
@@ -356,20 +473,29 @@ const Checkout = () => {
                 type="submit" 
                 className="place-order-btn"
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isAuthenticated}
               >
                 {isSubmitting ? (
                   <>
-                    <span className="spinner"></span>
+                    <FaSpinner className="spinner" />
                     Processing...
                   </>
                 ) : (
                   <>
                     <FaCheckCircle />
-                    Place Order - ₹{total.toFixed(2)}
+                    {isAuthenticated ? `Place Order - ₹${total.toFixed(2)}` : 'Please Login to Order'}
                   </>
                 )}
               </button>
+              
+              {!isAuthenticated && (
+                <div className="login-required">
+                  <p>You need to login to place an order</p>
+                  <Link to="/login" className="login-link">
+                    Login / Register
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

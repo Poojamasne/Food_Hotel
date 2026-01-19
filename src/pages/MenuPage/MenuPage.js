@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./MenuPage.css";
-import { categories, menuData } from "../../data/menuData";
+import { categories as staticCategories } from "../../data/menuData";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 import {
   FaStar,
   FaShoppingCart,
@@ -9,15 +10,108 @@ import {
   FaLeaf,
   FaDrumstickBite,
   FaMinus,
-  FaPlus
+  FaPlus,
+  FaSpinner
 } from "react-icons/fa";
 
 const MenuPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [menuData, setMenuData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { cartItems, addToCart, updateQuantity, getItemCount } = useCart();
+  const { token } = useAuth();
 
-  // Fixed filter logic
+  // Fetch menu data from API
+  useEffect(() => {
+    const fetchMenuData = async () => {
+      try {
+        setLoading(true);
+        
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+
+        // Add Authorization header if token exists
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        // Map category names to API slugs
+        const categoryMap = {
+          "All": "all",
+          "Vegetarian": "veg",
+          "Non-Vegetarian": "non-veg", 
+          "South Indian": "south-indian",
+          "North Indian": "north-indian",
+          "Chinese": "chinese",
+          "Italian": "italian",
+          "Desserts": "desserts",
+          "Beverages": "beverages",
+          "Starters": "starters"
+        };
+
+        let apiUrl = 'http://localhost:5000/api/products';
+        const apiSlug = categoryMap[selectedCategory];
+        
+        if (selectedCategory !== "All" && apiSlug) {
+          apiUrl = `http://localhost:5000/api/products/category/${apiSlug}`;
+        }
+
+        const response = await fetch(apiUrl, {
+          headers: headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch menu: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          // Transform API data to match your existing structure
+          const transformedData = data.data.map(product => ({
+            id: product.id,
+            name: product.name,
+            description: product.description || `${product.name} - Delicious dish`,
+            price: product.price || 0,
+            category: product.category_slug || "veg", // Map to your category format
+            type: product.category_name || "",
+            rating: parseFloat(product.rating) || 4.0, // Ensure it's a number
+            tags: product.is_bestseller ? ["Best Seller"] : [],
+            image: getImagePath(product.image)
+          }));
+          
+          setMenuData(transformedData);
+        } else {
+          throw new Error(data.message || 'Failed to load menu');
+        }
+      } catch (err) {
+        console.error('Error fetching menu data:', err);
+        // Keep existing menuData if API fails
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMenuData();
+  }, [selectedCategory, token]);
+
+  // Helper function to get image path
+  const getImagePath = (apiImagePath) => {
+    if (!apiImagePath) {
+      return "/images/dishes/default-food.jpg";
+    }
+    
+    // If it's a relative path, prepend backend URL
+    if (apiImagePath.startsWith('/')) {
+      return `http://localhost:5000${apiImagePath}`;
+    }
+    
+    return apiImagePath;
+  };
+
+  // Fixed filter logic (same as before)
   const filteredItems = menuData.filter((item) => {
     // First check search term
     const searchMatch = 
@@ -68,6 +162,20 @@ const MenuPage = () => {
     updateQuantity(item.id, currentCount - 1);
   };
 
+  // Helper function to safely format rating
+  const formatRating = (rating) => {
+    if (!rating && rating !== 0) return "N/A";
+    
+    // Convert to number if it's a string
+    const numRating = typeof rating === 'string' ? parseFloat(rating) : rating;
+    
+    // Check if it's a valid number
+    if (isNaN(numRating)) return "N/A";
+    
+    // Return formatted number
+    return numRating.toFixed(1);
+  };
+
   return (
     <div className="menu-page">
       {/* Header with Background Image */}
@@ -110,7 +218,7 @@ const MenuPage = () => {
             >
               🍽️ All Items
             </button>
-            {categories.slice(1).map((cat) => (
+            {staticCategories.slice(1).map((cat) => (
               <button
                 key={cat.id}
                 className={`category-btn ${selectedCategory === cat.name ? "active" : ""}`}
@@ -130,10 +238,17 @@ const MenuPage = () => {
             {selectedCategory === "All"
               ? "All Menu Items"
               : `${selectedCategory} Specials`}
-            <span className="items-count">({filteredItems.length})</span>
+            <span className="items-count">
+              ({loading ? <FaSpinner className="loading-spinner" /> : filteredItems.length})
+            </span>
           </h2>
 
-          {filteredItems.length === 0 ? (
+          {loading && menuData.length === 0 ? (
+            <div className="loading-container">
+              <FaSpinner className="loading-spinner-large" />
+              <p>Loading menu items...</p>
+            </div>
+          ) : filteredItems.length === 0 ? (
             <div className="no-results">
               <h3>No items found</h3>
               <p>Try a different search or category</p>
@@ -142,6 +257,7 @@ const MenuPage = () => {
             <div className="menu-items-grid">
               {filteredItems.map((item) => {
                 const itemInCart = getItemCount(item.id);
+                const displayRating = formatRating(item.rating);
                 
                 return (
                   <div key={item.id} className="menu-card">
@@ -184,9 +300,9 @@ const MenuPage = () => {
                     <div className="menu-card-content">
                       <div className="card-header">
                         <h3>{item.name}</h3>
-                        {item.rating && (
+                        {item.rating !== undefined && item.rating !== null && (
                           <span className="rating">
-                            <FaStar /> {item.rating}
+                            <FaStar /> {displayRating}
                           </span>
                         )}
                       </div>

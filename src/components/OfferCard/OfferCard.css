@@ -424,3 +424,152 @@
     flex-direction: column;
   }
 }
+
+
+/* Featured Cart Controls */
+.featured-cart-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: #f8f9fa;
+  padding: 10px 15px;
+  border-radius: 25px;
+  border: 2px solid #FF5722;
+  margin-top: 15px;
+}
+
+.featured-cart-controls .cart-btn {
+  background: linear-gradient(135deg, #FF5722, #E64A19);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+}
+
+.featured-cart-controls .cart-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(255, 87, 34, 0.3);
+}
+
+.featured-cart-controls .cart-quantity {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #333;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Veg Indicator */
+.veg-indicator {
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(10px);
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+/* Featured Card Hover Effects */
+.featured-card {
+  transition: all 0.3s ease;
+}
+
+.featured-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Featured Overlay */
+.featured-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Featured Button */
+.featured-button {
+  background: linear-gradient(135deg, #FF5722, #E64A19);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 15px;
+  font-size: 1rem;
+}
+
+.featured-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 87, 34, 0.3);
+}
+
+/* Featured Card in cart state */
+.featured-card.in-cart {
+  border: 2px solid #4CAF50;
+}
+
+.featured-card .discount-badge {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+/* Promo Buttons */
+.copy-code-btn {
+  background: #fff;
+  color: #FF5722;
+  border: 2px solid #FF5722;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.copy-code-btn:hover {
+  background: #FF5722;
+  color: white;
+}
+
+.order-now-btn {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.order-now-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+}
+

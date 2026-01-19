@@ -1,43 +1,87 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CategoryLayout from "../CategoryLayout";
 import CategoryItemCard from "../components/CategoryItemCard";
-import { FaGlassMartiniAlt, FaFilter, FaLeaf, FaSnowflake } from "react-icons/fa";
-import { menuItems } from "../../../data/menuData";
+import { FaGlassMartiniAlt, FaSpinner } from "react-icons/fa";
+import { useAuth } from "../../../context/AuthContext";
 import "../components/CategoryControls.css";
 
 const Beverages = () => {
-  const [sortBy, setSortBy] = useState("popular");
-  const [viewMode, setViewMode] = useState("grid");
-  const [temperature, setTemperature] = useState("all");
+  const [sortBy] = useState("popular");
+  const [viewMode] = useState("grid");
+  const [beverageItems, setBeverageItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
 
-  // Filter beverage items from menuData
-  const beverageItems = menuItems.filter(item => item.type === "beverages");
+  useEffect(() => {
+    const fetchBeverageItems = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const headers = {
+          'Content-Type': 'application/json',
+        };
 
-  // Filter by temperature
-  const filteredItems = temperature === "all" 
-    ? beverageItems 
-    : beverageItems.filter(item => {
-        if (temperature === "cold") {
-          return item.name.toLowerCase().includes("lassi") || 
-                 item.name.toLowerCase().includes("juice") ||
-                 item.name.toLowerCase().includes("soda");
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
         }
-        return item.name.toLowerCase().includes("tea") || 
-               item.name.toLowerCase().includes("coffee") ||
-               item.name.toLowerCase().includes("hot");
-    });
 
-  // Sort items
-  const sortedItems = [...filteredItems].sort((a, b) => {
+        const response = await fetch('http://localhost:5000/api/products/category/beverages', {
+          headers: headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch beverages: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          const transformedItems = data.data.map(product => ({
+            id: product.id,
+            name: product.name,
+            description: product.description || `${product.name} - Refreshing drink`,
+            price: product.price || 0,
+            category: product.category_slug || "beverages",
+            type: "beverages",
+            rating: product.rating || 4.0,
+            tags: product.is_bestseller ? ["Best Seller"] : [],
+            image: getImagePath(product.image),
+            is_available: product.is_available !== false
+          }));
+          
+          setBeverageItems(transformedItems);
+        } else {
+          throw new Error(data.message || 'Failed to load beverages');
+        }
+      } catch (err) {
+        console.error('Error fetching beverages:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBeverageItems();
+  }, [token]);
+
+  const getImagePath = (apiImagePath) => {
+    if (!apiImagePath) return "/images/dishes/default-food.jpg";
+    if (apiImagePath.startsWith('/')) return `http://localhost:5000${apiImagePath}`;
+    return apiImagePath;
+  };
+
+  const sortedItems = [...beverageItems].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
         return a.price - b.price;
       case "price-high":
         return b.price - a.price;
       case "rating":
-        return b.rating - a.rating;
+        return (b.rating || 0) - (a.rating || 0);
       default:
-        return b.rating - a.rating;
+        return (b.rating || 0) - (a.rating || 0);
     }
   });
 
@@ -46,169 +90,64 @@ const Beverages = () => {
       categoryName="Beverages"
       categorySlug="beverages"
       categoryIcon={<FaGlassMartiniAlt />}
-      categoryDescription="Refreshing drinks and beverages to complement your meal. From traditional Indian drinks to modern mocktails, we have something for everyone."
+      categoryDescription="Refreshing drinks to complement your meal. From traditional Indian drinks to international beverages, served chilled and fresh."
       categoryColor="#2196F3"
-      categoryImage="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
+      categoryImage="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
     >
-      {/* Control Bar */}
       <div className="category-controls">
         <div className="controls-left">
           <h2 className="dishes-count">
-            {filteredItems.length} Refreshing Beverages Available
+            {loading ? "Loading beverages..." : error ? "Beverages" : `${beverageItems.length} Beverages Available`}
           </h2>
-          <p className="subtitle">Refreshing • Rejuvenating • Perfect Thirst Quenchers</p>
+          <p className="subtitle">Refreshing • Served chilled • Perfect companions</p>
         </div>
-        
-        <div className="controls-right">
-          <div className="temperature-filters">
-            <button
-              className={`type-btn ${temperature === 'all' ? 'active' : ''}`}
-              onClick={() => setTemperature("all")}
-            >
-              All Temperatures
-            </button>
-            <button
-              className={`type-btn ${temperature === 'cold' ? 'active' : ''}`}
-              onClick={() => setTemperature("cold")}
-            >
-              <FaSnowflake /> Cold Drinks
-            </button>
-            <button
-              className={`type-btn ${temperature === 'hot' ? 'active' : ''}`}
-              onClick={() => setTemperature("hot")}
-            >
-              🔥 Hot Drinks
-            </button>
-          </div>
-          
-          <div className="sort-view">
-            <div className="filter-group">
-              <FaFilter className="filter-icon" />
-              <select 
-                className="sort-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="popular">Sort by: Popular</option>
-                <option value="rating">Highest Rated</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-              </select>
-            </div>
-            
-            <div className="view-toggle">
-              <button 
-                className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewMode('grid')}
-              >
-                Grid View
-              </button>
-              <button 
-                className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                onClick={() => setViewMode('list')}
-              >
-                List View
-              </button>
-            </div>
-          </div>
-        </div>
+        {loading && <div className="loading-indicator"><FaSpinner className="spinner" /></div>}
       </div>
 
-      {/* Beverage Info */}
       <div className="info-banner" style={{ '--category-color': '#2196F3' }}>
         <div className="info-content">
           <FaGlassMartiniAlt className="info-icon" />
           <div className="info-text">
-            <h3>Refresh & Rejuvenate</h3>
-            <p>Our beverages are made with fresh ingredients, pure juices, and authentic recipes. Perfect for quenching your thirst and complementing your meal.</p>
+            <h3>Refreshing Drinks</h3>
+            <p>Our beverages are prepared fresh daily using seasonal fruits and premium ingredients. Perfect to quench your thirst.</p>
           </div>
         </div>
         <div className="info-features">
-          <span className="info-feature">🍹 Fresh Ingredients</span>
-          <span className="info-feature">🧊 Chilled Perfectly</span>
-          <span className="info-feature">🌿 Natural Flavors</span>
-          <span className="info-feature">⏱️ Quick Service</span>
+          <span className="info-feature">🧊 Served Chilled</span>
+          <span className="info-feature">🍹 Fresh Fruits</span>
+          <span className="info-feature">🌿 Natural Ingredients</span>
+          <span className="info-feature">🥤 Perfect Thirst Quenchers</span>
         </div>
       </div>
 
-      {/* Dishes Grid */}
-      {sortedItems.length === 0 ? (
+      {loading && <div className="loading-container"><FaSpinner className="loading-spinner-large" /><p>Loading beverages...</p></div>}
+      {error && !loading && <div className="error-message"><h3>Unable to load beverages</h3><p>{error}</p><button className="retry-btn" style={{ backgroundColor: '#2196F3' }} onClick={() => window.location.reload()}>Try Again</button></div>}
+
+      {!loading && !error && sortedItems.length === 0 ? (
         <div className="no-items" style={{ '--category-color': '#2196F3' }}>
           <FaGlassMartiniAlt className="no-items-icon" />
           <h3>No beverages found</h3>
           <p>Check back soon for refreshing additions!</p>
         </div>
-      ) : (
+      ) : !loading && !error && (
         <div className={`dishes-grid ${viewMode}`}>
           {sortedItems.map((item) => (
-            <CategoryItemCard 
-              key={item.id} 
-              item={item} 
-              viewMode={viewMode}
-            />
+            <CategoryItemCard key={item.id} item={item} viewMode={viewMode} />
           ))}
         </div>
       )}
 
-      {/* Health Benefits */}
-      <div className="benefits-section" style={{ '--category-color': '#2196F3' }}>
-        <h3>
-          <FaLeaf className="benefits-icon" />
-          Health Benefits
-        </h3>
-        <div className="benefits-grid">
-          <div className="benefit-card">
-            <div className="benefit-icon">💧</div>
-            <h4>Hydration</h4>
-            <p>Keeps you hydrated and refreshed throughout the day</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">🌿</div>
-            <h4>Natural Energy</h4>
-            <p>Provides natural energy without artificial stimulants</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">🍋</div>
-            <h4>Rich in Vitamins</h4>
-            <p>Fresh fruits provide essential vitamins and minerals</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">😊</div>
-            <h4>Mood Enhancer</h4>
-            <p>Refreshing drinks help improve mood and reduce stress</p>
+      {!loading && !error && (
+        <div className="benefits-section" style={{ '--category-color': '#2196F3' }}>
+          <h3><FaGlassMartiniAlt className="benefits-icon" />Beverage Types</h3>
+          <div className="benefits-grid">
+            <div className="benefit-card"><div className="benefit-icon">🍹</div><h4>Mocktails</h4><p>Alcohol-free mixed drinks</p></div>
+            <div className="benefit-card"><div className="benefit-icon">🥤</div><h4>Cold Drinks</h4><p>Iced teas, lemonades, and sodas</p></div>
+            <div className="benefit-card"><div className="benefit-icon">☕</div><h4>Hot Beverages</h4><p>Coffee, tea, and hot chocolate</p></div>
+            <div className="benefit-card"><div className="benefit-icon">🥛</div><h4>Milkshakes</h4><p>Thick and creamy shakes</p></div>
           </div>
         </div>
-      </div>
-
-      {/* Beverage Categories */}
-      <div className="benefits-section" style={{ '--category-color': '#2196F3', marginTop: '30px' }}>
-        <h3>
-          <FaGlassMartiniAlt className="benefits-icon" />
-          Beverage Categories
-        </h3>
-        <div className="benefits-grid">
-          <div className="benefit-card">
-            <div className="benefit-icon">🥭</div>
-            <h4>Fruit Based</h4>
-            <p>Fresh fruit juices, smoothies, and fruit punches</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">🥛</div>
-            <h4>Dairy Based</h4>
-            <p>Lassi, milkshakes, and yogurt-based drinks</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">☕</div>
-            <h4>Hot Beverages</h4>
-            <p>Tea, coffee, and traditional hot drinks</p>
-          </div>
-          <div className="benefit-card">
-            <div className="benefit-icon">🧃</div>
-            <h4>Mocktails</h4>
-            <p>Creative non-alcoholic cocktails and mixed drinks</p>
-          </div>
-        </div>
-      </div>
+      )}
     </CategoryLayout>
   );
 };

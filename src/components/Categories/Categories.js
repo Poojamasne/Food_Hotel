@@ -1,116 +1,273 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./Categories.css";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
 
 const Categories = () => {
   const navigate = useNavigate();
-  
-  const categories = [
-    {
-      id: 1,
-      name: "Vegetarian",
-      slug: "veg",
-      count: 52,
-      description: "Pure vegetarian dishes",
-      image: "/images/dishes/categories/Vegetarian (Veg).jpg",
-    },
-    {
-      id: 2,
-      name: "Non-Vegetarian",
-      slug: "non-veg",
-      count: 64,
-      description: "Chicken, mutton & seafood",
-      image: "/images/dishes/categories/Non-Vegetarian (Non-Veg).jpg",
-    },
-    {
-      id: 3,
-      name: "South Indian",
-      slug: "south-indian",
-      count: 40,
-      description: "Dosas, idlis & traditional meals",
-      image: "/images/dishes/categories/south-indian-category.jpg",
-    },
-    {
-      id: 4,
-      name: "Starters",
-      slug: "starters",
-      count: 35,
-      description: "Veg & non-veg starters",
-      image: "/images/dishes/categories/Veg Starters.jpg",
-    },
-    {
-      id: 5,
-      name: "Main Course",
-      slug: "main-course",
-      count: 48,
-      description: "Hearty meals & curries",
-      image: "/images/dishes/categories/Non-Veg Main Course.jpg",
-    },
-    {
-      id: 6,
-      name: "Desserts",
-      slug: "desserts",
-      count: 22,
-      description: "Sweet treats & desserts",
-      image: "/images/dishes/categories/desserts-category.jpg",
-    },
-    {
-      id: 7,
-      name: "Beverages",
-      slug: "beverages",
-      count: 18,
-      description: "Juices, shakes & drinks",
-      image: "/images/dishes/categories/beverages.jpg",
-    },
-    {
-      id: 8,
-      name: "Veg Starters",
-      slug: "veg-starters",
-      count: 20,
-      description: "Vegetarian starter dishes",
-      image: "/images/dishes/categories/Veg Starters.jpg",
-    },
-    {
-      id: 9,
-      name: "Non-Veg Main Course",
-      slug: "non-veg-main-course",
-      count: 30,
-      description: "Non-veg curries & meals",
-      image: "/images/dishes/categories/Non-Veg Main Course.jpg",
-    },
-    {
-      id: 10,
-      name: "North Indian",
-      slug: "north-indian",
-      count: 45,
-      description: "Traditional North Indian meals",
-      image: "/images/dishes/categories/north-indian-category.jpg",
-    },
-    {
-      id: 11,
-      name: "Italian",
-      slug: "italian",
-      count: 28,
-      description: "Pizzas, pasta & more",
-      image: "/images/dishes/categories/italian-category.jpg",
-    },
-    {
-      id: 12,
-      name: "Chinese",
-      slug: "chinese",
-      count: 32,
-      description: "Noodles, Manchurian & Chinese delights",
-      image: "/images/dishes/categories/chinese-category.jpg",
-    },
-  ];
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
+
+  // Function to get correct image URL
+  const getImageUrl = (apiImagePath, slug) => {
+    console.log(`getImageUrl: apiImagePath=${apiImagePath}, slug=${slug}`);
+    
+    // Base URL for backend
+    const baseUrl = 'http://localhost:5000';
+    
+    // If API returns a path, use it
+    if (apiImagePath) {
+      // Ensure it has the full URL
+      if (apiImagePath.startsWith('http')) {
+        console.log(`Using full URL: ${apiImagePath}`);
+        return apiImagePath;
+      }
+      
+      // If it starts with /, prepend baseUrl
+      if (apiImagePath.startsWith('/')) {
+        const fullUrl = `${baseUrl}${apiImagePath}`;
+        console.log(`Prepending base URL: ${fullUrl}`);
+        return fullUrl;
+      }
+      
+      // Otherwise assume it's a relative path in uploads
+      const fullUrl = `${baseUrl}/uploads/categories/${apiImagePath}`;
+      console.log(`Assuming uploads path: ${fullUrl}`);
+      return fullUrl;
+    }
+    
+    // Fallback based on slug
+    const fallbackUrl = `${baseUrl}/uploads/categories/${slug}.jpg`;
+    console.log(`Using fallback: ${fallbackUrl}`);
+    return fallbackUrl;
+  };
+
+  // Test if an image exists
+  const testImageExists = (url) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        console.log(`✅ Image exists: ${url}`);
+        resolve(true);
+      };
+      img.onerror = () => {
+        console.log(`❌ Image not found: ${url}`);
+        resolve(false);
+      };
+      img.src = url;
+    });
+  };
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('Starting to fetch categories...');
+        
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+
+        // Add Authorization header if token exists
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+          console.log('Using token for authentication');
+        }
+
+        console.log('Making API request to: http://localhost:5000/api/categories');
+        const response = await fetch('http://localhost:5000/api/categories', {
+          headers: headers
+        });
+
+        console.log('API Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('API Response data:', data);
+        
+        if (data.success) {
+          console.log(`Received ${data.data.length} categories from API`);
+          
+          // Process each category
+          const processedCategories = await Promise.all(
+            data.data.map(async (category) => {
+              const imageUrl = getImageUrl(category.image, category.slug);
+              
+              // Test if the image exists
+              const imageExists = await testImageExists(imageUrl);
+              
+              // If image doesn't exist, try alternative paths
+              let finalImageUrl = imageUrl;
+              if (!imageExists) {
+                console.log(`Testing alternative paths for ${category.name}`);
+                
+                // Try with /images/ instead of /uploads/
+                const altUrl = imageUrl.replace('/uploads/categories/', '/images/categories/');
+                const altExists = await testImageExists(altUrl);
+                
+                if (altExists) {
+                  finalImageUrl = altUrl;
+                  console.log(`✅ Using alternative image: ${altUrl}`);
+                } else {
+                  console.log(`❌ No image found for ${category.name}, will use fallback`);
+                }
+              }
+              
+              return {
+                id: category.id,
+                name: category.name,
+                slug: category.slug,
+                description: category.description || `${category.name} dishes`,
+                image: finalImageUrl,
+                count: category.item_count || 0,
+                imageExists
+              };
+            })
+          );
+          
+          console.log('Processed categories:', processedCategories);
+          setCategories(processedCategories);
+        } else {
+          throw new Error(data.message || 'Failed to load categories');
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError(err.message);
+        
+        // Fallback to static data
+        const fallbackCategories = getStaticCategories();
+        console.log('Using fallback categories:', fallbackCategories);
+        setCategories(fallbackCategories);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [token]);
+
+  // Static fallback data
+  const getStaticCategories = () => {
+    const baseUrl = 'http://localhost:5000';
+    return [
+      {
+        id: 1,
+        name: "Vegetarian",
+        slug: "veg",
+        count: 52,
+        description: "Pure vegetarian dishes",
+        image: `${baseUrl}/uploads/categories/veg.jpg`,
+        imageExists: false
+      },
+      {
+        id: 2,
+        name: "Non-Vegetarian",
+        slug: "non-veg",
+        count: 64,
+        description: "Chicken, mutton & seafood",
+        image: `${baseUrl}/uploads/categories/non-veg.jpg`,
+        imageExists: false
+      },
+      {
+        id: 3,
+        name: "South Indian",
+        slug: "south-indian",
+        count: 40,
+        description: "Dosas, idlis & traditional meals",
+        image: `${baseUrl}/uploads/categories/south-indian.jpg`,
+        imageExists: false
+      },
+      {
+        id: 4,
+        name: "Starters",
+        slug: "starters",
+        count: 35,
+        description: "Veg & non-veg starters",
+        image: `${baseUrl}/uploads/categories/starters.jpg`,
+        imageExists: false
+      }
+    ];
+  };
+
+  // Create placeholder images if needed
+  useEffect(() => {
+    const createPlaceholderImages = async () => {
+      if (categories.length > 0) {
+        const missingImages = categories.filter(cat => !cat.imageExists);
+        if (missingImages.length > 0) {
+          console.log('Missing images for categories:', missingImages.map(c => c.name));
+          
+          // You could trigger an API call to create placeholder images
+          // or show a warning to the admin
+        }
+      }
+    };
+    
+    createPlaceholderImages();
+  }, [categories]);
 
   const handleCategoryClick = (slug) => {
-    // Scroll to top before navigation
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Navigate to category page
     navigate(`/category/${slug}`);
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <section className="categories-section">
+        <div className="container">
+          <div className="section-header">
+            <h2>Explore Our Food Categories</h2>
+          </div>
+          <div className="categories-loading">
+            <div className="loading-spinner"></div>
+            <p>Loading delicious categories...</p>
+            <p className="loading-subtext">Fetching from our kitchen...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state (only if no categories at all)
+  if (error && categories.length === 0) {
+    return (
+      <section className="categories-section">
+        <div className="container">
+          <div className="section-header">
+            <h2>Explore Our Food Categories</h2>
+          </div>
+          <div className="categories-error">
+            <div className="error-icon">⚠️</div>
+            <h3>Unable to Load Categories</h3>
+            <p>{error}</p>
+            <div className="error-actions">
+              <button 
+                className="retry-btn primary" 
+                onClick={() => window.location.reload()}
+              >
+                Try Again
+              </button>
+              <button 
+                className="retry-btn secondary" 
+                onClick={() => setCategories(getStaticCategories())}
+              >
+                Use Demo Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="categories-section">
@@ -118,6 +275,12 @@ const Categories = () => {
         <div className="section-header">
           <h2>Explore Our Food Categories</h2>
         </div>
+
+        {error && (
+          <div className="api-warning">
+            <p>⚠️ Note: {error} - Showing available categories</p>
+          </div>
+        )}
 
         <div className="categories-grid">
           {categories.map((category) => (
@@ -134,18 +297,54 @@ const Categories = () => {
                     alt={category.name}
                     className="category-image-real"
                     onError={(e) => {
+                      console.log(`Image error for ${category.name}: ${category.image}`);
                       e.target.onerror = null;
                       e.target.style.display = "none";
-                      e.target.parentElement.innerHTML = `
-                        <div class="image-fallback" style="background: linear-gradient(135deg, #8B4513, #D2691E)">
-                          <span class="fallback-text">
-                            ${category.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </span>
-                        </div>
+                      
+                      // Create beautiful fallback
+                      const fallback = document.createElement('div');
+                      fallback.className = 'image-fallback';
+                      fallback.style.cssText = `
+                        background: linear-gradient(135deg, 
+                          ${getCategoryColor(category.slug).light}, 
+                          ${getCategoryColor(category.slug).dark});
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        border-radius: 8px;
                       `;
+                      
+                      const initials = document.createElement('span');
+                      initials.className = 'fallback-text';
+                      initials.textContent = category.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("");
+                      initials.style.cssText = `
+                        font-size: 2.5rem;
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                      `;
+                      
+                      const nameText = document.createElement('p');
+                      nameText.className = 'fallback-name';
+                      nameText.textContent = category.name;
+                      nameText.style.cssText = `
+                        font-size: 0.9rem;
+                        opacity: 0.9;
+                        text-align: center;
+                        margin: 0;
+                      `;
+                      
+                      fallback.appendChild(initials);
+                      fallback.appendChild(nameText);
+                      
+                      // Replace image with fallback
+                      e.target.parentElement.appendChild(fallback);
                     }}
                   />
                   <div className="image-overlay"></div>
@@ -159,7 +358,7 @@ const Categories = () => {
                 </div>
                 <p className="category-description">{category.description}</p>
                 <div className="card-footer">
-                  <span className="explore-text">Explore</span>
+                  <span className="explore-text">Explore Menu</span>
                   <span className="arrow">
                     <FaArrowRight />
                   </span>
@@ -178,9 +377,25 @@ const Categories = () => {
             View Complete Menu <FaArrowRight />
           </Link>
         </div>
+
       </div>
     </section>
   );
+};
+
+// Helper function for fallback colors
+const getCategoryColor = (slug) => {
+  const colors = {
+    'veg': { light: '#4CAF50', dark: '#2E7D32' },
+    'non-veg': { light: '#F44336', dark: '#C62828' },
+    'south-indian': { light: '#FF9800', dark: '#EF6C00' },
+    'starters': { light: '#9C27B0', dark: '#6A1B9A' },
+    'main-course': { light: '#2196F3', dark: '#1565C0' },
+    'desserts': { light: '#FF4081', dark: '#C2185B' },
+    'beverages': { light: '#00BCD4', dark: '#00838F' }
+  };
+  
+  return colors[slug] || { light: '#8B4513', dark: '#D2691E' };
 };
 
 export default Categories;

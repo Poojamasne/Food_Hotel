@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Header.css";
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 import {
   FaShoppingCart,
@@ -19,8 +20,9 @@ import SearchBar from "../SearchBar/SearchBar";
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 992);
+  const [isDesktop] = useState(window.innerWidth > 992);
   const { cartCount } = useCart();
+  const { user} = useAuth();
 
   const foodCategories = [
     { name: "Vegetarian", icon: <FaLeaf />, slug: "veg" },
@@ -38,27 +40,15 @@ const Header = () => {
     { name: "South Indian Meals", slug: "south-indian-meals" },
   ];
 
-  // Handle window resize and check if desktop
-  useEffect(() => {
-    const handleResize = () => {
-      const desktop = window.innerWidth > 992;
-      setIsDesktop(desktop);
-      if (desktop) {
-        setMobileDropdownOpen(false);
-      }
-    };
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleDropdownClick = (e) => {
-    // Only handle clicks on mobile/tablet
+    
     if (!isDesktop) {
       e.preventDefault();
       setMobileDropdownOpen(!mobileDropdownOpen);
     }
-    // On desktop, let CSS hover handle it
+    
   };
 
   const toggleMobileMenu = () => {
@@ -122,7 +112,7 @@ const Header = () => {
                 <div className="brand-text">
                   <h1>Zonixtec</h1>
                   <p className="tagline">
-                    Pure Veg • Authentic Taste • Since 1995
+                    Tradition • Authentic Taste • Since 1995
                   </p>
                 </div>
               </div>
@@ -143,13 +133,20 @@ const Header = () => {
             <Link to="/cart" className="cart-btn">
               <FaShoppingCart className="cart-icon" />
               <span className="cart-text">Cart</span>
-              {cartCount > 0 && (
-                <span className="cart-count">{cartCount}</span>
-              )}
+              {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
             </Link>
-            <Link to="/login" className="user-btn">
-              <FaUser />
-            </Link>
+            {user ? (
+  <Link to="/profile" className="user-btn">
+    <FaUser />
+    <span className="user-name">
+      {user.name || user.username || user.fullName}
+    </span>
+  </Link>
+) : (
+  <Link to="/login" className="user-btn">
+    <FaUser />
+  </Link>
+)}
 
             {/* Hamburger Icon */}
             <button
@@ -190,8 +187,8 @@ const Header = () => {
               </button>
               <div className="dropdown-menu">
                 {foodCategories.map((cat, idx) => (
-                  <Link 
-                    key={idx} 
+                  <Link
+                    key={idx}
                     to={`/category/${cat.slug}`}
                     onClick={() => {
                       setMobileMenuOpen(false);
@@ -203,8 +200,8 @@ const Header = () => {
                 ))}
                 <hr />
                 {combinedCategories.map((cat, idx) => (
-                  <Link 
-                    key={`combo-${idx}`} 
+                  <Link
+                    key={`combo-${idx}`}
                     to={`/category/${cat.slug}`}
                     onClick={() => {
                       setMobileMenuOpen(false);

@@ -12,7 +12,7 @@ const Footer = () => {
             <span className="logo-icon"><FaLeaf /></span>
             <div className="logo-text">
               <h3>Zonixtec</h3>
-              <p>Pure Veg Restaurant</p>
+              <p>Tradition Restaurant</p>
             </div>
           </div>
           <p className="footer-description">

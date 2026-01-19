@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Cart.css";
 import { useCart } from "../../context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,7 +19,8 @@ import {
   FaChevronRight,
   FaHome,
   FaUtensils,
-  FaRupeeSign
+  FaRupeeSign,
+  FaSpinner
 } from "react-icons/fa";
 
 const Cart = () => {
@@ -29,48 +30,108 @@ const Cart = () => {
     removeFromCart, 
     getCartTotal,
     clearCart,
-    addToCart 
+    addToCart,
+    loading: cartLoading
   } = useCart();
   
   const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [deliveryType, setDeliveryType] = useState("home");
+  const [suggestedItems, setSuggestedItems] = useState([]);
+  const [loadingSuggested, setLoadingSuggested] = useState(false);
 
-const suggestedItemsData = [
-  {
-    id: 101,
-    name: "Masala Dosa",
-    price: 180,
-    description: "Crispy rice crepe with potato filling",
-    image: "/images/dishes/popular/Masala_Dosa.jpg",
-    category: "South Indian",
-    type: "veg",
-    prepTime: "15 min"
-  },
-  {
-    id: 102,
-    name: "Veg Biryani",
-    price: 249,
-    description: "Aromatic basmati rice with vegetables",
-    image: "/images/dishes/popular/veg-biryani.jpg",
-    category: "Main Course",
-    type: "veg",
-    prepTime: "25 min"
-  },
-  {
-    id: 103,
-    name: "Gulab Jamun",
-    price: 120,
-    description: "Sweet milk balls in sugar syrup",
-    image: "/images/dishes/popular/Gulab Jamun.jpg",
-    category: "Desserts",
-    type: "veg",
-    prepTime: "10 min"
-  }
-];
+  // Fetch suggested items when cart loads
+  useEffect(() => {
+    const fetchSuggestedItems = async () => {
+      try {
+        setLoadingSuggested(true);
+        
+        // Get token from localStorage
+        const token = localStorage.getItem('token');
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
 
-const suggestedItems = suggestedItemsData;
+        // Fetch popular products or products from the same categories
+        const response = await fetch('http://localhost:5000/api/products?limit=3', {
+          headers: headers
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            // Transform API data to match your component structure
+            const transformedItems = data.data.slice(0, 3).map(product => ({
+              id: product.id,
+              name: product.name,
+              description: product.description || `${product.name} - Delicious dish`,
+              price: product.price || 0,
+              category: product.category_name || "Popular",
+              type: product.category_slug?.includes('non-veg') ? "non-veg" : "veg",
+              image: product.image ? 
+                (product.image.startsWith('/') ? 
+                  `http://localhost:5000${product.image}` : 
+                  product.image) : 
+                "/images/dishes/default-food.jpg",
+              prepTime: "15-20 min"
+            }));
+            setSuggestedItems(transformedItems);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching suggested items:', error);
+        // Use fallback data
+        setSuggestedItems(getFallbackSuggestedItems());
+      } finally {
+        setLoadingSuggested(false);
+      }
+    };
+
+    if (!cartLoading) {
+      fetchSuggestedItems();
+    }
+  }, [cartLoading]);
+
+  // Fallback suggested items
+  const getFallbackSuggestedItems = () => {
+    return [
+      {
+        id: 101,
+        name: "Masala Dosa",
+        price: 180,
+        description: "Crispy rice crepe with potato filling",
+        image: "/images/dishes/popular/Masala_Dosa.jpg",
+        category: "South Indian",
+        type: "veg",
+        prepTime: "15 min"
+      },
+      {
+        id: 102,
+        name: "Veg Biryani",
+        price: 249,
+        description: "Aromatic basmati rice with vegetables",
+        image: "/images/dishes/popular/veg-biryani.jpg",
+        category: "Main Course",
+        type: "veg",
+        prepTime: "25 min"
+      },
+      {
+        id: 103,
+        name: "Gulab Jamun",
+        price: 120,
+        description: "Sweet milk balls in sugar syrup",
+        image: "/images/dishes/popular/Gulab Jamun.jpg",
+        category: "Desserts",
+        type: "veg",
+        prepTime: "10 min"
+      }
+    ];
+  };
 
   // Promo codes
   const promoCodes = [
@@ -95,7 +156,6 @@ const suggestedItems = suggestedItemsData;
      (subtotal - discount) * (appliedPromo.discount / 100)) : 0;
   
   const total = subtotal - discount - promoDiscount + deliveryCharge + tax;
-
 
   // Handle quantity changes
   const handleQuantityChange = (id, change) => {
@@ -140,12 +200,12 @@ const suggestedItems = suggestedItemsData;
   };
 
   // Add suggested item to cart
-  const handleAddSuggestedItem = (item) => {
+  const handleAddSuggestedItem = async (item) => {
     const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
     if (existingItem) {
       handleQuantityChange(item.id, 1);
     } else {
-      addToCart(item, 1);
+      await addToCart(item, 1);
     }
     alert(`${item.name} added to cart!`);
   };
@@ -189,6 +249,14 @@ const suggestedItems = suggestedItemsData;
       </div>
 
       <div className="container">
+        {/* Loading state */}
+        {cartLoading && (
+          <div className="cart-loading">
+            <FaSpinner className="spinner" />
+            <p>Loading your cart...</p>
+          </div>
+        )}
+
         <div className="cart-content">
           {/* Left Column - Cart Items */}
           <div className="cart-items-section">
@@ -216,7 +284,7 @@ const suggestedItems = suggestedItemsData;
               </div>
             </div>
 
-            {cartItems.length === 0 ? (
+            {!cartLoading && cartItems.length === 0 ? (
               <div className="empty-cart">
                 <div className="empty-cart-icon">
                   <FaShoppingCart />
@@ -227,7 +295,7 @@ const suggestedItems = suggestedItemsData;
                   Browse Menu
                 </Link>
               </div>
-            ) : (
+            ) : !cartLoading && (
               <>
                 {/* Cart Items List */}
                 <div className="cart-items-list">
@@ -391,7 +459,7 @@ const suggestedItems = suggestedItemsData;
                 </div>
 
                 {/* Suggested Items */}
-                {suggestedItems.length > 0 && (
+                {!loadingSuggested && suggestedItems.length > 0 && (
                   <div className="suggested-items-section">
                     <h3 className="section-title">
                       <FaStar /> You might also like
@@ -551,7 +619,7 @@ const suggestedItems = suggestedItemsData;
                   
                   {total > 500 && (
                     <div className="savings-notice">
-                      🎉 You saved ₹{discount + promoDiscount} on this order!
+                      🎉 You saved ₹{(discount + promoDiscount).toFixed(2)} on this order!
                     </div>
                   )}
                 </div>
