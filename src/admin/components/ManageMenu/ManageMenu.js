@@ -309,7 +309,6 @@ const ManageMenu = () => {
   };
 
   // Handle add new item
-  // Handle add new item
 const handleAddItem = async () => {
   if (!newItem.name || !newItem.price || !newItem.category_id) {
     alert('Please fill in all required fields');
@@ -321,102 +320,71 @@ const handleAddItem = async () => {
     const token = getToken();
     if (!token) {
       alert('Authentication required');
-      setIsSubmitting(false);
       return;
     }
 
-    // Prepare tags as array if provided
-    const tagsArray = newItem.tags ? 
-      newItem.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-    
-    // Prepare ingredients as array if provided
-    const ingredientsArray = newItem.ingredients ? 
-      newItem.ingredients.split(',').map(ing => ing.trim()).filter(ing => ing) : [];
+    const formData = new FormData();
 
-    // Find the selected category from your categories array
-    const selectedCategory = categories.find(cat => {
-      if (typeof cat === 'object') {
-        return cat.id === parseInt(newItem.category_id);
-      }
-      return false;
-    });
-    
-    const categoryId = selectedCategory ? selectedCategory.id : parseInt(newItem.category_id);
+    formData.append('name', newItem.name);
+    formData.append('description', newItem.description || '');
+    formData.append('price', newItem.price);
+    formData.append('original_price', newItem.original_price || newItem.price);
+    formData.append('category_id', newItem.category_id);
+    formData.append('type', newItem.type);
+    formData.append('prep_time', newItem.prep_time || '15 min');
+    formData.append('is_available', newItem.is_available);
+    formData.append('is_popular', newItem.is_popular);
+    formData.append('is_featured', newItem.is_featured);
 
-    // Prepare image - use the imagePreview if available
-    let imageData = null;
-    if (newItem.imagePreview && newItem.imagePreview.startsWith('data:image')) {
-      imageData = newItem.imagePreview;
+    if (newItem.tags) {
+      formData.append(
+        'tags',
+        JSON.stringify(newItem.tags.split(',').map(t => t.trim()))
+      );
     }
 
-    // Prepare the request data - EXACTLY as your API expects
-    const itemData = {
-      name: newItem.name,
-      description: newItem.description || '',
-      price: parseFloat(newItem.price),
-      original_price: newItem.original_price ? parseFloat(newItem.original_price) : null,
-      category_id: categoryId,
-      image: imageData, // Send Base64 image or null
-      type: newItem.type.toLowerCase(), // Ensure lowercase
-      tags: tagsArray,
-      prep_time: newItem.prep_time || '25 min',
-      ingredients: ingredientsArray,
-      is_available: Boolean(newItem.is_available),
-      is_popular: Boolean(newItem.is_popular),
-      is_featured: Boolean(newItem.is_featured)
-    };
+    if (newItem.ingredients) {
+      formData.append(
+        'ingredients',
+        JSON.stringify(newItem.ingredients.split(',').map(i => i.trim()))
+      );
+    }
 
-    console.log('Sending item data:', {
-      ...itemData,
-      image: imageData ? `Base64 image (${imageData.length} chars)` : 'No image'
-    });
+    // 🔥 THIS IS THE MOST IMPORTANT LINE
+    if (newItem.imageFile) {
+      formData.append('image', newItem.imageFile);
+    }
 
-    const response = await fetch('https://backend-hotel-management.onrender.com/api/admin/products', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(itemData)
-    });
-
-    const responseText = await response.text();
-    console.log('Response status:', response.status);
-    console.log('Response body:', responseText);
-
-    if (response.ok) {
-      try {
-        const data = JSON.parse(responseText);
-        if (data.success) {
-          // Add new item to state
-          setMenuItems([...menuItems, data.data]);
-          resetNewItemForm();
-          setShowAddModal(false);
-          alert('Item added successfully!');
-          // Refresh the menu items
-          fetchMenuItems();
-        } else {
-          alert(data.message || 'Failed to add item');
-        }
-      } catch (parseError) {
-        console.error('JSON parse error:', parseError);
-        alert('Unexpected response format: ' + responseText);
+    const response = await fetch(
+      'https://backend-hotel-management.onrender.com/api/products',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+          // ❌ DO NOT set Content-Type
+        },
+        body: formData
       }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert('Item added successfully!');
+      setShowAddModal(false);
+      resetNewItemForm();
+      fetchMenuItems();
     } else {
-      try {
-        const errorData = JSON.parse(responseText);
-        alert(`Error ${response.status}: ${errorData.message || 'Failed to add item'}`);
-      } catch (parseError) {
-        alert(`Error ${response.status}: ${responseText || 'Failed to add item'}`);
-      }
+      alert(data.message || 'Failed to add item');
     }
   } catch (err) {
-    console.error('Error adding item:', err);
-    alert('Error adding item. Please try again. Error: ' + err.message);
+    console.error(err);
+    alert('Error adding item');
   } finally {
     setIsSubmitting(false);
   }
 };
+
 
   // Handle edit item
   const handleEditItem = (item) => {
