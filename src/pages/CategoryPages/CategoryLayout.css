@@ -169,7 +169,7 @@
   text-decoration: none;
 }
 
-.cta-btn.primary {
+/* .cta-btn.primary {
   background: white;
   color: var(--category-color, #8B4513);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -179,9 +179,9 @@
   background: #f8f8f8;
   transform: translateY(-5px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-}
+} */
 
-.cta-btn.secondary {
+/* .cta-btn.secondary {
   background: transparent;
   color: white;
   border: 3px solid white;
@@ -191,7 +191,7 @@
   background: white;
   color: var(--category-color, #8B4513);
   transform: translateY(-5px);
-}
+} */
 
 /* Responsive Design */
 @media (max-width: 992px) {
