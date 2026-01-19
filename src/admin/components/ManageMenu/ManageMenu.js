@@ -155,7 +155,7 @@ const ManageMenu = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/admin/products', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/admin/products', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -204,7 +204,7 @@ const ManageMenu = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/admin/products/${id}`, {
+        const response = await fetch(`https://backend-hotel-management.onrender.com/api/admin/products/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -246,7 +246,7 @@ const ManageMenu = () => {
         is_available: !item.is_available
       };
 
-      const response = await fetch(`http://localhost:5000/api/admin/products/${item.id}`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/admin/products/${item.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -363,7 +363,7 @@ const ManageMenu = () => {
 
       console.log('Sending item data (size):', JSON.stringify(finalItemData).length);
 
-      const response = await fetch('http://localhost:5000/api/admin/products', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/admin/products', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -506,7 +506,7 @@ const ManageMenu = () => {
         }
       });
 
-      const response = await fetch(`http://localhost:5000/api/admin/products/${selectedItem.id}`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/admin/products/${selectedItem.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

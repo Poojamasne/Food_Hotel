@@ -58,7 +58,7 @@ const Cart = () => {
         }
 
         // Fetch popular products or products from the same categories
-        const response = await fetch('http://localhost:5000/api/products?limit=3', {
+        const response = await fetch('https://backend-hotel-management.onrender.com/api/products?limit=3', {
           headers: headers
         });
 
@@ -75,7 +75,7 @@ const Cart = () => {
               type: product.category_slug?.includes('non-veg') ? "non-veg" : "veg",
               image: product.image ? 
                 (product.image.startsWith('/') ? 
-                  `http://localhost:5000${product.image}` : 
+                  `https://backend-hotel-management.onrender.com${product.image}` : 
                   product.image) : 
                 "/images/dishes/default-food.jpg",
               prepTime: "15-20 min"

@@ -40,7 +40,7 @@ export const AdminProvider = ({ children }) => {
     try {
       console.log('Admin login attempt:', { email }); // Debug log
       
-      const response = await fetch('http://localhost:5000/api/admin/login', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ const Categories = () => {
     console.log(`getImageUrl: apiImagePath=${apiImagePath}, slug=${slug}`);
     
     // Base URL for backend
-    const baseUrl = 'http://localhost:5000';
+    const baseUrl = 'https://backend-hotel-management.onrender.com';
     
     // If API returns a path, use it
     if (apiImagePath) {
@@ -79,8 +79,8 @@ const Categories = () => {
           console.log('Using token for authentication');
         }
 
-        console.log('Making API request to: http://localhost:5000/api/categories');
-        const response = await fetch('http://localhost:5000/api/categories', {
+        console.log('Making API request to: https://backend-hotel-management.onrender.com/api/categories');
+        const response = await fetch('https://backend-hotel-management.onrender.com/api/categories', {
           headers: headers
         });
 
@@ -156,7 +156,7 @@ const Categories = () => {
 
   // Static fallback data
   const getStaticCategories = () => {
-    const baseUrl = 'http://localhost:5000';
+    const baseUrl = 'https://backend-hotel-management.onrender.com';
     return [
       {
         id: 1,

@@ -28,7 +28,7 @@ const NonVegetarian = () => {
           headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch('http://localhost:5000/api/products/category/non-veg', {
+        const response = await fetch('https://backend-hotel-management.onrender.com/api/products/category/non-veg', {
           headers: headers
         });
 
@@ -76,7 +76,7 @@ const NonVegetarian = () => {
     
     // If it's a relative path, prepend backend URL
     if (apiImagePath.startsWith('/')) {
-      return `http://localhost:5000${apiImagePath}`;
+      return `https://backend-hotel-management.onrender.com${apiImagePath}`;
     }
     
     return apiImagePath;

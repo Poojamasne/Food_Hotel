@@ -27,7 +27,7 @@ const Beverages = () => {
           headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch('http://localhost:5000/api/products/category/beverages', {
+        const response = await fetch('https://backend-hotel-management.onrender.com/api/products/category/beverages', {
           headers: headers
         });
 
@@ -68,7 +68,7 @@ const Beverages = () => {
 
   const getImagePath = (apiImagePath) => {
     if (!apiImagePath) return "/images/dishes/default-food.jpg";
-    if (apiImagePath.startsWith('/')) return `http://localhost:5000${apiImagePath}`;
+    if (apiImagePath.startsWith('/')) return `https://backend-hotel-management.onrender.com${apiImagePath}`;
     return apiImagePath;
   };
 

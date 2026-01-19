@@ -25,7 +25,7 @@ const MyOrders = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/orders/my-orders?page=${page}&limit=10`, {
+        const response = await fetch(`https://backend-hotel-management.onrender.com/api/orders/my-orders?page=${page}&limit=10`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -47,7 +47,7 @@ const MyOrders = () => {
 
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/orders/stats/user', {
+        const response = await fetch('https://backend-hotel-management.onrender.com/api/orders/stats/user', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -106,7 +106,7 @@ const MyOrders = () => {
     if (!window.confirm('Are you sure you want to cancel this order?')) return;
     
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/cancel`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/orders/${orderId}/cancel`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

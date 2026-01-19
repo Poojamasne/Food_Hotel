@@ -51,11 +51,11 @@ const MenuPage = () => {
           "Starters": "starters"
         };
 
-        let apiUrl = 'http://localhost:5000/api/products';
+        let apiUrl = 'https://backend-hotel-management.onrender.com/api/products';
         const apiSlug = categoryMap[selectedCategory];
         
         if (selectedCategory !== "All" && apiSlug) {
-          apiUrl = `http://localhost:5000/api/products/category/${apiSlug}`;
+          apiUrl = `https://backend-hotel-management.onrender.com/api/products/category/${apiSlug}`;
         }
 
         const response = await fetch(apiUrl, {
@@ -105,7 +105,7 @@ const MenuPage = () => {
     
     // If it's a relative path, prepend backend URL
     if (apiImagePath.startsWith('/')) {
-      return `http://localhost:5000${apiImagePath}`;
+      return `https://backend-hotel-management.onrender.com${apiImagePath}`;
     }
     
     return apiImagePath;

@@ -28,14 +28,14 @@ const MainCourse = () => {
         }
 
         // Try main-course endpoint, fall back to all products if not exists
-        let apiUrl = 'http://localhost:5000/api/products/category/main-course';
+        let apiUrl = 'https://backend-hotel-management.onrender.com/api/products/category/main-course';
         let response = await fetch(apiUrl, { headers });
         
         // If 404, try alternative endpoints or use all products
         if (response.status === 404) {
           console.log('main-course endpoint not found, trying alternatives...');
           // Try different endpoint names or fallback
-          apiUrl = 'http://localhost:5000/api/products';
+          apiUrl = 'https://backend-hotel-management.onrender.com/api/products';
           response = await fetch(apiUrl, { headers });
         }
 
@@ -89,7 +89,7 @@ const MainCourse = () => {
 
   const getImagePath = (apiImagePath) => {
     if (!apiImagePath) return "/images/dishes/default-food.jpg";
-    if (apiImagePath.startsWith('/')) return `http://localhost:5000${apiImagePath}`;
+    if (apiImagePath.startsWith('/')) return `https://backend-hotel-management.onrender.com${apiImagePath}`;
     return apiImagePath;
   };
 

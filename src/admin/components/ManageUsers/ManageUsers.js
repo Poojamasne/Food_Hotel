@@ -65,7 +65,7 @@ const ManageUsers = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/admin/users', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/admin/users', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -109,7 +109,7 @@ const ManageUsers = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+        const response = await fetch(`https://backend-hotel-management.onrender.com/api/admin/users/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -145,7 +145,7 @@ const ManageUsers = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/admin/users/${id}/status`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/admin/users/${id}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -233,7 +233,7 @@ const ManageUsers = () => {
       }
 
       // First update basic info
-      const response = await fetch(`http://localhost:5000/api/admin/users/${selectedUser.id}`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/admin/users/${selectedUser.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -295,7 +295,7 @@ const ManageUsers = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -316,7 +316,7 @@ const ManageUsers = () => {
           if (userForm.role !== 'user') {
             setTimeout(async () => {
               try {
-                const roleResponse = await fetch(`http://localhost:5000/api/admin/users/${data.user.id}/role`, {
+                const roleResponse = await fetch(`https://backend-hotel-management.onrender.com/api/admin/users/${data.user.id}/role`, {
                   method: 'PUT',
                   headers: {
                     'Authorization': `Bearer ${token}`,

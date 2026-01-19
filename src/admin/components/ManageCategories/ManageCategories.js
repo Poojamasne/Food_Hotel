@@ -101,7 +101,7 @@ const ManageCategories = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/categories', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/categories', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -145,7 +145,7 @@ const ManageCategories = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/categories/${id}`, {
+        const response = await fetch(`https://backend-hotel-management.onrender.com/api/categories/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -252,7 +252,7 @@ const ManageCategories = () => {
         }
       }
 
-      const response = await fetch(`http://localhost:5000/api/categories/${editingId}`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/categories/${editingId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -352,7 +352,7 @@ const ManageCategories = () => {
         }
       }
 
-      const response = await fetch('http://localhost:5000/api/categories', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/categories', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -436,7 +436,7 @@ const ManageCategories = () => {
     
     if (image.startsWith('/')) {
       // If it's a local path, prepend the server URL
-      return `http://localhost:5000${image}`;
+      return `https://backend-hotel-management.onrender.com${image}`;
     }
     
     return '/images/categories/default.jpg';

@@ -16,7 +16,7 @@ const ManageOrders = () => {
       setLoading(true);
       setError('');
       
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/orders', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -93,7 +93,7 @@ const ManageOrders = () => {
       const orderToUpdate = orders.find(order => order.id === orderId);
       if (!orderToUpdate) return;
 
-      const response = await fetch(`http://localhost:5000/api/orders/${orderToUpdate.originalData.id}/status`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/orders/${orderToUpdate.originalData.id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

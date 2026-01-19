@@ -37,7 +37,7 @@ export const CartProvider = ({ children }) => {
     try {
       setSyncLoading(true);
       for (const item of localCart) {
-        await fetch('http://localhost:5000/api/cart/add', {
+        await fetch('https://backend-hotel-management.onrender.com/api/cart/add', {
           method: 'POST',
           headers: getHeaders(),
           body: JSON.stringify({
@@ -64,7 +64,7 @@ export const CartProvider = ({ children }) => {
         // User is logged in - fetch from API
         try {
           setLoading(true);
-          const response = await fetch('http://localhost:5000/api/cart', {
+          const response = await fetch('https://backend-hotel-management.onrender.com/api/cart', {
             headers: getHeaders()
           });
 
@@ -143,7 +143,7 @@ export const CartProvider = ({ children }) => {
     if (token) {
       // Use API
       try {
-        const response = await fetch('http://localhost:5000/api/cart/add', {
+        const response = await fetch('https://backend-hotel-management.onrender.com/api/cart/add', {
           method: 'POST',
           headers: getHeaders(),
           body: JSON.stringify({
@@ -156,7 +156,7 @@ export const CartProvider = ({ children }) => {
           const data = await response.json();
           if (data.success) {
             // Refresh cart from API
-            const refreshResponse = await fetch('http://localhost:5000/api/cart', {
+            const refreshResponse = await fetch('https://backend-hotel-management.onrender.com/api/cart', {
               headers: getHeaders()
             });
             if (refreshResponse.ok) {
@@ -224,7 +224,7 @@ export const CartProvider = ({ children }) => {
     
     if (token) {
       try {
-        const response = await fetch(`http://localhost:5000/api/cart/remove/${id}`, {
+        const response = await fetch(`https://backend-hotel-management.onrender.com/api/cart/remove/${id}`, {
           method: 'DELETE',
           headers: getHeaders()
         });
@@ -255,7 +255,7 @@ export const CartProvider = ({ children }) => {
     
     if (token) {
       try {
-        const response = await fetch('http://localhost:5000/api/cart/update', {
+        const response = await fetch('https://backend-hotel-management.onrender.com/api/cart/update', {
           method: 'PUT',
           headers: getHeaders(),
           body: JSON.stringify({
@@ -289,7 +289,7 @@ export const CartProvider = ({ children }) => {
     
     if (token) {
       try {
-        const response = await fetch('http://localhost:5000/api/cart/clear', {
+        const response = await fetch('https://backend-hotel-management.onrender.com/api/cart/clear', {
           method: 'DELETE',
           headers: getHeaders()
         });

@@ -57,7 +57,7 @@ const ManageContact = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/contact/messages', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/contact/messages', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -108,7 +108,7 @@ const ManageContact = () => {
       const token = getToken();
       if (!token) return;
 
-      const response = await fetch('http://localhost:5000/api/contact/stats', {
+      const response = await fetch('https://backend-hotel-management.onrender.com/api/contact/stats', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -153,7 +153,7 @@ const ManageContact = () => {
 
       // First fetch the full message details
       console.log('Fetching full message details...');
-      const response = await fetch(`http://localhost:5000/api/contact/messages/${id}`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/contact/messages/${id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -173,7 +173,7 @@ const ManageContact = () => {
           
           // Mark as read
           try {
-            await fetch(`http://localhost:5000/api/contact/messages/${id}/status`, {
+            await fetch(`https://backend-hotel-management.onrender.com/api/contact/messages/${id}/status`, {
               method: 'PUT',
               headers: {
                 'Authorization': `Bearer ${token}`,
@@ -242,7 +242,7 @@ const ManageContact = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/contact/messages/${id}`, {
+        const response = await fetch(`https://backend-hotel-management.onrender.com/api/contact/messages/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -285,7 +285,7 @@ const ManageContact = () => {
       }
 
       const newStatus = currentStatus === 'read' ? 'unread' : 'read';
-      const response = await fetch(`http://localhost:5000/api/contact/messages/${id}/status`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/contact/messages/${id}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -339,7 +339,7 @@ const ManageContact = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/contact/messages/${selectedMessage._id}/status`, {
+      const response = await fetch(`https://backend-hotel-management.onrender.com/api/contact/messages/${selectedMessage._id}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
