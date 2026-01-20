@@ -3,7 +3,6 @@ import "./Home.css";
 import { useNavigate } from "react-router-dom";
 import Hero from "../../components/Hero/Hero";
 import Categories from "../../components/Categories/Categories";
-import PopularDishes from "../../components/PopularDishes/PopularDishes";
 
 import {
   FaLeaf,
