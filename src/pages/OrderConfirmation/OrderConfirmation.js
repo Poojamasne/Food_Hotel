@@ -258,7 +258,7 @@ const OrderConfirmation = () => {
                 </div>
                 {userPhone && (
                   <div className="info-row">
-                    <FaPhone className="info-icon" />
+                    <FaPhone className="info-icon" style={{ transform: "scaleX(-1)" }} />
                     <div className="info-content">
                       <span className="label">Phone</span>
                       <span className="value">{userPhone}</span>

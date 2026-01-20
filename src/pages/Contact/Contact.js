@@ -130,7 +130,7 @@ const Contact = () => {
               {/* Card 2: Phone */}
               <div className="info-card">
                 <div className="info-icon phone">
-                  <FaPhone />
+                  <FaPhone style={{ transform: "scaleX(-1)" }} />
                 </div>
                 <h3>Phone Numbers</h3>
                 <p>Main: +91 98765 43210</p>

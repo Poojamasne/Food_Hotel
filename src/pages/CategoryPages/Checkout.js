@@ -148,7 +148,7 @@ const Checkout = () => {
               {/* Form Fields */}
               <div className="form-group">
                 <label>
-                  <FaUser /> Full Name *
+                  <FaUser /> Full Name 
                 </label>
                 <input
                   type="text"
@@ -162,7 +162,7 @@ const Checkout = () => {
 
               <div className="form-group">
                 <label>
-                  <FaPhone /> Phone Number *
+                  <FaPhone style={{ transform: "scaleX(-1)" }} /> Phone Number
                 </label>
                 <input
                   type="tel"

@@ -569,7 +569,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                       <small>{message.email || 'No email'}</small>
                       {message.phone && (
                         <small className="phone">
-                          <FaPhone /> {message.phone}
+                          <FaPhone style={{ transform: "scaleX(-1)" }} /> {message.phone}
                         </small>
                       )}
                     </div>
@@ -664,7 +664,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                     <p className="sender-email">{selectedMessage.email || 'No email'}</p>
                     {selectedMessage.phone && (
                       <p className="sender-phone">
-                        <FaPhone /> {selectedMessage.phone}
+                        <FaPhone style={{ transform: "scaleX(-1)" }} /> {selectedMessage.phone}
                       </p>
                     )}
                   </div>
