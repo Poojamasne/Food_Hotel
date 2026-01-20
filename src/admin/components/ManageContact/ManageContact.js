@@ -119,13 +119,15 @@ const ManageContact = () => {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setStats(data.data || {
-            total: 0,
-            read: 0,
-            unread: 0,
-            replied: 0
-          });
-        }
+  const normalizedStats = {
+    total: Number(data.data.total) || 0,
+    read: Number(data.data.read) || 0,
+    unread: Number(data.data.unread) || 0,
+    replied: Number(data.data.replied) || 0,
+  };
+  setStats(normalizedStats);
+}
+
       } else {
         console.error('Error fetching stats:', response.status);
       }

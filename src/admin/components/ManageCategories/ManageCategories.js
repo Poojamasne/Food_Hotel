@@ -88,6 +88,14 @@ const ManageCategories = () => {
     });
   };
 
+  // Sort categories by display_order DESC
+const sortCategories = (list) => {
+  return [...list].sort(
+    (a, b) => (b.display_order || 0) - (a.display_order || 0)
+  );
+};
+
+
   // Fetch categories from API
   const fetchCategories = useCallback(async () => {
     try {
@@ -114,7 +122,7 @@ const ManageCategories = () => {
         console.log('Categories API response:', data);
         
         if (data.success) {
-          setCategories(data.data || []);
+           setCategories(sortCategories(data.data || []));
         } else {
           setError(data.message || 'Failed to load categories');
         }
@@ -157,7 +165,9 @@ const ManageCategories = () => {
           const data = await response.json();
           if (data.success) {
             // Remove category from state
-            setCategories(categories.filter(cat => cat.id !== id));
+            setCategories(prev =>
+  sortCategories(prev.filter(cat => cat.id !== id))
+);
             alert('Category deleted successfully!');
           } else {
             alert(data.message || 'Failed to delete category');
@@ -264,9 +274,13 @@ const ManageCategories = () => {
         const data = await response.json();
         if (data.success) {
           // Update category in state
-          setCategories(categories.map(cat => 
-            cat.id === editingId ? { ...cat, ...data.data } : cat
-          ));
+          setCategories(prev =>
+  sortCategories(
+    prev.map(cat =>
+      cat.id === editingId ? data.data : cat
+    )
+  )
+);
           setEditingId(null);
           setEditData({ 
             name: '', 
@@ -360,24 +374,26 @@ const ManageCategories = () => {
         body: formData
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          // Add new category to state
-          setCategories([...categories, data.data]);
-          setNewCategory({ 
-            name: '', 
-            description: '', 
-            image: '', 
-            imageFile: null,
-            imagePreview: '',
-            display_order: 0 
-          });
-          setShowAddModal(false);
-          alert('Category added successfully!');
-        } else {
-          alert(data.message || 'Failed to add category');
-        }
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success) {
+                // Add new category to state
+                setCategories(prev =>
+        sortCategories([...prev, data.data])
+      );
+                setNewCategory({ 
+                  name: '', 
+                  description: '', 
+                  image: '', 
+                  imageFile: null,
+                  imagePreview: '',
+                  display_order: 0 
+                });
+                setShowAddModal(false);
+                alert('Category added successfully!');
+              } else {
+                alert(data.message || 'Failed to add category');
+              }
       } else {
         const errorText = await response.text();
         console.error('Server response:', response.status, errorText);
@@ -513,14 +529,15 @@ const ManageCategories = () => {
                 </td>
               </tr>
             ) : (
-              categories.map(category => {
+              categories.map((category, index) => {
                 const slug = category.slug || generateSlug(category.name);
                 const itemCount = getItemCount(category);
                 const status = getCategoryStatus(category);
                 
                 return (
                   <tr key={category.id}>
-                    <td>#{category.id}</td>
+                    <td>#{index + 1}</td>
+
                     
                     <td className="category-cell">
                       <div className="category-info">

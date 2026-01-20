@@ -171,17 +171,17 @@
 }
 
 /* Status Badges */
-.status-badge {
+/* .status-badge {
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
+} */
 
 .status-unread {
-  background: #fff3cd;
+  background: #f1c124;
   color: #856404;
   border: 1px solid #ffeaa7;
 }
@@ -197,6 +197,7 @@
   color: #004085;
   border: 1px solid #b8daff;
 }
+
 
 /* Sender Info */
 .sender-info {
@@ -561,7 +562,6 @@
 }
 
 .form-group label {
-  display: block;
   margin-bottom: 8px;
   font-weight: 500;
   color: #555;

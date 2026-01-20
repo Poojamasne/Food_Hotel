@@ -109,12 +109,14 @@ const AdminSidebar = ({ isOpen, onClose }) => {
             {menuItems.map((item, index) => (
               <li key={index}>
                 <NavLink
-                  to={item.path}
-                  className={({ isActive }) => 
-                    isActive ? 'sidebar-link active' : 'sidebar-link'
-                  }
-                  onClick={closeSidebar}
-                >
+  to={item.path}
+  end={item.path === '/admin'}
+  className={({ isActive }) =>
+    isActive ? 'sidebar-link active' : 'sidebar-link'
+  }
+  onClick={closeSidebar}
+>
+
                   <span className="sidebar-icon">{item.icon}</span>
                   <span className="sidebar-label">{item.label}</span>
                 </NavLink>

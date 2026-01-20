@@ -130,32 +130,7 @@ ManageOffers.css
   border: 1px solid #e0e0e0;
 }
 
-.search-box {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #f8f9fa;
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s ease;
-}
 
-.search-box:focus-within {
-  border-color: #D2691E;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
-}
-
-.search-box input {
-  flex: 1;
-  border: none;
-  background: none;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-}
 
 .filter-group {
   display: flex;
@@ -1136,9 +1111,6 @@ ManageOffers.css
     gap: 15px;
   }
   
-  .search-box, .filter-group {
-    width: 100%;
-  }
   
   .form-row {
     grid-template-columns: 1fr;

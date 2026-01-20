@@ -545,7 +545,7 @@ const ManageUsers = () => {
       </div>
 
       <div className="filters-bar">
-        <div className="search-box">
+        {/* <div className="search-box">
           <FaSearch />
           <input
             type="text"
@@ -553,7 +553,7 @@ const ManageUsers = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
+        </div> */}
         
         <div className="filter-group">
           <FaFilter />
@@ -616,17 +616,17 @@ const ManageUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map(user => {
+              {filteredUsers.map((user, index) => {
                 return (
                   <tr key={user.id}>
-                    <td className="user-id">#{user.id}</td>
+                    <td className="user-id">#{index + 1}</td>
                     
                     <td className="user-cell">
                       <div className="user-info">
                         <div className="user-avatar">
                           {user.profile_image ? (
                             <img 
-                              src={user.profile_image} 
+                              src={user.profile_image}
                               alt={user.name}
                               onError={(e) => {
                                 e.target.onerror = null;
@@ -655,7 +655,7 @@ const ManageUsers = () => {
                     <td className="contact-cell">
                       <div className="contact-info">
                         <div className="phone">
-                          <FaPhone /> {user.phone || 'Not provided'}
+                          <FaPhone style={{ transform: "scaleX(-1)" }} /> {user.phone || "Not provided"}
                         </div>
                         <div className="address">
                           <FaMapMarkerAlt /> {user.address ? `${user.address.substring(0, 30)}${user.address.length > 30 ? '...' : ''}` : 'Not provided'}
@@ -759,7 +759,7 @@ const ManageUsers = () => {
             <div className="modal-body">
               <div className="form-row">
                 <div className="form-group">
-                  <label>Full Name *</label>
+                  <label>Full Name </label>
                   <input 
                     type="text" 
                     placeholder="Enter full name" 
@@ -771,7 +771,7 @@ const ManageUsers = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label>Email Address *</label>
+                  <label>Email Address </label>
                   <input 
                     type="email" 
                     placeholder="Enter email address" 
@@ -796,7 +796,7 @@ const ManageUsers = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label>Role *</label>
+                  <label>Role </label>
                   <select 
                     value={userForm.role} 
                     onChange={(e) => setUserForm({...userForm, role: e.target.value})}
@@ -811,7 +811,7 @@ const ManageUsers = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Password *</label>
+                  <label>Password </label>
                   <input 
                     type="password" 
                     placeholder="Enter password" 
@@ -823,7 +823,7 @@ const ManageUsers = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label>Confirm Password *</label>
+                  <label>Confirm Password </label>
                   <input 
                     type="password" 
                     placeholder="Confirm password" 

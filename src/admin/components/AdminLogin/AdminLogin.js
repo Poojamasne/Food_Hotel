@@ -107,13 +107,13 @@ const AdminLogin = () => {
             )}
           </button>
 
-          <div className="login-footer">
+          {/* <div className="login-footer">
             <p>
               <strong>Admin Credentials:</strong><br />
               Email: admin@zonixtec.com<br />
               Password: admin123
             </p>
-          </div>
+          </div> */}
         </form>
       </div>
     </div>

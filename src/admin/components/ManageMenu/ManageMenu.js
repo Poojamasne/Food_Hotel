@@ -4,13 +4,11 @@ import {
   FaPlus, 
   FaEdit, 
   FaTrash, 
-  FaSearch, 
   FaFilter, 
   FaCheck, 
   FaTimes,
   FaUpload,
   FaEye,
-  FaRupeeSign,
   FaSpinner,
   FaRedo,
   FaImage
@@ -715,7 +713,7 @@ const paginatedItems = filteredItems.slice(
       </div>
 
       <div className="filters-bar">
-        <div className="search-box">
+        {/* <div className="search-box">
           <FaSearch />
           <input
             type="text"
@@ -723,7 +721,7 @@ const paginatedItems = filteredItems.slice(
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
+        </div> */}
         
         <div className="filter-group">
           <FaFilter />
@@ -965,7 +963,7 @@ const paginatedItems = filteredItems.slice(
             <div className="modal-body">
               <div className="form-row">
                 <div className="form-group">
-                  <label>Item Name *</label>
+                  <label>Item Name </label>
                   <input
                     type="text"
                     value={newItem.name}
@@ -977,9 +975,9 @@ const paginatedItems = filteredItems.slice(
                 </div>
                 
                 <div className="form-group">
-                  <label>Price (₹) *</label>
+                  <label>Price (₹) </label>
                   <div className="price-input">
-                    <FaRupeeSign className="currency-icon" />
+      
                     <input
                       type="number"
                       value={newItem.price}
@@ -998,7 +996,7 @@ const paginatedItems = filteredItems.slice(
                 <div className="form-group">
                   <label>Original Price (₹)</label>
                   <div className="price-input">
-                    <FaRupeeSign className="currency-icon" />
+                    
                     <input
                       type="number"
                       value={newItem.original_price}
@@ -1012,7 +1010,7 @@ const paginatedItems = filteredItems.slice(
                 </div>
                 
                 <div className="form-group">
-                  <label>Category *</label>
+                  <label>Category </label>
                   <select
                     value={newItem.category_id}
                     onChange={(e) => setNewItem({...newItem, category_id: e.target.value})}
@@ -1259,7 +1257,7 @@ const paginatedItems = filteredItems.slice(
                 <div className="form-group">
                   <label>Price (₹) *</label>
                   <div className="price-input">
-                    <FaRupeeSign className="currency-icon" />
+                    
                     <input
                       type="number"
                       value={editItem.price}
@@ -1277,7 +1275,7 @@ const paginatedItems = filteredItems.slice(
                 <div className="form-group">
                   <label>Original Price (₹)</label>
                   <div className="price-input">
-                    <FaRupeeSign className="currency-icon" />
+                   
                     <input
                       type="number"
                       value={editItem.original_price}

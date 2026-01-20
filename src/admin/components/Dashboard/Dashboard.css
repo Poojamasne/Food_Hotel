@@ -117,7 +117,7 @@
   flex-shrink: 0;
 }
 
-.stat-trend {
+/* .stat-trend {
   position: absolute;
   top: -8px;
   right: -8px;
@@ -129,7 +129,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   min-width: 40px;
   text-align: center;
-}
+} */
 
 .stat-content {
   flex: 1;

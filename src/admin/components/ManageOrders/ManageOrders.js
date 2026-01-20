@@ -162,7 +162,7 @@ const ManageOrders = () => {
             className="action-btn process-btn"
             onClick={() => updateOrderStatus(order.id, 'preparing')}
           >
-            <FaCheck /> Start Preparing
+            <FaCheck /> Preparing
           </button>
         );
       

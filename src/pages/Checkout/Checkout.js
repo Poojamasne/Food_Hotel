@@ -249,7 +249,7 @@ const Checkout = () => {
               <div className="form-section">
                 <h3>Personal Details</h3>
                 <div className="form-group">
-                  <label htmlFor="name">Full Name *</label>
+                  <label htmlFor="name">Full Name </label>
                   <input
                     type="text"
                     id="name"
@@ -262,7 +262,7 @@ const Checkout = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="phone">Phone Number *</label>
+                  <label htmlFor="phone">Phone Number </label>
                   <input
                     type="tel"
                     id="phone"
@@ -297,7 +297,7 @@ const Checkout = () => {
                       <FaMapMarkerAlt /> Delivery Address
                     </h3>
                     <div className="form-group">
-                      <label htmlFor="address">Complete Address *</label>
+                      <label htmlFor="address">Complete Address </label>
                       <textarea
                         id="address"
                         name="address"
@@ -483,7 +483,7 @@ const Checkout = () => {
                 ) : (
                   <>
                     <FaCheckCircle />
-                    {isAuthenticated ? `Place Order - ₹${total.toFixed(2)}` : 'Please Login to Order'}
+                    {isAuthenticated ? `Place Order   ₹${total.toFixed(2)}` : 'Please Login to Order'}
                   </>
                 )}
               </button>

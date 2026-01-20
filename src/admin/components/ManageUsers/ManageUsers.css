@@ -130,32 +130,6 @@
   border: 1px solid #e0e0e0;
 }
 
-.search-box {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #f8f9fa;
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s ease;
-}
-
-.search-box:focus-within {
-  border-color: #D2691E;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
-}
-
-.search-box input {
-  flex: 1;
-  border: none;
-  background: none;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-}
 
 .filter-group {
   display: flex;
@@ -366,7 +340,7 @@
 }
 
 /* Status Badge */
-.status-badge, .role-badge {
+.role-badge {
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 12px;
@@ -985,4 +959,27 @@
 .password-change-section h4 {
   margin-bottom: 15px;
   color: #495057;
+}
+
+.search-box {
+  position: relative;
+  max-width: 400px;
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  border: 2px solid #E0E0E0;
+  border-radius: 25px;
+  outline: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #FAFAFA;
+}
+
+.search-input:focus {
+  border-color: #D2691E;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
 }
