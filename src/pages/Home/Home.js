@@ -1,8 +1,10 @@
 import React from "react";
 import "./Home.css";
+import "../../components/ScrollToTop.jsx";
 import { useNavigate } from "react-router-dom";
 import Hero from "../../components/Hero/Hero";
 import Categories from "../../components/Categories/Categories";
+
 
 import {
   FaLeaf,

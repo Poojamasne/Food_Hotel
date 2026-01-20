@@ -257,3 +257,31 @@
     font-size: 1.1rem;
   }
 }
+
+/* SAME AS MENU PAGE ADD TO CART */
+.add-to-cart-btn {
+  background: linear-gradient(135deg, #FF9800, #FF5722);
+  color: white;
+  border: none;
+
+  padding: 12px 25px;
+  height: 44px;
+  min-width: 130px;
+
+  border-radius: 25px; /* pill shape */
+  font-weight: 600;
+  font-size: 0.95rem;
+
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-to-cart-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(255, 152, 0, 0.3);
+}

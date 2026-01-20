@@ -24,16 +24,10 @@ const ManageContact = () => {
   const [error, setError] = useState('');
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
-  const [showReplyModal, setShowReplyModal] = useState(false);
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [stats, setStats] = useState({
-    total: 0,
-    read: 0,
-    unread: 0,
-    replied: 0
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const [showReplyModal, setShowReplyModal] = useState(false);
+const [filter, setFilter] = useState('all');
+const [searchTerm, setSearchTerm] = useState('');
+const [isSubmitting, setIsSubmitting] = useState(false);
   const [replyData, setReplyData] = useState({
     subject: '',
     message: ''
@@ -102,45 +96,12 @@ const ManageContact = () => {
     }
   }, []);
 
-  // Fetch contact stats
-  const fetchStats = useCallback(async () => {
-    try {
-      const token = getToken();
-      if (!token) return;
-
-      const response = await fetch('https://backend-hotel-management.onrender.com/api/contact/stats', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-  const normalizedStats = {
-    total: Number(data.data.total) || 0,
-    read: Number(data.data.read) || 0,
-    unread: Number(data.data.unread) || 0,
-    replied: Number(data.data.replied) || 0,
-  };
-  setStats(normalizedStats);
-}
-
-      } else {
-        console.error('Error fetching stats:', response.status);
-      }
-    } catch (err) {
-      console.error('Error fetching stats:', err);
-    }
-  }, []);
+ 
 
   // Initial data fetch
   useEffect(() => {
     fetchMessages();
-    fetchStats();
-  }, [fetchMessages, fetchStats]);
+  }, [fetchMessages,]);
 
   // View message details
   const viewMessage = async (id) => {
@@ -217,8 +178,6 @@ const ManageContact = () => {
             } : msg
           ));
           
-          // Update stats
-          fetchStats();
         } else {
           console.error('No message data in response:', data);
           alert(data.message || 'Failed to load message details');
@@ -257,7 +216,7 @@ const ManageContact = () => {
           if (data.success) {
             setMessages(messages.filter(msg => msg._id !== id));
             alert('Message deleted successfully!');
-            fetchStats();
+           
             
             if (showViewModal && selectedMessage?._id === id) {
               setShowViewModal(false);
@@ -307,7 +266,6 @@ const ManageContact = () => {
             setSelectedMessage({...selectedMessage, status: newStatus});
           }
           
-          fetchStats();
         }
       }
     } catch (err) {
@@ -362,7 +320,7 @@ const ManageContact = () => {
           setReplyData({ subject: '', message: '' });
           
           alert('Reply sent successfully! (Note: Email functionality would be implemented here)');
-          fetchStats();
+          
         } else {
           alert(data.message || 'Failed to mark as replied');
         }
@@ -404,38 +362,33 @@ const ManageContact = () => {
     return true;
   });
 
-  // Format date
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      // Handle MySQL datetime format: "2026-01-18 23:56:34"
-      const mysqlMatch = dateString.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-      if (mysqlMatch) {
-        const [, year, month, day, hour, minute, second] = mysqlMatch;
-        const date = new Date(year, month - 1, day, hour, minute, second);
-        return date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      }
-      
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Invalid Date';
-      
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return dateString || 'N/A';
+  if (!dateString) return '-';
+
+  try {
+    let date;
+
+    // Handle MySQL datetime: "2026-01-18 23:56:34"
+    if (typeof dateString === 'string' && dateString.includes(' ')) {
+      const [datePart] = dateString.split(' ');
+      const [year, month, day] = datePart.split('-');
+      date = new Date(year, month - 1, day);
+    } else {
+      date = new Date(dateString);
     }
-  };
+
+    if (isNaN(date.getTime())) return '-';
+
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+
+    return `${dd}/${mm}/${yyyy}`;
+  } catch (error) {
+    console.error('Date format error:', error);
+    return '-';
+  }
+};
 
   // Get status badge class
   const getStatusClass = (status) => {
@@ -503,7 +456,7 @@ const ManageContact = () => {
           className="refresh-btn" 
           onClick={() => {
             fetchMessages();
-            fetchStats();
+           
           }}
         >
           <FaRedo /> Refresh
@@ -517,7 +470,7 @@ const ManageContact = () => {
             <FaEnvelope />
           </div>
           <div className="stat-content">
-            <h3>{stats.total || 0}</h3>
+            <h3>{messages.length}</h3>
             <p>Total Messages</p>
           </div>
         </div>
@@ -527,7 +480,7 @@ const ManageContact = () => {
             <FaCommentDots />
           </div>
           <div className="stat-content">
-            <h3>{stats.unread || 0}</h3>
+            <h3>{messages.filter(m => m.status === 'unread').length}</h3>
             <p>Unread Messages</p>
           </div>
         </div>
@@ -537,7 +490,7 @@ const ManageContact = () => {
             <FaCheck />
           </div>
           <div className="stat-content">
-            <h3>{stats.read || 0}</h3>
+            <h3>{messages.filter(m => m.status === 'read').length}</h3>
             <p>Read Messages</p>
           </div>
         </div>
@@ -547,7 +500,7 @@ const ManageContact = () => {
             <FaReply />
           </div>
           <div className="stat-content">
-            <h3>{stats.replied || 0}</h3>
+            <h3>{messages.filter(m => m.status === 'replied').length}</h3>
             <p>Replied Messages</p>
           </div>
         </div>

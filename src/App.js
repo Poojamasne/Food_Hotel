@@ -2,11 +2,11 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 
-// Website Components
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import ProfilePage from "./pages/Auth/ProfilePage";
+import ScrollToTop from "./components/ScrollToTop";
 
+// Pages
 import Home from "./pages/Home/Home";
 import MenuPage from "./pages/MenuPage/MenuPage";
 import AboutPage from "./pages/AboutPage/AboutPage";
@@ -15,6 +15,7 @@ import Cart from "./pages/Cart/Cart";
 import Checkout from "./pages/Checkout/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation/OrderConfirmation";
 import OffersPage from "./pages/OffersPage/OffersPage";
+import ProfilePage from "./pages/Auth/ProfilePage";
 import Vegetarian from "./pages/CategoryPages/Vegetarian/Vegetarian";
 import NonVegetarian from "./pages/CategoryPages/NonVegetarian/NonVegetarian";
 import SouthIndian from "./pages/CategoryPages/SouthIndian/SouthIndian";
@@ -23,13 +24,12 @@ import MainCourse from "./pages/CategoryPages/MainCourse/MainCourse";
 import Desserts from "./pages/CategoryPages/Desserts/Desserts";
 import Beverages from "./pages/CategoryPages/Beverages/Beverages";
 
-
 // Admin
 import { CartProvider } from "./context/CartContext";
 import { AdminProvider } from "./admin/context/AdminContext";
 import AdminRoutes from "./admin/pages/AdminRoutes";
 
-// Public Layout Component
+// Public Layout Wrapper
 const PublicLayout = ({ children }) => (
   <>
     <Header />
@@ -43,73 +43,34 @@ function App() {
     <AdminProvider>
       <CartProvider>
         <Router>
-          <div className="App">
-            <Routes>
-              {/* Public Website Routes */}
-              <Route
-                path="/*"
-                element={
-                  <PublicLayout>
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/menu" element={<MenuPage />} />
-                      <Route path="/about" element={<AboutPage />} />
-                      <Route path="/offers" element={<OffersPage />} />
-                      <Route path="/contact" element={<Contact />} />
-                      
+          <ScrollToTop /> {/* Scrolls to top on route change */}
+          <Routes>
+            {/* Public Pages */}
+            <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+            <Route path="/menu" element={<PublicLayout><MenuPage /></PublicLayout>} />
+            <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
+            <Route path="/offers" element={<PublicLayout><OffersPage /></PublicLayout>} />
+            <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+            <Route path="/profile" element={<PublicLayout><ProfilePage /></PublicLayout>} />
+            <Route path="/login" element={<PublicLayout><ProfilePage /></PublicLayout>} />
+            <Route path="/cart" element={<PublicLayout><Cart /></PublicLayout>} />
+            <Route path="/checkout" element={<PublicLayout><Checkout /></PublicLayout>} />
+            <Route path="/order-confirmation/:orderId" element={<PublicLayout><OrderConfirmation /></PublicLayout>} />
 
-                      {/* Auth/Profile Page */}
-                      <Route path="/profile" element={<ProfilePage />} />
-                      <Route path="/login" element={<ProfilePage />} />
+            <Route path="/category/veg" element={<PublicLayout><Vegetarian /></PublicLayout>} />
+            <Route path="/category/non-veg" element={<PublicLayout><NonVegetarian /></PublicLayout>} />
+            <Route path="/category/south-indian" element={<PublicLayout><SouthIndian /></PublicLayout>} />
+            <Route path="/category/starters" element={<PublicLayout><Starters /></PublicLayout>} />
+            <Route path="/category/main-course" element={<PublicLayout><MainCourse /></PublicLayout>} />
+            <Route path="/category/desserts" element={<PublicLayout><Desserts /></PublicLayout>} />
+            <Route path="/category/beverages" element={<PublicLayout><Beverages /></PublicLayout>} />
+            <Route path="/category/veg-starters" element={<PublicLayout><Starters category="veg" /></PublicLayout>} />
+            <Route path="/category/non-veg-main-course" element={<PublicLayout><MainCourse category="non-veg" /></PublicLayout>} />
+            <Route path="/category/south-indian-meals" element={<PublicLayout><SouthIndian meals={true} /></PublicLayout>} />
 
-                      <Route path="/cart" element={<Cart />} />
-                      <Route path="/checkout" element={<Checkout />} />
-
-                      <Route
-                        path="/order-confirmation/:orderId"
-                        element={<OrderConfirmation />}
-                      />
-
-                      <Route path="/category/veg" element={<Vegetarian />} />
-                      <Route
-                        path="/category/non-veg"
-                        element={<NonVegetarian />}
-                      />
-                      <Route
-                        path="/category/south-indian"
-                        element={<SouthIndian />}
-                      />
-                      <Route path="/category/starters" element={<Starters />} />
-                      <Route
-                        path="/category/main-course"
-                        element={<MainCourse />}
-                      />
-                      <Route path="/category/desserts" element={<Desserts />} />
-                      <Route
-                        path="/category/beverages"
-                        element={<Beverages />}
-                      />
-                      <Route
-                        path="/category/veg-starters"
-                        element={<Starters category="veg" />}
-                      />
-                      <Route
-                        path="/category/non-veg-main-course"
-                        element={<MainCourse category="non-veg" />}
-                      />
-                      <Route
-                        path="/category/south-indian-meals"
-                        element={<SouthIndian meals={true} />}
-                      />
-                    </Routes>
-                  </PublicLayout>
-                }
-              />
-
-              {/* Admin Panel Routes */}
-              <Route path="/admin/*" element={<AdminRoutes />} />
-            </Routes>
-          </div>
+            {/* Admin Pages */}
+            <Route path="/admin/*" element={<AdminRoutes />} />
+          </Routes>
         </Router>
       </CartProvider>
     </AdminProvider>

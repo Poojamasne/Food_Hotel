@@ -3,6 +3,7 @@ import "./MenuPage.css";
 import { categories as staticCategories } from "../../data/menuData";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
+import "../../components/ScrollToTop.jsx";
 import {
   FaStar,
   FaShoppingCart,
@@ -15,6 +16,11 @@ import {
 } from "react-icons/fa";
 
 const MenuPage = () => {
+
+  useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
+
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [menuData, setMenuData] = useState([]);

@@ -263,7 +263,7 @@ const Cart = () => {
             <div className="cart-header">
               <h1 className="cart-title">
                 <FaShoppingCart /> Your Shopping Cart
-                <span className="item-count">({cartItems.length}items)</span>
+                <span className="item-count">({cartItems.length} items)</span>
               </h1>
               
               <div className="cart-actions-header">
@@ -564,7 +564,7 @@ const Cart = () => {
                       </div>
                       <div className="promo-actions">
                         <span className="promo-discount">
-                          - ₹{promoDiscount.toFixed(2)}
+                           ₹{promoDiscount.toFixed(2)}
                         </span>
                         <button 
                           className="remove-promo-btn"
