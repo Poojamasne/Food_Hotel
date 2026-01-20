@@ -490,6 +490,7 @@ const ManageCategories = () => {
         </button>
       </div>
 
+      <div className="table-scroll-wrapper">
       <div className="categories-table">
         <table>
           <thead>
@@ -642,6 +643,7 @@ const ManageCategories = () => {
             )}
           </tbody>
         </table>
+      </div>
       </div>
 
       {/* Add Category Modal */}

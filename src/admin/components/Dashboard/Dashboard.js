@@ -350,7 +350,6 @@ const Dashboard = () => {
             <FaTachometerAlt className="dashboard-icon" />
             Dashboard
           </h1>
-          <p className="welcome-text">Welcome back, Admin! Here's what's happening with your restaurant today.</p>
         </div>
         <div className="date-selector">
           <FaCalendarAlt />
@@ -468,95 +467,98 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="orders-section">
-          <div className="orders-card">
-            <div className="card-header">
-              <h3>Recent Orders</h3>
-              <span className="orders-count">{recentOrders.length} total orders</span>
-            </div>
-            
-            <div className="orders-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Items</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentOrders.length > 0 ? (
-                    currentOrders.map((order) => (
-                      <tr key={order.id}>
-                        <td className="order-id">
-                          <strong>{order.id}</strong>
-                        </td>
-                        <td>{order.customer}</td>
-                        <td>
-                          <span className="items-count">{order.items} items</span>
-                        </td>
-                        <td className="order-amount">
-                          <strong>{order.amount}</strong>
-                        </td>
-                        <td>
-                          <span 
-                            className="status-badge" 
-                            style={{ backgroundColor: getStatusColor(order.status) }}
-                          >
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="order-date">{order.date}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="6" className="no-orders-message">
-                        <p>No recent orders found</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination - Only show if there are orders */}
-            {recentOrders.length > 0 && (
-              <div className="pagination">
-                <button 
-                  className="pagination-btn prev" 
-                  onClick={prevPage}
-                  disabled={currentPage === 1}
-                >
-                  <FaArrowLeft /> Previous
-                </button>
-                
-                <div className="page-numbers">
-                  {pageNumbers.map(number => (
-                    <button
-                      key={number}
-                      className={`page-number ${currentPage === number ? 'active' : ''}`}
-                      onClick={() => goToPage(number)}
+<div className="orders-section">
+  <div className="orders-card">
+    <div className="card-header">
+      <h3>Recent Orders</h3>
+      <span className="orders-count">{recentOrders.length} total orders</span>
+    </div>
+    
+    {/* ADD WRAPPER DIV FOR SCROLLING */}
+    <div className="orders-table-wrapper">
+      <div className="orders-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentOrders.length > 0 ? (
+              currentOrders.map((order) => (
+                <tr key={order.id}>
+                  <td className="order-id">
+                    <strong>{order.id}</strong>
+                  </td>
+                  <td>{order.customer}</td>
+                  <td>
+                    <span className="items-count">{order.items} items</span>
+                  </td>
+                  <td className="order-amount">
+                    <strong>{order.amount}</strong>
+                  </td>
+                  <td>
+                    <span 
+                      className="status-badge" 
+                      style={{ backgroundColor: getStatusColor(order.status) }}
                     >
-                      {number}
-                    </button>
-                  ))}
-                </div>
-                
-                <button 
-                  className="pagination-btn next" 
-                  onClick={nextPage}
-                  disabled={currentPage === totalPages}
-                >
-                  Next <FaArrowRight />
-                </button>
-              </div>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="order-date">{order.date}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="no-orders-message">
+                  <p>No recent orders found</p>
+                </td>
+              </tr>
             )}
-          </div>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {/* Pagination - Only show if there are orders */}
+    {recentOrders.length > 0 && (
+      <div className="pagination">
+        <button 
+          className="pagination-btn" 
+          onClick={prevPage}
+          disabled={currentPage === 1}
+        >
+          <FaArrowLeft /> Previous
+        </button>
+        
+        <div className="page-numbers">
+          {pageNumbers.map((page) => (
+            <button
+              key={page}
+              className={`page-btn ${currentPage === page ? 'active' : ''}`}
+              onClick={() => goToPage(page)}
+            >
+              {page}
+            </button>
+          ))}
         </div>
+        
+        <button 
+          className="pagination-btn" 
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+        >
+          Next <FaArrowRight />
+        </button>
+      </div>
+    )}
+  </div>
+</div>
       </div>
     </div>
   );

@@ -1,4 +1,6 @@
 /* src/admin/components/AdminHeader/AdminHeader.css */
+
+/* Base Styles */
 .admin-header {
   height: 70px;
   background: white;
@@ -6,20 +8,40 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 30px;
+  padding: 0 20px;
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
+/* Left Section */
 .header-left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
   flex: 1;
 }
 
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  font-size: 18px;
+  font-weight: 600;
+  color: #8B4513;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Search Box */
 .search-box {
   position: relative;
   max-width: 400px;
+  flex: 1;
 }
 
 .search-input {
@@ -45,24 +67,31 @@
   top: 50%;
   transform: translateY(-50%);
   color: #D2691E;
+  font-size: 14px;
 }
 
+/* Right Section */
 .header-right {
   display: flex;
   align-items: center;
-  gap: 25px;
+  gap: 20px;
 }
 
+/* Desktop Notifications */
 .header-icon-btn {
+  position: relative;
   background: none;
   border: none;
-  font-size: 18px;
-  color: #666;
-  position: relative;
-  cursor: pointer;
-  padding: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
+  cursor: pointer;
+  color: #666;
   transition: all 0.3s ease;
+  font-size: 18px;
 }
 
 .header-icon-btn:hover {
@@ -72,18 +101,23 @@
 
 .notification-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: 5px;
+  right: 5px;
   background: #FF5252;
   color: white;
-  font-size: 11px;
-  min-width: 18px;
-  height: 18px;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
+}
+
+/* User Profile */
+.admin-profile-container {
+  position: relative;
 }
 
 .admin-profile {
@@ -94,10 +128,16 @@
   padding: 8px 12px;
   border-radius: 25px;
   transition: all 0.3s ease;
+  border: 2px solid transparent;
 }
 
 .admin-profile:hover {
   background: #F5F5F5;
+}
+
+.admin-profile.active {
+  background: #F5F5F5;
+  border-color: #E0E0E0;
 }
 
 .admin-avatar {
@@ -111,12 +151,14 @@
 .admin-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
 .admin-name {
   font-weight: 600;
   font-size: 14px;
   color: #333;
+  white-space: nowrap;
 }
 
 .admin-role {
@@ -128,10 +170,471 @@
 .profile-dropdown-icon {
   color: #666;
   font-size: 14px;
+  margin-left: 5px;
 }
 
-/* Responsive */
+/* User Dropdown Menu */
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 280px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #FAFAFA;
+}
+
+.dropdown-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #E0E0E0;
+}
+
+.dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+.dropdown-email {
+  font-size: 13px;
+  color: #666;
+  margin-top: 3px;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #E8E8E8;
+  margin: 10px 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: #F5F5F5;
+  color: #8B4513;
+}
+
+.dropdown-item svg {
+  color: #666;
+  font-size: 16px;
+}
+
+.logout-item {
+  color: #FF5252;
+  font-weight: 500;
+}
+
+.logout-item:hover {
+  background: #FFEBEE;
+  color: #D32F2F;
+}
+
+/* ============ RESPONSIVE STYLES ============ */
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #8B4513;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: 10px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background: #F5F5F5;
+}
+
+/* Mobile Search */
+.mobile-search-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.mobile-search-toggle:hover {
+  background: #F5F5F5;
+  color: #8B4513;
+}
+
+.mobile-search-expanded {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.mobile-search-expanded .search-box {
+  flex: 1;
+  max-width: none;
+}
+
+.close-search-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-search-btn:hover {
+  background: #F5F5F5;
+  color: #8B4513;
+}
+
+/* Mobile Icons */
+.mobile-icons {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-icon-btn {
+  position: relative;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.mobile-icon-btn:hover {
+  background: #F5F5F5;
+  color: #8B4513;
+}
+
+.mobile-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: #FF5252;
+  color: white;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* Tablet Devices (769px - 1024px) */
+@media (max-width: 1024px) {
+  .admin-header {
+    padding: 0 15px;
+  }
+  
+  .header-left {
+    gap: 20px;
+  }
+  
+  .search-box {
+    max-width: 300px;
+  }
+  
+  .header-logo {
+    font-size: 16px;
+  }
+  
+  .admin-name {
+    font-size: 13px;
+  }
+  
+  .admin-role {
+    font-size: 11px;
+  }
+}
+
+/* Mobile Devices (up to 768px) */
 @media (max-width: 768px) {
+  .admin-header {
+    height: 60px;
+    padding: 0 10px;
+    justify-content: flex-start;
+  }
+  
+  /* Show mobile menu toggle */
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+  
+  /* Hide desktop logo */
+  .header-left .logo-container {
+    display: none;
+  }
+  
+  /* Hide desktop search */
+  .header-left .search-box {
+    display: none;
+  }
+  
+  /* Show mobile search toggle */
+  .mobile-search-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
+  }
+  
+  /* Show expanded search when active */
+  .mobile-search-expanded {
+    display: flex;
+    position: absolute;
+    left: 60px;
+    right: 160px;
+    background: white;
+    padding: 5px 0;
+  }
+  
+  .mobile-search-expanded .search-input {
+    padding: 8px 15px 8px 35px;
+    font-size: 13px;
+  }
+  
+  .mobile-search-expanded .search-icon {
+    left: 12px;
+    font-size: 13px;
+  }
+  
+  /* Show mobile icons */
+  .mobile-icons {
+    display: flex;
+  }
+  
+  /* Hide desktop notifications */
+  .header-right .notification-btn,
+  .header-right .message-btn {
+    display: none;
+  }
+  
+  /* Adjust user profile for mobile */
+  .admin-profile {
+    padding: 5px;
+    gap: 8px;
+  }
+  
+  .admin-avatar {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .admin-info {
+    display: none;
+  }
+  
+  .profile-dropdown-icon {
+    display: none;
+  }
+  
+  /* Adjust dropdown for mobile */
+  .user-dropdown-menu {
+    position: fixed;
+    top: 60px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* Small Mobile Devices (up to 480px) */
+@media (max-width: 480px) {
+  .admin-header {
+    height: 55px;
+    padding: 0 8px;
+  }
+  
+  .mobile-menu-toggle {
+    width: 35px;
+    height: 35px;
+    font-size: 20px;
+    margin-right: 5px;
+  }
+  
+  .mobile-search-toggle {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+  
+  .mobile-search-expanded {
+    left: 50px;
+    right: 140px;
+  }
+  
+  .mobile-search-expanded .search-input {
+    padding: 7px 12px 7px 30px;
+    font-size: 12px;
+  }
+  
+  .mobile-search-expanded .search-icon {
+    left: 10px;
+    font-size: 12px;
+  }
+  
+  .close-search-btn {
+    padding: 6px;
+    font-size: 16px;
+  }
+  
+  .mobile-icons {
+    gap: 5px;
+  }
+  
+  .mobile-icon-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+    padding: 6px;
+  }
+  
+  .admin-profile {
+    padding: 4px;
+  }
+  
+  .admin-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .user-dropdown-menu {
+    top: 55px;
+    left: 8px;
+    right: 8px;
+  }
+}
+
+/* Landscape Mode for Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .admin-header {
+    height: 50px;
+  }
+  
+  .mobile-search-expanded {
+    left: 55px;
+    right: 150px;
+  }
+  
+  .user-dropdown-menu {
+    top: 50px;
+  }
+}
+
+/* Extra Large Screens (1440px and above) */
+@media (min-width: 1440px) {
+  .admin-header {
+    height: 80px;
+    padding: 0 40px;
+  }
+  
+  .header-logo {
+    font-size: 20px;
+  }
+  
+  .search-box {
+    max-width: 500px;
+  }
+  
+  .search-input {
+    padding: 12px 15px 12px 45px;
+    font-size: 15px;
+  }
+  
+  .search-icon {
+    font-size: 16px;
+    left: 18px;
+  }
+  
+  .header-icon-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+  
+  .admin-avatar {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .admin-name {
+    font-size: 15px;
+  }
+  
+  .admin-role {
+    font-size: 13px;
+  }
+}
+
+/* iPad Mini & Small Tablets */
+@media (min-width: 768px) and (max-width: 834px) and (orientation: portrait) {
   .admin-header {
     padding: 0 15px;
   }
@@ -139,12 +642,20 @@
   .search-box {
     max-width: 250px;
   }
-  
-  .header-right {
-    gap: 15px;
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .header-icon-btn:active,
+  .mobile-menu-toggle:active,
+  .mobile-search-toggle:active,
+  .mobile-icon-btn:active,
+  .admin-profile:active {
+    transform: scale(0.95);
+    transition: transform 0.1s;
   }
   
-  .admin-info {
-    display: none;
+  .search-input {
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 }
