@@ -62,97 +62,156 @@ const Categories = () => {
   };
 
   // Fetch categories from API
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        console.log('Starting to fetch categories...');
-        
-        const headers = {
-          'Content-Type': 'application/json',
-        };
+ // Updated fetchCategories function in Categories.js
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Starting to fetch categories and products...');
+      
+      const headers = {
+        'Content-Type': 'application/json',
+      };
 
-        // Add Authorization header if token exists
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-          console.log('Using token for authentication');
-        }
-
-        console.log('Making API request to: https://backend-hotel-management.onrender.com/api/categories');
-        const response = await fetch('https://backend-hotel-management.onrender.com/api/categories', {
-          headers: headers
-        });
-
-        console.log('API Response status:', response.status);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        console.log('API Response data:', data);
-        
-        if (data.success) {
-          console.log(`Received ${data.data.length} categories from API`);
-          
-          // Process each category
-          const processedCategories = await Promise.all(
-            data.data.map(async (category) => {
-              const imageUrl = getImageUrl(category.image, category.slug);
-              
-              // Test if the image exists
-              const imageExists = await testImageExists(imageUrl);
-              
-              // If image doesn't exist, try alternative paths
-              let finalImageUrl = imageUrl;
-              if (!imageExists) {
-                console.log(`Testing alternative paths for ${category.name}`);
-                
-                // Try with /images/ instead of /uploads/
-                const altUrl = imageUrl.replace('/uploads/categories/', '/images/categories/');
-                const altExists = await testImageExists(altUrl);
-                
-                if (altExists) {
-                  finalImageUrl = altUrl;
-                  console.log(`✅ Using alternative image: ${altUrl}`);
-                } else {
-                  console.log(`❌ No image found for ${category.name}, will use fallback`);
-                }
-              }
-              
-              return {
-                id: category.id,
-                name: category.name,
-                slug: category.slug,
-                description: category.description || `${category.name} dishes`,
-                image: finalImageUrl,
-                count: category.item_count || 0,
-                imageExists
-              };
-            })
-          );
-          
-          console.log('Processed categories:', processedCategories);
-          setCategories(processedCategories);
-        } else {
-          throw new Error(data.message || 'Failed to load categories');
-        }
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-        setError(err.message);
-        
-        // Fallback to static data
-        const fallbackCategories = getStaticCategories();
-        console.log('Using fallback categories:', fallbackCategories);
-        setCategories(fallbackCategories);
-      } finally {
-        setLoading(false);
+      // Add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log('Using token for authentication');
       }
-    };
 
-    fetchCategories();
-  }, [token]);
+      // Step 1: Fetch all categories
+      console.log('Making API request to: https://backend-hotel-management.onrender.com/api/categories');
+      const catResponse = await fetch('https://backend-hotel-management.onrender.com/api/categories', {
+        headers: headers
+      });
+
+      console.log('Categories API Response status:', catResponse.status);
+      
+      if (!catResponse.ok) {
+        throw new Error(`Failed to fetch categories: ${catResponse.status} ${catResponse.statusText}`);
+      }
+
+      const catData = await catResponse.json();
+      
+      if (!catData.success) {
+        throw new Error(catData.message || 'Failed to load categories');
+      }
+
+      console.log(`Received ${catData.data.length} categories from API`);
+      
+      // Step 2: Fetch all products to count items per category
+      console.log('Fetching products to count items...');
+      const prodResponse = await fetch('https://backend-hotel-management.onrender.com/api/products', {
+        headers: headers
+      });
+
+      let productCounts = {};
+      
+      if (prodResponse.ok) {
+        const prodData = await prodResponse.json();
+        if (prodData.success) {
+          console.log(`Received ${prodData.data.length} products from API`);
+          
+          // Count products by category_slug
+          prodData.data.forEach(product => {
+            const categorySlug = product.category_slug;
+            if (categorySlug) {
+              // Convert to lowercase for consistent matching
+              const slug = categorySlug.toLowerCase().trim();
+              productCounts[slug] = (productCounts[slug] || 0) + 1;
+            }
+          });
+          
+          console.log('Product counts by category:', productCounts);
+        } else {
+          console.warn('Products API returned error:', prodData.message);
+        }
+      } else {
+        console.warn('Failed to fetch products:', prodResponse.status);
+      }
+
+      // Step 3: Process each category with actual item counts
+      const processedCategories = await Promise.all(
+        catData.data.map(async (category) => {
+          const imageUrl = getImageUrl(category.image, category.slug);
+          
+          // Test if the image exists
+          const imageExists = await testImageExists(imageUrl);
+          
+          // If image doesn't exist, try alternative paths
+          let finalImageUrl = imageUrl;
+          if (!imageExists) {
+            console.log(`Testing alternative paths for ${category.name}`);
+            
+            // Try with /images/ instead of /uploads/
+            const altUrl = imageUrl.replace('/uploads/categories/', '/images/categories/');
+            const altExists = await testImageExists(altUrl);
+            
+            if (altExists) {
+              finalImageUrl = altUrl;
+              console.log(`✅ Using alternative image: ${altUrl}`);
+            } else {
+              console.log(`❌ No image found for ${category.name}, will use fallback`);
+            }
+          }
+          
+          // Get actual count from products data
+          // Try to match category slug with product category_slug
+          const categorySlug = category.slug.toLowerCase().trim();
+          let actualCount = 0;
+          
+          // Try exact match first
+          if (productCounts[categorySlug]) {
+            actualCount = productCounts[categorySlug];
+          } 
+          // Try partial match for variations
+          else {
+            // Find all product counts where category slug contains category name or vice versa
+            const matchingKeys = Object.keys(productCounts).filter(key => {
+              return key.includes(categorySlug) || categorySlug.includes(key);
+            });
+            
+            if (matchingKeys.length > 0) {
+              actualCount = matchingKeys.reduce((sum, key) => sum + productCounts[key], 0);
+            } else {
+              // Use default if no match found
+              actualCount = category.item_count || 0;
+            }
+          }
+          
+          console.log(`Category: ${category.name}, Slug: ${category.slug}, Count: ${actualCount}`);
+          
+          return {
+            id: category.id,
+            name: category.name,
+            slug: category.slug,
+            description: category.description || `${category.name} dishes`,
+            image: finalImageUrl,
+            count: actualCount, // Use actual count from products
+            imageExists
+          };
+        })
+      );
+      
+      console.log('Processed categories with correct counts:', processedCategories);
+      setCategories(processedCategories);
+      
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      setError(err.message);
+      
+      // Fallback to static data
+      const fallbackCategories = getStaticCategories();
+      console.log('Using fallback categories:', fallbackCategories);
+      setCategories(fallbackCategories);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCategories();
+}, [token]);
 
   // Static fallback data
   const getStaticCategories = () => {
