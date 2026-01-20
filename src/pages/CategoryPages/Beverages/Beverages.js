@@ -104,22 +104,6 @@ const Beverages = () => {
         {loading && <div className="loading-indicator"><FaSpinner className="spinner" /></div>}
       </div>
 
-      <div className="info-banner" style={{ '--category-color': '#2196F3' }}>
-        <div className="info-content">
-          <FaGlassMartiniAlt className="info-icon" />
-          <div className="info-text">
-            <h3>Refreshing Drinks</h3>
-            <p>Our beverages are prepared fresh daily using seasonal fruits and premium ingredients. Perfect to quench your thirst.</p>
-          </div>
-        </div>
-        <div className="info-features">
-          <span className="info-feature">🧊 Served Chilled</span>
-          <span className="info-feature">🍹 Fresh Fruits</span>
-          <span className="info-feature">🌿 Natural Ingredients</span>
-          <span className="info-feature">🥤 Perfect Thirst Quenchers</span>
-        </div>
-      </div>
-
       {loading && <div className="loading-container"><FaSpinner className="loading-spinner-large" /><p>Loading beverages...</p></div>}
       {error && !loading && <div className="error-message"><h3>Unable to load beverages</h3><p>{error}</p><button className="retry-btn" style={{ backgroundColor: '#2196F3' }} onClick={() => window.location.reload()}>Try Again</button></div>}
 

@@ -126,23 +126,6 @@ const NonVegetarian = () => {
         )}
       </div>
 
-      {/* Safety Banner */}
-      <div className="info-banner" style={{ '--category-color': '#F44336' }}>
-        <div className="info-content">
-          <div className="info-icon">🔪</div>
-          <div className="info-text">
-            <h3>Fresh & Hygienic Preparation</h3>
-            <p>All non-vegetarian items are prepared in a separate kitchen with strict hygiene standards. Meats are sourced daily from certified suppliers.</p>
-          </div>
-        </div>
-        <div className="info-features">
-          <span className="info-feature">✅ Daily Fresh Supply</span>
-          <span className="info-feature">✅ Separate Preparation</span>
-          <span className="info-feature">✅ Quality Certified</span>
-          <span className="info-feature">✅ HACCP Standards</span>
-        </div>
-      </div>
-
       {/* Loading State */}
       {loading && (
         <div className="loading-container">

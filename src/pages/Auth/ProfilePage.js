@@ -243,7 +243,7 @@ const ProfilePage = () => {
               {activeTab === 'login' && (
                 <form onSubmit={handleLogin} className="auth-form">
                   <div className="form-group">
-                    <label>Email Address *</label>
+                    <label>Email Address </label>
                     <input
                       type="email"
                       value={loginData.email}
@@ -254,7 +254,7 @@ const ProfilePage = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Password *</label>
+                    <label>Password </label>
                     <input
                       type="password"
                       value={loginData.password}
@@ -290,7 +290,7 @@ const ProfilePage = () => {
               {activeTab === 'register' && (
                 <form onSubmit={handleRegister} className="auth-form">
                   <div className="form-group">
-                    <label>Full Name *</label>
+                    <label>Full Name </label>
                     <input
                       type="text"
                       value={registerData.name}
@@ -301,7 +301,7 @@ const ProfilePage = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Email Address *</label>
+                    <label>Email Address </label>
                     <input
                       type="email"
                       value={registerData.email}
@@ -332,7 +332,7 @@ const ProfilePage = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Password *</label>
+                    <label>Password </label>
                     <input
                       type="password"
                       value={registerData.password}
@@ -343,7 +343,7 @@ const ProfilePage = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Confirm Password *</label>
+                    <label>Confirm Password </label>
                     <input
                       type="password"
                       value={registerData.confirmPassword}

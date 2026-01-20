@@ -125,22 +125,6 @@ const MainCourse = () => {
         {loading && <div className="loading-indicator"><FaSpinner className="spinner" /></div>}
       </div>
 
-      <div className="info-banner" style={{ '--category-color': '#795548' }}>
-        <div className="info-content">
-          <FaUtensils className="info-icon" />
-          <div className="info-text">
-            <h3>Complete Meals</h3>
-            <p>Our main courses are designed to be complete meals. Perfectly balanced with proteins, carbs, and vegetables.</p>
-          </div>
-        </div>
-        <div className="info-features">
-          <span className="info-feature">🍚 With Rice/Bread</span>
-          <span className="info-feature">🥘 Served Hot</span>
-          <span className="info-feature">🌶️ Spice Levels</span>
-          <span className="info-feature">🍽️ Complete Meal</span>
-        </div>
-      </div>
-
       {loading && <div className="loading-container"><FaSpinner className="loading-spinner-large" /><p>Loading main courses...</p></div>}
       {error && !loading && <div className="error-message"><h3>Unable to load main courses</h3><p>{error}</p><button className="retry-btn" style={{ backgroundColor: '#795548' }} onClick={() => window.location.reload()}>Try Again</button></div>}
 

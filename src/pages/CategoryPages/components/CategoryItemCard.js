@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import "./CategoryItemCard.css";
-import { FaStar, FaHeart, FaLeaf, FaDrumstickBite, FaPlus, FaMinus } from "react-icons/fa";
+import { FaStar,FaLeaf, FaDrumstickBite, FaPlus, FaMinus } from "react-icons/fa";
 import { useCart } from "../../../context/CartContext"; 
 
 const CategoryItemCard = ({ item }) => {
   const [quantity, setQuantity] = useState(1);
-  const [isFavorite, setIsFavorite] = useState(false);
   const { addToCart, cartItems, updateQuantity } = useCart(); 
 
   
@@ -43,10 +42,6 @@ const CategoryItemCard = ({ item }) => {
     }
   };
 
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-  };
-
   return (
     <div className="menu-card">
       {/* Badges */}
@@ -67,14 +62,6 @@ const CategoryItemCard = ({ item }) => {
           </span>
         )}
       </div>
-
-      {/* Favorite Button */}
-      <button 
-        className={`favorite-btn ${isFavorite ? 'active' : ''}`}
-        onClick={toggleFavorite}
-      >
-        <FaHeart />
-      </button>
 
       {/* Image */}
       <div className="menu-card-img">

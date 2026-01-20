@@ -104,21 +104,6 @@ const Desserts = () => {
         {loading && <div className="loading-indicator"><FaSpinner className="spinner" /></div>}
       </div>
 
-      <div className="info-banner" style={{ '--category-color': '#E91E63' }}>
-        <div className="info-content">
-          <FaIceCream className="info-icon" />
-          <div className="info-text">
-            <h3>Sweet Perfection</h3>
-            <p>Our desserts are crafted with premium ingredients and traditional recipes. Perfect balance of sweetness and flavor.</p>
-          </div>
-        </div>
-        <div className="info-features">
-          <span className="info-feature">🍰 Freshly Made</span>
-          <span className="info-feature">🥛 Premium Ingredients</span>
-          <span className="info-feature">🎂 Custom Orders</span>
-          <span className="info-feature">💝 Perfect for Celebrations</span>
-        </div>
-      </div>
 
       {loading && <div className="loading-container"><FaSpinner className="loading-spinner-large" /><p>Loading desserts...</p></div>}
       {error && !loading && <div className="error-message"><h3>Unable to load desserts</h3><p>{error}</p><button className="retry-btn" style={{ backgroundColor: '#E91E63' }} onClick={() => window.location.reload()}>Try Again</button></div>}

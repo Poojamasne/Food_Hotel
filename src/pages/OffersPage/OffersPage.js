@@ -169,18 +169,33 @@ const OffersPage = () => {
 
 
   // Get image path
-  const getImagePath = (apiImagePath) => {
-    if (!apiImagePath) {
-      // Return placeholder images based on category
-      return "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
-    }
-    
-    if (apiImagePath.startsWith('/')) {
-      return `https://backend-hotel-management.onrender.com${apiImagePath}`;
-    }
-    
+ // Get image path - Updated version
+const getImagePath = (apiImagePath) => {
+  console.log("getImagePath called with:", apiImagePath);
+  
+  if (!apiImagePath || apiImagePath === "null" || apiImagePath === "undefined") {
+    console.log("No image path provided, using placeholder");
+    return "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
+  }
+  
+  // If it's already a full URL
+  if (apiImagePath.startsWith('http')) {
+    console.log("Full URL detected:", apiImagePath);
     return apiImagePath;
-  };
+  }
+  
+  // If it starts with /, prepend backend URL
+  if (apiImagePath.startsWith('/')) {
+    const fullUrl = `https://backend-hotel-management.onrender.com${apiImagePath}`;
+    console.log("Relative path converted to:", fullUrl);
+    return fullUrl;
+  }
+  
+  // If it's just a filename
+  const fullUrl = `https://backend-hotel-management.onrender.com/uploads/offers/${apiImagePath}`;
+  console.log("Filename converted to:", fullUrl);
+  return fullUrl;
+};
 
   // 24-hour countdown timer
   useEffect(() => {
@@ -370,17 +385,25 @@ const OffersPage = () => {
                 return (
                   <div key={offer.id} className="featured-card">
                     <div className="featured-badge">#{index + 1} Top Offer</div>
-                    <div className="featured-image">
-                      <img src={offer.image} alt={offer.title} />
-                      <div className="featured-overlay">
-                        <span className="discount-badge">{offer.discountPercent}% OFF</span>
-                        {offer.isVeg && (
-                          <span className="veg-indicator">
-                            <FaLeaf /> Veg
-                          </span>
-                        )}
-                      </div>
-                    </div>
+<div className="featured-image">
+  <img 
+    src={offer.image} 
+    alt={offer.title}
+    onError={(e) => {
+      console.log("Image failed to load:", offer.image);
+      e.target.onerror = null;
+      e.target.src = "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
+    }}
+  />
+  <div className="featured-overlay">
+    <span className="discount-badge">{offer.discountPercent}% OFF</span>
+    {offer.isVeg && (
+      <span className="veg-indicator">
+        <FaLeaf /> Veg
+      </span>
+    )}
+  </div>
+</div>
                     <div className="featured-content">
                       <h3>{offer.title}</h3>
                       <p>{offer.description}</p>
@@ -433,67 +456,6 @@ const OffersPage = () => {
                 );
               })}
             </div>
-          </section>
-        )}
-
-        {/* All Offers Section */}
-        {!loading && !error && allOffers.length > 0 && (
-          <section className="all-offers-section">
-            <div className="section-header">
-              <div className="header-left">
-                <h2>
-                  <FaTag className="section-icon" />
-                  All Available Offers
-                </h2>
-                <p className="results-count">
-                  Showing {filteredOffers.length} offers ({allOffers.length} total)
-                </p>
-              </div>
-              <div className="header-right">
-                <div className="view-toggle">
-                  <button 
-                    className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                    onClick={() => setViewMode('grid')}
-                  >
-                    Grid View
-                  </button>
-                  <button 
-                    className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                    onClick={() => setViewMode('list')}
-                  >
-                    List View
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Filters Component */}
-            <OfferFilters activeFilter={activeFilter} onFilterChange={handleFilterChange} />
-
-            {/* Offers Grid */}
-            {filteredOffers.length > 0 ? (
-              <div className={`offers-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
-                {filteredOffers.map((offer) => (
-                  <OfferCard 
-                    key={offer.id} 
-                    offer={offer} 
-                    viewMode={viewMode}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="no-results">
-                <FaTag className="no-results-icon" />
-                <h3>No offers found for this category</h3>
-                <p>Try selecting a different filter or check back later for new offers.</p>
-                <button 
-                  className="reset-filter-btn"
-                  onClick={() => setActiveFilter("all")}
-                >
-                  Show All Offers
-                </button>
-              </div>
-            )}
           </section>
         )}
 

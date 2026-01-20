@@ -126,23 +126,6 @@ const Vegetarian = () => {
         )}
       </div>
 
-      {/* Veg Info Banner */}
-      <div className="info-banner" style={{ '--category-color': '#4CAF50' }}>
-        <div className="info-content">
-          <FaLeaf className="info-icon" />
-          <div className="info-text">
-            <h3>100% Pure Vegetarian</h3>
-            <p>All our vegetarian dishes are prepared separately to maintain purity. No egg, garlic, or onion used unless specified.</p>
-          </div>
-        </div>
-        <div className="info-features">
-          <span className="info-feature">🌱 No Artificial Colors</span>
-          <span className="info-feature">🌿 Fresh Herbs</span>
-          <span className="info-feature">🌍 Sustainable</span>
-          <span className="info-feature">💚 Healthier Choice</span>
-        </div>
-      </div>
-
       {/* Loading State */}
       {loading && (
         <div className="loading-container">

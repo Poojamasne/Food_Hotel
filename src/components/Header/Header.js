@@ -34,12 +34,6 @@ const Header = () => {
     { name: "Beverages", icon: <FaLeaf />, slug: "beverages" },
   ];
 
-  const combinedCategories = [
-    { name: "Veg Starters", slug: "veg-starters" },
-    { name: "Non-Veg Main Course", slug: "non-veg-main-course" },
-    { name: "South Indian Meals", slug: "south-indian-meals" },
-  ];
-
 
 
   const handleDropdownClick = (e) => {
@@ -199,18 +193,7 @@ const Header = () => {
                   </Link>
                 ))}
                 <hr />
-                {combinedCategories.map((cat, idx) => (
-                  <Link
-                    key={`combo-${idx}`}
-                    to={`/category/${cat.slug}`}
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setMobileDropdownOpen(false);
-                    }}
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
+                
               </div>
             </li>
 

@@ -68,11 +68,10 @@
 .cart-title {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin: 0;
-  font-size: 1.8rem;
-  color: #333;
+  gap: 8px;            /* spacing between icon, text, count */
+  white-space: nowrap;
 }
+
 
 .cart-title svg {
   color: #FF9800;
@@ -196,7 +195,10 @@
   height: 120px;
   flex-shrink: 0;
   margin-right: 20px;
+  padding-top: 15px;
+  
 }
+
 
 .item-image {
   width: 100%;
@@ -219,10 +221,10 @@
 }
 
 .item-type-indicator {
-  position: absolute;
-  top: 10px;
-  left: 10px;
+  position: static;        /* 🔥 removes overlap */
+  margin-top: 8px;
 }
+
 
 .veg-indicator,
 .nonveg-indicator {

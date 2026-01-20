@@ -160,23 +160,6 @@ const Starters = () => {
         </div>
       </div>
 
-      {/* Starters Info */}
-      <div className="info-banner" style={{ '--category-color': '#FF5722' }}>
-        <div className="info-content">
-          <FaFire className="info-icon" />
-          <div className="info-text">
-            <h3>Perfect Appetizers</h3>
-            <p>Our starters are prepared fresh to order, ensuring maximum crispiness and flavor. Perfect for sharing or as a personal appetizer.</p>
-          </div>
-        </div>
-        <div className="info-features">
-          <span className="info-feature">🔥 Served Hot</span>
-          <span className="info-feature">⏱️ Quick Service</span>
-          <span className="info-feature">🥡 Perfect for Sharing</span>
-          <span className="info-feature">🌶️ Spicy Options</span>
-        </div>
-      </div>
-
       {/* Loading State */}
       {loading && (
         <div className="loading-container">

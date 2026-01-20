@@ -172,14 +172,6 @@ const OfferCard = ({ offer, viewMode = "grid" }) => {
             </span>
           )}
         </div>
-        
-        <button 
-          className={`favorite-btn ${isFavorite ? 'active' : ''}`}
-          onClick={toggleFavorite}
-          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-        >
-          <FaHeart />
-        </button>
       </div>
 
       {/* Image with Time Left */}
@@ -192,9 +184,6 @@ const OfferCard = ({ offer, viewMode = "grid" }) => {
             e.target.src = "/images/default-offer.jpg";
           }}
         />
-        <div className="time-left">
-          <FaClock /> {timeLeft}
-        </div>
       </div>
 
       {/* Card Content */}

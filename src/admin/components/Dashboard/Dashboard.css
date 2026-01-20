@@ -335,14 +335,14 @@
   overflow: hidden;
 }
 
-.card-header {
+/* .card-header {
   margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-}
+} */
 
 .card-header h3 {
   color: #333;

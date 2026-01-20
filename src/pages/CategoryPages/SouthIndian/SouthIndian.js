@@ -126,23 +126,6 @@ const SouthIndian = () => {
         )}
       </div>
 
-      {/* South Indian Special Info */}
-      <div className="info-banner" style={{ '--category-color': '#FF9800' }}>
-        <div className="info-content">
-          <div className="info-icon">🍛</div>
-          <div className="info-text">
-            <h3>Traditional South Indian Cuisine</h3>
-            <p>Our South Indian dishes are prepared by expert chefs using authentic recipes passed down through generations. Each dish is made fresh daily.</p>
-          </div>
-        </div>
-        <div className="info-features">
-          <span className="info-feature">🍽️ Banana Leaf Serving</span>
-          <span className="info-feature">🌶️ Authentic Spices</span>
-          <span className="info-feature">⏱️ Made Fresh</span>
-          <span className="info-feature">🥥 Coconut Based</span>
-        </div>
-      </div>
-
       {/* Loading State */}
       {loading && (
         <div className="loading-container">

@@ -103,7 +103,7 @@
 .info-card p {
   color: #555;
   margin: 8px 0;
-  font-size: 0.95rem;
+  font-size: 0.81rem;
   line-height: 1.5;
 }
 
@@ -147,7 +147,7 @@
 }
 
 .social-icons-large {
-  display: flex;
+  display: -webkit-inline-box;
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
@@ -230,14 +230,15 @@
 .contact-form {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 10px;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
+.form-group {
+  display: list-item;
+  list-style-type: disc;
+  list-style-position: inside;
 }
+
 
 .form-group {
   display: flex;
