@@ -7,7 +7,6 @@ import {
   FaCalendarAlt,
   FaCheck,
   FaTimes,
-  FaSearch,
   FaFilter,
   FaEye,
   FaEdit,

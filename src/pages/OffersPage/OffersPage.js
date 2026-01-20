@@ -12,8 +12,6 @@ import {
   FaLeaf,
   FaSpinner
 } from "react-icons/fa";
-import OfferCard from "../../components/OfferCard/OfferCard";
-import OfferFilters from "../../components/OfferFilters/OfferFilters";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -73,8 +71,7 @@ const getSampleOffers = () => {
 };
 
 const OffersPage = () => {
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [viewMode, setViewMode] = useState("grid");
+  const [activeFilter] = useState("all");
   const [allOffers, setAllOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -234,7 +231,7 @@ const getImagePath = (apiImagePath) => {
     : allOffers.filter(offer => offer.category === activeFilter);
 
   // Get first 3 offers for featured section
-  const featuredOffers = allOffers.slice(0, 3);
+  const featuredOffers = filteredOffers.slice(0, 3);
 
   // Helper function to create cart item from offer
   const createCartItemFromOffer = (offer) => {
@@ -297,9 +294,6 @@ const getImagePath = (apiImagePath) => {
     alert("Redirecting to menu...");
   };
 
-  const handleFilterChange = (filter) => {
-    setActiveFilter(filter);
-  };
 
   // Format time for display
   const formatDisplayTime = (time) => {
