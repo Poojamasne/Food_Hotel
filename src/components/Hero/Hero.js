@@ -29,7 +29,7 @@ const Hero = () => {
     {
       id: 3,
       title: "Family Combo Deal",
-      description: "Feeds 4 people. Mix of Veg & Non-Veg dishes",
+      description: "Serves 4 people. Mix of Veg & Non-Veg dishes",
       image: "/images/dishes/banners/banner3.jpg",
       buttonText: "View Deal",
       color: "#45B7D1",

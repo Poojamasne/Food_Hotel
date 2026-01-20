@@ -9,10 +9,10 @@
 }
 
 .search-input-wrapper {
+  gap:5px;
   display: flex;
   align-items: center;
   background: white;
-  border: 2px solid #e0e0e0;
   border-radius: 30px;
   padding: 5px;
   transition: all 0.3s ease;
@@ -58,7 +58,7 @@
   background: linear-gradient(135deg, #e67e22, #d35400);
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 11px 20px;
   border-radius: 25px;
   font-weight: 600;
   cursor: pointer;

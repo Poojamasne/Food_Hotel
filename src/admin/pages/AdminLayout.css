@@ -119,7 +119,7 @@ html, body {
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 23px;
   font-weight: 500;
   transition: all 0.3s ease;
   display: inline-flex;
@@ -841,7 +841,7 @@ html, body {
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 23px;
   font-weight: 500;
   transition: all 0.3s ease;
   display: inline-flex;
@@ -1152,15 +1152,9 @@ tr:hover {
   
   th, td {
     padding: 13px;
-    font-size: 13.5px;
   }
   
-  .add-btn,
-  .action-btn,
-  .view-all-btn {
-    padding: 9px 18px;
-    font-size: 13.5px;
-  }
+  
 }
 
 /* iPad Mini (768px - 1024px) */
@@ -1197,7 +1191,6 @@ tr:hover {
   
   th, td {
     padding: 13px;
-    font-size: 13.5px;
   }
   
   .table-container table {

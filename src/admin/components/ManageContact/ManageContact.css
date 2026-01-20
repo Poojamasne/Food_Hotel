@@ -131,13 +131,7 @@
   color: #999;
 }
 
-.search-input {
-  width: 100%;
-  padding: 10px 15px 10px 45px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-}
+
 
 .search-input:focus {
   outline: none;

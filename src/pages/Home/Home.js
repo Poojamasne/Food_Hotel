@@ -1,5 +1,6 @@
 import React from "react";
 import "./Home.css";
+import { useNavigate } from "react-router-dom";
 import Hero from "../../components/Hero/Hero";
 import Categories from "../../components/Categories/Categories";
 import PopularDishes from "../../components/PopularDishes/PopularDishes";
@@ -16,6 +17,7 @@ import {
 } from "react-icons/fa";
 
 const Home = () => {
+  const navigate = useNavigate();
   return (
     <div className="home-page">
       {/* Hero Banner/Slider */}
@@ -23,9 +25,6 @@ const Home = () => {
 
       {/* Food Categories Display */}
       <Categories />
-
-      {/* Popular/Recommended Food Items */}
-      <PopularDishes />
 
       {/* Special Features Section */}
       <section className="special-features">
@@ -106,12 +105,20 @@ const Home = () => {
             <h2>Ready to Taste Excellence?</h2>
             <p>Order now and get 20% off on your first order above ₹500</p>
             <div className="cta-buttons">
-              <button className="cta-btn primary">Order Online Now</button>
-              <button className="cta-btn secondary">View Menu</button>
-            </div>
+  <button className="cta-btn primary" onClick={() => navigate("/cart")}>
+    Order Online Now
+  </button>
+  <button className="cta-btn secondary" onClick={() => navigate("/menu")}>
+    View Menu
+  </button>
+</div>
+
             <div className="cta-info">
               <span>
-                <FaPhone /> Call: +91 98765 43210
+                <span>
+  <FaPhone style={{ transform: "rotate(98deg)" }} /> Call: +91 98765 43210
+</span>
+
               </span>
               <span>
                 <FaClock /> Open: 8:00 AM - 11:00 PM
